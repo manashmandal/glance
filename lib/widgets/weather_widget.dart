@@ -1,8 +1,53 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'dart:async';
+import '../models/weather_data.dart';
+import '../services/weather_service.dart';
 
-class WeatherWidget extends StatelessWidget {
-  const WeatherWidget({super.key});
+class WeatherWidget extends StatefulWidget {
+  final double scaleFactor;
+
+  const WeatherWidget({
+    super.key,
+    this.scaleFactor = 1.0,
+  });
+
+  @override
+  State<WeatherWidget> createState() => WeatherWidgetState();
+}
+
+class WeatherWidgetState extends State<WeatherWidget> {
+  WeatherData? _weather;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    refresh();
+  }
+
+  Future<void> refresh() async {
+    if (!mounted) return;
+    // Only show loading if we don't have data yet
+    if (_weather == null) {
+      setState(() => _isLoading = true);
+    }
+
+    try {
+      final weather = await WeatherService.getWeather();
+      if (mounted) {
+        setState(() {
+          _weather = weather;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading weather: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,15 +90,32 @@ class WeatherWidget extends StatelessWidget {
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
+                if (_isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  );
+                }
+
+                if (_weather == null) {
+                  return const Center(
+                    child: Text(
+                      'Weather Unavailable',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                }
+
                 final iconSize = constraints.maxHeight > 250
                     ? 100.0
                     : constraints.maxHeight * 0.35;
-                final tempFontSize = constraints.maxHeight > 250
-                    ? 32.0
-                    : constraints.maxHeight * 0.12;
-                final descFontSize = constraints.maxHeight > 250
-                    ? 18.0
-                    : constraints.maxHeight * 0.07;
+                final tempFontSize = (constraints.maxHeight > 250
+                        ? 32.0
+                        : constraints.maxHeight * 0.12) *
+                    widget.scaleFactor;
+                final descFontSize = (constraints.maxHeight > 250
+                        ? 18.0
+                        : constraints.maxHeight * 0.07) *
+                    widget.scaleFactor;
 
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -101,7 +163,7 @@ class WeatherWidget extends StatelessWidget {
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        'Berlin, 14°C',
+                        'Berlin, ${_weather!.temperature.round()}°C',
                         style: TextStyle(
                           fontSize: tempFontSize,
                           fontWeight: FontWeight.bold,
@@ -114,7 +176,7 @@ class WeatherWidget extends StatelessWidget {
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        'Partly Cloudy',
+                        _weather!.weatherDescription,
                         style: TextStyle(
                           fontSize: descFontSize,
                           fontWeight: FontWeight.w500,
@@ -126,7 +188,7 @@ class WeatherWidget extends StatelessWidget {
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        'H: 16° L: 9°',
+                        'H: ${_weather!.maxTemp.round()}° L: ${_weather!.minTemp.round()}°',
                         style: TextStyle(
                           fontSize: descFontSize * 0.9,
                           fontWeight: FontWeight.w400,

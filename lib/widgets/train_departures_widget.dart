@@ -7,47 +7,61 @@ import '../models/transport_type.dart';
 import '../services/bvg_service.dart';
 
 class TrainDeparturesWidget extends StatefulWidget {
-  const TrainDeparturesWidget({super.key});
+  final Station? initialStation;
+  final TransportType? initialTransportType;
+
+  const TrainDeparturesWidget({
+    super.key,
+    this.initialStation,
+    this.initialTransportType,
+  });
 
   @override
-  State<TrainDeparturesWidget> createState() => _TrainDeparturesWidgetState();
+  State<TrainDeparturesWidget> createState() => TrainDeparturesWidgetState();
 }
 
-class _TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
+class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
   List<TrainDeparture> _departures = [];
   bool _isLoading = true;
-  Timer? _refreshTimer;
-  Station _selectedStation = Station.defaultStation;
-  TransportType _selectedTransportType = TransportType.regional;
+  late Station _selectedStation;
+  late TransportType _selectedTransportType;
 
   @override
   void initState() {
     super.initState();
-    _loadDepartures();
-    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-      _loadDepartures();
-    });
+    _selectedStation = widget.initialStation ?? Station.defaultStation;
+    _selectedTransportType =
+        widget.initialTransportType ?? TransportType.regional;
+    refresh();
   }
 
-  @override
-  void dispose() {
-    _refreshTimer?.cancel();
-    super.dispose();
-  }
+  Future<void> refresh() async {
+    if (!mounted) return;
+    // Only show loading if empty
+    if (_departures.isEmpty) {
+      setState(() => _isLoading = true);
+    }
 
-  Future<void> _loadDepartures() async {
-    setState(() => _isLoading = true);
-    final departures = await BvgService.getDepartures(
-      stationId: _selectedStation.id,
-      transportType: _selectedTransportType,
-    );
-    if (mounted) {
-      setState(() {
-        _departures = departures;
-        _isLoading = false;
-      });
+    try {
+      final departures = await BvgService.getDepartures(
+        stationId: _selectedStation.id,
+        transportType: _selectedTransportType,
+      );
+      if (mounted) {
+        setState(() {
+          _departures = departures;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading departures: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
+
+  Future<void> _loadDepartures() => refresh();
 
   void _onStationChanged(Station? station) {
     if (station != null && station.id != _selectedStation.id) {
