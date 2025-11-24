@@ -43,7 +43,7 @@ flutter pub get
 
 3. Run the application:
 ```bash
-flutter run
+flutter run -d macos
 ```
 
 ### For Tablet Testing

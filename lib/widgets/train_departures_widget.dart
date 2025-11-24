@@ -422,51 +422,57 @@ class TrainRow extends StatelessWidget {
             width: 160,
             child: Padding(
               padding: const EdgeInsets.only(left: 20),
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 120),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: lineColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: lineColor.withValues(alpha: 0.4),
-                    width: 1.5,
+              child: UnconstrainedBox(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  constraints:
+                      const BoxConstraints(minWidth: 60, maxWidth: 140),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: lineColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: lineColor.withValues(alpha: 0.4),
+                      width: 1.5,
+                    ),
                   ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: lineColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: lineColor.withValues(alpha: 0.5),
-                            blurRadius: 4,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        line,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
                           color: lineColor,
-                          letterSpacing: 0.5,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: lineColor.withValues(alpha: 0.5),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ],
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          line,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: lineColor,
+                            letterSpacing: 0.5,
+                            height: 1.1,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
