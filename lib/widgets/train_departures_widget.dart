@@ -275,6 +275,17 @@ class _TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                           ),
                         ),
                       ),
+                      SizedBox(
+                        width: 80,
+                        child: Text(
+                          'Min',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ),
                       Expanded(
                         flex: 4,
                         child: Text(
@@ -340,6 +351,7 @@ class _TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                             final departure = _departures[index];
                             return TrainRow(
                               time: departure.time,
+                              departureTime: departure.departureTime,
                               destination: departure.destination,
                               line: departure.line,
                               lineColor: departure.lineColor,
@@ -361,6 +373,7 @@ class _TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
 
 class TrainRow extends StatelessWidget {
   final String time;
+  final DateTime? departureTime;
   final String destination;
   final String line;
   final Color lineColor;
@@ -371,6 +384,7 @@ class TrainRow extends StatelessWidget {
   const TrainRow({
     super.key,
     required this.time,
+    this.departureTime,
     required this.destination,
     required this.line,
     required this.lineColor,
@@ -378,6 +392,15 @@ class TrainRow extends StatelessWidget {
     required this.status,
     required this.statusColor,
   });
+
+  String get _formattedMinutes {
+    if (departureTime == null) return '';
+    final diff = departureTime!.difference(DateTime.now());
+    final minutes = diff.inMinutes;
+    if (minutes < 0) return 'Dep.';
+    if (minutes == 0) return 'Now';
+    return '$minutes\'';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -402,6 +425,18 @@ class TrainRow extends StatelessWidget {
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
+                fontFeatures: [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 80,
+            child: Text(
+              _formattedMinutes,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white70,
                 fontFeatures: [FontFeature.tabularFigures()],
               ),
             ),

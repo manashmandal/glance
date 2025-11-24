@@ -9,6 +9,7 @@ class TrainDeparture {
   final String status;
   final Color statusColor;
   final int? delay;
+  final DateTime? departureTime;
 
   TrainDeparture({
     required this.time,
@@ -19,6 +20,7 @@ class TrainDeparture {
     required this.status,
     required this.statusColor,
     this.delay,
+    this.departureTime,
   });
 
   factory TrainDeparture.fromJson(Map<String, dynamic> json) {
@@ -31,16 +33,17 @@ class TrainDeparture {
 
     final timeString = when ?? plannedWhen ?? '';
     String time = 'N/A';
+    DateTime? parsedDateTime;
     if (timeString.isNotEmpty) {
       try {
-        final dateTime = DateTime.parse(timeString).toLocal();
-        final hour = dateTime.hour;
-        final minute = dateTime.minute;
+        parsedDateTime = DateTime.parse(timeString).toLocal();
+        final hour = parsedDateTime.hour;
+        final minute = parsedDateTime.minute;
         final period = hour >= 12 ? 'PM' : 'AM';
         final hour12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
         time = '${hour12}:${minute.toString().padLeft(2, '0')} $period';
         print(
-            'Time conversion: $timeString -> ${dateTime.toString()} -> $time');
+            'Time conversion: $timeString -> ${parsedDateTime.toString()} -> $time');
       } catch (e) {
         time = 'N/A';
       }
@@ -70,6 +73,7 @@ class TrainDeparture {
       status: status,
       statusColor: statusColor,
       delay: delay,
+      departureTime: parsedDateTime,
     );
   }
 
