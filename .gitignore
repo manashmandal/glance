@@ -50,12 +50,9 @@ app.*.map.json
 lib/generated_plugin_registrant.dart
 
 # Android
-/android/gradlew
-/android/gradlew.bat
 /android/local.properties
 /android/.gradle
 /android/captures/
-/android/gradle/
 /android/key.properties
 
 # iOS

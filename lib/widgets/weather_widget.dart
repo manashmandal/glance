@@ -117,86 +117,94 @@ class WeatherWidgetState extends State<WeatherWidget> {
                         : constraints.maxHeight * 0.07) *
                     widget.scaleFactor;
 
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: iconSize,
-                      height: iconSize,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            const Color(0xFF3B82F6).withValues(alpha: 0.8),
-                            const Color(0xFFF59E0B).withValues(alpha: 0.8),
-                          ],
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: iconSize,
+                          height: iconSize,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                const Color(0xFF3B82F6).withValues(alpha: 0.8),
+                                const Color(0xFFF59E0B).withValues(alpha: 0.8),
+                              ],
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Positioned(
+                                right: iconSize * 0.15,
+                                top: iconSize * 0.15,
+                                child: Icon(
+                                  Icons.wb_sunny,
+                                  size: iconSize * 0.4,
+                                  color: Colors.orange.shade300,
+                                ),
+                              ),
+                              Positioned(
+                                left: iconSize * 0.1,
+                                bottom: iconSize * 0.1,
+                                child: Icon(
+                                  Icons.cloud,
+                                  size: iconSize * 0.5,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned(
-                            right: iconSize * 0.15,
-                            top: iconSize * 0.15,
-                            child: Icon(
-                              Icons.wb_sunny,
-                              size: iconSize * 0.4,
-                              color: Colors.orange.shade300,
+                        SizedBox(height: constraints.maxHeight * 0.08),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Berlin, ${_weather!.temperature.round()}°C',
+                            style: TextStyle(
+                              fontSize: tempFontSize,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
                             ),
                           ),
-                          Positioned(
-                            left: iconSize * 0.1,
-                            bottom: iconSize * 0.1,
-                            child: Icon(
-                              Icons.cloud,
-                              size: iconSize * 0.5,
+                        ),
+                        SizedBox(height: constraints.maxHeight * 0.03),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            _weather!.weatherDescription,
+                            style: TextStyle(
+                              fontSize: descFontSize,
+                              fontWeight: FontWeight.w500,
                               color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: constraints.maxHeight * 0.08),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        'Berlin, ${_weather!.temperature.round()}°C',
-                        style: TextStyle(
-                          fontSize: tempFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: -0.5,
                         ),
-                      ),
-                    ),
-                    SizedBox(height: constraints.maxHeight * 0.03),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        _weather!.weatherDescription,
-                        style: TextStyle(
-                          fontSize: descFontSize,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withValues(alpha: 0.9),
+                        SizedBox(height: constraints.maxHeight * 0.02),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'H: ${_weather!.maxTemp.round()}° L: ${_weather!.minTemp.round()}°',
+                            style: TextStyle(
+                              fontSize: descFontSize * 0.9,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                    SizedBox(height: constraints.maxHeight * 0.02),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        'H: ${_weather!.maxTemp.round()}° L: ${_weather!.minTemp.round()}°',
-                        style: TextStyle(
-                          fontSize: descFontSize * 0.9,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 );
               },
             ),
