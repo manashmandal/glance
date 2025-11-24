@@ -133,7 +133,7 @@ class _TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                             underline: const SizedBox(),
                             isDense: true,
                             icon: const Icon(
-                              Icons.filter_list,
+                              Icons.keyboard_arrow_down,
                               color: Colors.white,
                               size: 20,
                             ),
@@ -202,7 +202,7 @@ class _TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                             underline: const SizedBox(),
                             isDense: false,
                             icon: const Icon(
-                              Icons.train,
+                              Icons.keyboard_arrow_down,
                               color: Colors.white,
                               size: 20,
                             ),
