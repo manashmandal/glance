@@ -1,4 +1,7 @@
-# Glance Dashboard
+<p align="center">
+  <img src="assets/images/logo.png" width="120" alt="Glance Logo" />
+  <h1 align="center">Glance Dashboard</h1>
+</p>
 
 A modern, minimalist Flutter tablet dashboard application featuring a beautiful dark mode UI with glassmorphism effects.
 
