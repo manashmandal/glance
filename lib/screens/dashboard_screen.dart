@@ -26,8 +26,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // Settings
   double _weatherScale = 1.0;
+  double _departureScale = 1.0;
   Station? _defaultStation;
   TransportType? _defaultTransportType;
+  int _skipMinutes = 0;
+  int _durationMinutes = 60;
   bool _settingsLoaded = false;
 
   @override
@@ -39,6 +42,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _loadSettings() async {
     _weatherScale = await SettingsService.getWeatherScale();
+    _departureScale = await SettingsService.getDepartureScale();
     final stationId = await SettingsService.getDefaultStationId();
     if (stationId != null) {
       _defaultStation = Station.popularStations.firstWhere(
@@ -47,6 +51,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
     _defaultTransportType = await SettingsService.getDefaultTransportType();
+    _skipMinutes = await SettingsService.getSkipMinutes();
+    _durationMinutes = await SettingsService.getDurationMinutes();
     setState(() => _settingsLoaded = true);
   }
 
@@ -91,16 +97,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context: context,
       builder: (context) => SettingsDialog(
         initialWeatherScale: _weatherScale,
+        initialDepartureScale: _departureScale,
         initialStationId: _defaultStation?.id ?? Station.defaultStation.id,
         initialTransportType: _defaultTransportType ?? TransportType.regional,
-        onSave: (scale, stationId, type) {
+        initialSkipMinutes: _skipMinutes,
+        initialDurationMinutes: _durationMinutes,
+        onSave: (weatherScale, departureScale, stationId, type, skipMinutes, durationMinutes) {
           setState(() {
-            _weatherScale = scale;
+            _weatherScale = weatherScale;
+            _departureScale = departureScale;
             _defaultStation = Station.popularStations.firstWhere(
               (s) => s.id == stationId,
               orElse: () => Station.defaultStation,
             );
             _defaultTransportType = type;
+            _skipMinutes = skipMinutes;
+            _durationMinutes = durationMinutes;
             // Trigger rebuild with new settings
           });
         },
@@ -197,6 +209,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       key: _trainKey,
                       initialStation: _defaultStation,
                       initialTransportType: _defaultTransportType,
+                      scaleFactor: _departureScale,
+                      skipMinutes: _skipMinutes,
+                      durationMinutes: _durationMinutes,
                     ),
                   ),
                 ],

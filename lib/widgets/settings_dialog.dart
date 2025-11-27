@@ -5,15 +5,21 @@ import '../services/settings_service.dart';
 
 class SettingsDialog extends StatefulWidget {
   final double initialWeatherScale;
+  final double initialDepartureScale;
   final String initialStationId;
   final TransportType initialTransportType;
-  final Function(double, String, TransportType) onSave;
+  final int initialSkipMinutes;
+  final int initialDurationMinutes;
+  final Function(double, double, String, TransportType, int, int) onSave;
 
   const SettingsDialog({
     super.key,
     required this.initialWeatherScale,
+    required this.initialDepartureScale,
     required this.initialStationId,
     required this.initialTransportType,
+    required this.initialSkipMinutes,
+    required this.initialDurationMinutes,
     required this.onSave,
   });
 
@@ -23,15 +29,21 @@ class SettingsDialog extends StatefulWidget {
 
 class _SettingsDialogState extends State<SettingsDialog> {
   late double _weatherScale;
+  late double _departureScale;
   late String _selectedStationId;
   late TransportType _selectedTransportType;
+  late int _skipMinutes;
+  late int _durationMinutes;
 
   @override
   void initState() {
     super.initState();
     _weatherScale = widget.initialWeatherScale;
+    _departureScale = widget.initialDepartureScale;
     _selectedStationId = widget.initialStationId;
     _selectedTransportType = widget.initialTransportType;
+    _skipMinutes = widget.initialSkipMinutes;
+    _durationMinutes = widget.initialDurationMinutes;
   }
 
   @override
@@ -73,6 +85,30 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       activeColor: const Color(0xFF3B82F6),
                       onChanged: (value) {
                         setState(() => _weatherScale = value);
+                      },
+                    ),
+                  ),
+                  const Text('Large', style: TextStyle(color: Colors.white54)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Departure Table Font Size',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              Row(
+                children: [
+                  const Text('Normal', style: TextStyle(color: Colors.white54)),
+                  Expanded(
+                    child: Slider(
+                      value: _departureScale,
+                      min: 0.8,
+                      max: 2.0,
+                      divisions: 12,
+                      label: _departureScale.toStringAsFixed(1),
+                      activeColor: const Color(0xFF3B82F6),
+                      onChanged: (value) {
+                        setState(() => _departureScale = value);
                       },
                     ),
                   ),
@@ -141,6 +177,54 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   },
                 ),
               ),
+              const SizedBox(height: 16),
+              Text(
+                'Skip departures within ($_skipMinutes min)',
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              Row(
+                children: [
+                  const Text('0', style: TextStyle(color: Colors.white54)),
+                  Expanded(
+                    child: Slider(
+                      value: _skipMinutes.toDouble(),
+                      min: 0,
+                      max: 30,
+                      divisions: 30,
+                      label: '$_skipMinutes min',
+                      activeColor: const Color(0xFF3B82F6),
+                      onChanged: (value) {
+                        setState(() => _skipMinutes = value.round());
+                      },
+                    ),
+                  ),
+                  const Text('30', style: TextStyle(color: Colors.white54)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Show departures within ($_durationMinutes min)',
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              Row(
+                children: [
+                  const Text('15', style: TextStyle(color: Colors.white54)),
+                  Expanded(
+                    child: Slider(
+                      value: _durationMinutes.toDouble(),
+                      min: 15,
+                      max: 180,
+                      divisions: 11,
+                      label: '$_durationMinutes min',
+                      activeColor: const Color(0xFF3B82F6),
+                      onChanged: (value) {
+                        setState(() => _durationMinutes = value.round());
+                      },
+                    ),
+                  ),
+                  const Text('180', style: TextStyle(color: Colors.white54)),
+                ],
+              ),
               const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -160,14 +244,20 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     ),
                     onPressed: () async {
                       await SettingsService.saveWeatherScale(_weatherScale);
+                      await SettingsService.saveDepartureScale(_departureScale);
                       await SettingsService.saveDefaultStationId(
                           _selectedStationId);
                       await SettingsService.saveDefaultTransportType(
                           _selectedTransportType);
+                      await SettingsService.saveSkipMinutes(_skipMinutes);
+                      await SettingsService.saveDurationMinutes(_durationMinutes);
                       widget.onSave(
                         _weatherScale,
+                        _departureScale,
                         _selectedStationId,
                         _selectedTransportType,
+                        _skipMinutes,
+                        _durationMinutes,
                       );
                       if (context.mounted) Navigator.pop(context);
                     },
