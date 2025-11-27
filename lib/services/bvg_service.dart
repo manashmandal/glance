@@ -56,14 +56,17 @@ class BvgService {
             final arr = arrivals[i];
             final whenString = arr['when'] as String?;
 
-            if (whenString != null) {
-              final arrivalTime = DateTime.parse(whenString).toLocal();
+            if (whenString == null) {
+              print('\nArrival #$i skipped (missing arrival time)');
+              continue;
+            }
 
-              // Skip arrivals that are before the skip threshold
-              if (arrivalTime.isBefore(skipUntil)) {
-                print('\nArrival #$i skipped (within skip window of $skipMinutes min)');
-                continue;
-              }
+            final arrivalTime = DateTime.parse(whenString).toLocal();
+
+            // Skip arrivals that are before the skip threshold
+            if (arrivalTime.isBefore(skipUntil)) {
+              print('\nArrival #$i skipped (within skip window of $skipMinutes min)');
+              continue;
             }
 
             final lineName = arr['line']?['name'] as String? ?? '';
@@ -155,14 +158,17 @@ class BvgService {
 
             final destinationName = dep['destination']?['name'] as String?;
 
-            if (whenString != null) {
-              final departureTime = DateTime.parse(whenString).toLocal();
+            if (whenString == null) {
+              print('\nDeparture #$i skipped (missing departure time)');
+              continue;
+            }
 
-              // Skip departures that are before the skip threshold
-              if (departureTime.isBefore(skipUntil)) {
-                print('\nDeparture #$i skipped (within skip window of $skipMinutes min)');
-                continue;
-              }
+            final departureTime = DateTime.parse(whenString).toLocal();
+
+            // Skip departures that are before the skip threshold
+            if (departureTime.isBefore(skipUntil)) {
+              print('\nDeparture #$i skipped (within skip window of $skipMinutes min)');
+              continue;
             }
 
             if (destinationName != null) {

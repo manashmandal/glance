@@ -214,7 +214,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       value: _durationMinutes.toDouble(),
                       min: 15,
                       max: 180,
-                      divisions: 11,
+                      divisions: 165,
                       label: '$_durationMinutes min',
                       activeColor: const Color(0xFF3B82F6),
                       onChanged: (value) {

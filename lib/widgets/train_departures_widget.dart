@@ -142,9 +142,9 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Departures',
-                      style: TextStyle(
+                    Text(
+                      _isArrivalsMode ? 'Arrivals' : 'Departures',
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
