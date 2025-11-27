@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:window_manager/window_manager.dart';
 import '../widgets/clock_widget.dart';
 import '../widgets/weather_widget.dart';
@@ -26,19 +27,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // Settings
   double _weatherScale = 1.0;
+  double _departureScale = 1.0;
   Station? _defaultStation;
   TransportType? _defaultTransportType;
+  int _skipMinutes = 0;
+  int _durationMinutes = 60;
   bool _settingsLoaded = false;
+  String _version = '';
 
   @override
   void initState() {
     super.initState();
     _loadSettings();
+    _loadVersion();
     _startRefreshTimer();
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() {
+        _version = 'v${packageInfo.version}';
+      });
+    }
   }
 
   Future<void> _loadSettings() async {
     _weatherScale = await SettingsService.getWeatherScale();
+    _departureScale = await SettingsService.getDepartureScale();
     final stationId = await SettingsService.getDefaultStationId();
     if (stationId != null) {
       _defaultStation = Station.popularStations.firstWhere(
@@ -47,6 +63,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
     _defaultTransportType = await SettingsService.getDefaultTransportType();
+    _skipMinutes = await SettingsService.getSkipMinutes();
+    _durationMinutes = await SettingsService.getDurationMinutes();
     setState(() => _settingsLoaded = true);
   }
 
@@ -91,16 +109,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context: context,
       builder: (context) => SettingsDialog(
         initialWeatherScale: _weatherScale,
+        initialDepartureScale: _departureScale,
         initialStationId: _defaultStation?.id ?? Station.defaultStation.id,
         initialTransportType: _defaultTransportType ?? TransportType.regional,
-        onSave: (scale, stationId, type) {
+        initialSkipMinutes: _skipMinutes,
+        initialDurationMinutes: _durationMinutes,
+        onSave: (weatherScale, departureScale, stationId, type, skipMinutes, durationMinutes) {
           setState(() {
-            _weatherScale = scale;
+            _weatherScale = weatherScale;
+            _departureScale = departureScale;
             _defaultStation = Station.popularStations.firstWhere(
               (s) => s.id == stationId,
               orElse: () => Station.defaultStation,
             );
             _defaultTransportType = type;
+            _skipMinutes = skipMinutes;
+            _durationMinutes = durationMinutes;
             // Trigger rebuild with new settings
           });
         },
@@ -169,18 +193,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
                   // Top row with clock and weather
                   Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: Row(
                       children: [
                         // Clock module
                         const Expanded(
-                          flex: 3,
+                          flex: 1,
                           child: ClockWidget(),
                         ),
-                        const SizedBox(width: 24),
+                        const SizedBox(width: 16),
+                        // Branding
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/logo.png',
+                                height: 80,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Glance',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                              Text(
+                                _version,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
                         // Weather module
                         Expanded(
-                          flex: 2,
+                          flex: 1,
                           child: WeatherWidget(
                             key: _weatherKey,
                             scaleFactor: _weatherScale,
@@ -192,11 +247,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 24),
                   // Bottom section with train departures
                   Expanded(
-                    flex: 3,
+                    flex: 2,
                     child: TrainDeparturesWidget(
                       key: _trainKey,
                       initialStation: _defaultStation,
                       initialTransportType: _defaultTransportType,
+                      scaleFactor: _departureScale,
+                      skipMinutes: _skipMinutes,
+                      durationMinutes: _durationMinutes,
                     ),
                   ),
                 ],

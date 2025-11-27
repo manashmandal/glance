@@ -9,11 +9,17 @@ import '../services/bvg_service.dart';
 class TrainDeparturesWidget extends StatefulWidget {
   final Station? initialStation;
   final TransportType? initialTransportType;
+  final double scaleFactor;
+  final int skipMinutes;
+  final int durationMinutes;
 
   const TrainDeparturesWidget({
     super.key,
     this.initialStation,
     this.initialTransportType,
+    this.scaleFactor = 1.0,
+    this.skipMinutes = 0,
+    this.durationMinutes = 60,
   });
 
   @override
@@ -25,6 +31,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
   bool _isLoading = true;
   late Station _selectedStation;
   late TransportType _selectedTransportType;
+  bool _isArrivalsMode = false; // false = departures (FROM), true = arrivals (TO)
 
   @override
   void initState() {
@@ -43,13 +50,25 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
     }
 
     try {
-      final departures = await BvgService.getDepartures(
-        stationId: _selectedStation.id,
-        transportType: _selectedTransportType,
-      );
+      final List<TrainDeparture> results;
+      if (_isArrivalsMode) {
+        results = await BvgService.getArrivals(
+          stationId: _selectedStation.id,
+          transportType: _selectedTransportType,
+          duration: widget.durationMinutes,
+          skipMinutes: widget.skipMinutes,
+        );
+      } else {
+        results = await BvgService.getDepartures(
+          stationId: _selectedStation.id,
+          transportType: _selectedTransportType,
+          duration: widget.durationMinutes,
+          skipMinutes: widget.skipMinutes,
+        );
+      }
       if (mounted) {
         setState(() {
-          _departures = departures;
+          _departures = results;
           _isLoading = false;
         });
       }
@@ -62,6 +81,16 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
   }
 
   Future<void> _loadDepartures() => refresh();
+
+  void _onDirectionChanged(bool isArrivals) {
+    if (isArrivals != _isArrivalsMode) {
+      setState(() {
+        _isArrivalsMode = isArrivals;
+        _isLoading = true;
+      });
+      _loadDepartures();
+    }
+  }
 
   void _onStationChanged(Station? station) {
     if (station != null && station.id != _selectedStation.id) {
@@ -113,9 +142,9 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Regional Train Departures',
-                      style: TextStyle(
+                    Text(
+                      _isArrivalsMode ? 'Arrivals' : 'Departures',
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -189,8 +218,73 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                           ),
                         ),
                         const SizedBox(width: 16),
+                        // FROM/TO Toggle
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              GestureDetector(
+                                onTap: () => _onDirectionChanged(false),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: !_isArrivalsMode
+                                        ? const Color(0xFF3B82F6)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    'FROM',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: !_isArrivalsMode
+                                          ? Colors.white
+                                          : Colors.white54,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => _onDirectionChanged(true),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: _isArrivalsMode
+                                        ? const Color(0xFF3B82F6)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    'TO',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: _isArrivalsMode
+                                          ? Colors.white
+                                          : Colors.white54,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
                         Text(
-                          'DEPARTING FROM',
+                          _isArrivalsMode ? 'ARRIVING AT' : 'DEPARTING FROM',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -268,9 +362,9 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                 ),
                 const SizedBox(height: 24),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20 * widget.scaleFactor,
+                    vertical: 16 * widget.scaleFactor,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.05),
@@ -279,22 +373,22 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                   child: Row(
                     children: [
                       SizedBox(
-                        width: 100,
+                        width: 100 * widget.scaleFactor,
                         child: Text(
                           'Time',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16 * widget.scaleFactor,
                             fontWeight: FontWeight.w600,
                             color: Colors.white.withValues(alpha: 0.7),
                           ),
                         ),
                       ),
                       SizedBox(
-                        width: 80,
+                        width: 80 * widget.scaleFactor,
                         child: Text(
                           'Min',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16 * widget.scaleFactor,
                             fontWeight: FontWeight.w600,
                             color: Colors.white.withValues(alpha: 0.7),
                           ),
@@ -303,22 +397,22 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                       Expanded(
                         flex: 4,
                         child: Text(
-                          'Destination',
+                          _isArrivalsMode ? 'Origin' : 'Destination',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16 * widget.scaleFactor,
                             fontWeight: FontWeight.w600,
                             color: Colors.white.withValues(alpha: 0.7),
                           ),
                         ),
                       ),
                       SizedBox(
-                        width: 160,
+                        width: 160 * widget.scaleFactor,
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 20),
+                          padding: EdgeInsets.only(left: 20 * widget.scaleFactor),
                           child: Text(
                             'Line',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 16 * widget.scaleFactor,
                               fontWeight: FontWeight.w600,
                               color: Colors.white.withValues(alpha: 0.7),
                             ),
@@ -326,22 +420,22 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                         ),
                       ),
                       SizedBox(
-                        width: 120,
+                        width: 120 * widget.scaleFactor,
                         child: Text(
                           'Platform',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16 * widget.scaleFactor,
                             fontWeight: FontWeight.w600,
                             color: Colors.white.withValues(alpha: 0.7),
                           ),
                         ),
                       ),
                       SizedBox(
-                        width: 140,
+                        width: 140 * widget.scaleFactor,
                         child: Text(
                           'Status',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16 * widget.scaleFactor,
                             fontWeight: FontWeight.w600,
                             color: Colors.white.withValues(alpha: 0.7),
                           ),
@@ -372,6 +466,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                               platform: departure.platform,
                               status: departure.status,
                               statusColor: departure.statusColor,
+                              scaleFactor: widget.scaleFactor,
                             );
                           },
                         ),
@@ -394,6 +489,7 @@ class TrainRow extends StatelessWidget {
   final String platform;
   final String status;
   final Color statusColor;
+  final double scaleFactor;
 
   const TrainRow({
     super.key,
@@ -405,6 +501,7 @@ class TrainRow extends StatelessWidget {
     required this.platform,
     required this.status,
     required this.statusColor,
+    this.scaleFactor = 1.0,
   });
 
   String get _formattedMinutes {
@@ -432,26 +529,26 @@ class TrainRow extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 100,
+            width: 100 * scaleFactor,
             child: Text(
               time,
-              style: const TextStyle(
-                fontSize: 20,
+              style: TextStyle(
+                fontSize: 20 * scaleFactor,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
-                fontFeatures: [FontFeature.tabularFigures()],
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
           ),
           SizedBox(
-            width: 80,
+            width: 80 * scaleFactor,
             child: Text(
               _formattedMinutes,
-              style: const TextStyle(
-                fontSize: 20,
+              style: TextStyle(
+                fontSize: 20 * scaleFactor,
                 fontWeight: FontWeight.bold,
                 color: Colors.white70,
-                fontFeatures: [FontFeature.tabularFigures()],
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
           ),
@@ -459,8 +556,8 @@ class TrainRow extends StatelessWidget {
             flex: 4,
             child: Text(
               destination,
-              style: const TextStyle(
-                fontSize: 18,
+              style: TextStyle(
+                fontSize: 18 * scaleFactor,
                 fontWeight: FontWeight.w500,
                 color: Colors.white,
               ),
@@ -468,16 +565,16 @@ class TrainRow extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 160,
+            width: 160 * scaleFactor,
             child: Padding(
-              padding: const EdgeInsets.only(left: 20),
+              padding: EdgeInsets.only(left: 20 * scaleFactor),
               child: UnconstrainedBox(
                 alignment: Alignment.centerLeft,
                 child: Container(
-                  constraints:
-                      const BoxConstraints(minWidth: 60, maxWidth: 140),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  constraints: BoxConstraints(
+                      minWidth: 60 * scaleFactor, maxWidth: 140 * scaleFactor),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 12 * scaleFactor, vertical: 6 * scaleFactor),
                   decoration: BoxDecoration(
                     color: lineColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
@@ -491,8 +588,8 @@ class TrainRow extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 6,
-                        height: 6,
+                        width: 6 * scaleFactor,
+                        height: 6 * scaleFactor,
                         decoration: BoxDecoration(
                           color: lineColor,
                           shape: BoxShape.circle,
@@ -505,12 +602,12 @@ class TrainRow extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8 * scaleFactor),
                       Flexible(
                         child: Text(
                           line,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 14 * scaleFactor,
                             fontWeight: FontWeight.w700,
                             color: lineColor,
                             letterSpacing: 0.5,
@@ -527,22 +624,22 @@ class TrainRow extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 120,
+            width: 120 * scaleFactor,
             child: Text(
               platform,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 18 * scaleFactor,
                 fontWeight: FontWeight.w500,
                 color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ),
           SizedBox(
-            width: 140,
+            width: 140 * scaleFactor,
             child: Text(
               status,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 16 * scaleFactor,
                 fontWeight: FontWeight.w600,
                 color: statusColor,
               ),
