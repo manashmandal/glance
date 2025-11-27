@@ -105,6 +105,8 @@ This project is created as a UI demonstration.
 
 ## Screenshots
 
+![Dashboard Screenshot](assets/images/screenshot.png)
+
 The application features:
 - Top left: Large digital clock module (08:45, Monday, November 24)
 - Top right: Weather widget (Berlin, 14°C, Partly Cloudy with gradient glow)
