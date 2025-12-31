@@ -26,6 +26,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   DateTime? _lastUpdated;
   bool _isFullScreen = false;
 
+  // Transport mode toggle: 0 = Regional, 1 = Bus
+  int _selectedTransportMode = 0;
+
   // Settings
   double _weatherScale = 1.0;
   double _departureScale = 1.0;
@@ -77,10 +80,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _refreshAll() async {
+    final activeTransportKey = _selectedTransportMode == 0 ? _trainKey : _busKey;
     await Future.wait([
       _weatherKey.currentState?.refresh() ?? Future.value(),
-      _trainKey.currentState?.refresh() ?? Future.value(),
-      _busKey.currentState?.refresh() ?? Future.value(),
+      activeTransportKey.currentState?.refresh() ?? Future.value(),
     ]);
     if (mounted) {
       setState(() => _lastUpdated = DateTime.now());
@@ -104,6 +107,81 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (e) {
       print('Failed to toggle full screen: $e');
     }
+  }
+
+  Widget _buildTransportModeToggle() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildToggleButton(
+            index: 0,
+            icon: Icons.train,
+            label: 'Regional',
+            color: const Color(0xFFE91E63),
+          ),
+          const SizedBox(width: 4),
+          _buildToggleButton(
+            index: 1,
+            icon: Icons.directions_bus,
+            label: 'Bus',
+            color: const Color(0xFF9C27B0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleButton({
+    required int index,
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    final isSelected = _selectedTransportMode == index;
+    return GestureDetector(
+      onTap: () {
+        if (_selectedTransportMode != index) {
+          setState(() => _selectedTransportMode = index);
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? color : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected ? color : Colors.white38,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? color : Colors.white38,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showSettings() {
@@ -247,37 +325,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Bottom section with train and bus departures side by side
+                  // Transport mode toggle
+                  _buildTransportModeToggle(),
+                  const SizedBox(height: 16),
+                  // Bottom section with departures (switched by toggle)
                   Expanded(
                     flex: 2,
-                    child: Row(
-                      children: [
-                        // RE/RB Train departures
-                        Expanded(
-                          child: TrainDeparturesWidget(
-                            key: _trainKey,
-                            initialStation: _defaultStation,
-                            initialTransportType: _defaultTransportType ?? TransportType.regional,
-                            scaleFactor: _departureScale,
-                            skipMinutes: _skipMinutes,
-                            durationMinutes: _durationMinutes,
-                            compactMode: true,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0.05, 0),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        // Bus departures
-                        Expanded(
-                          child: TrainDeparturesWidget(
-                            key: _busKey,
-                            initialStation: _defaultStation,
-                            initialTransportType: TransportType.bus,
-                            scaleFactor: _departureScale,
-                            skipMinutes: _skipMinutes,
-                            durationMinutes: _durationMinutes,
-                            compactMode: true,
-                          ),
-                        ),
-                      ],
+                        );
+                      },
+                      child: _selectedTransportMode == 0
+                          ? TrainDeparturesWidget(
+                              key: const ValueKey('regional'),
+                              initialStation: _defaultStation,
+                              initialTransportType: _defaultTransportType ?? TransportType.regional,
+                              scaleFactor: _departureScale,
+                              skipMinutes: _skipMinutes,
+                              durationMinutes: _durationMinutes,
+                              compactMode: false,
+                            )
+                          : TrainDeparturesWidget(
+                              key: const ValueKey('bus'),
+                              initialStation: _defaultStation,
+                              initialTransportType: TransportType.bus,
+                              scaleFactor: _departureScale,
+                              skipMinutes: _skipMinutes,
+                              durationMinutes: _durationMinutes,
+                              compactMode: false,
+                            ),
                     ),
                   ),
                 ],
