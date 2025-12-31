@@ -134,16 +134,63 @@ class TrainDeparture {
 
   static Color _getLineColor(String line) {
     final upperLine = line.toUpperCase();
+
+    // Regional trains
     if (upperLine.contains('RE1') || upperLine.contains('RE ')) {
-      return const Color(0xFFEF4444);
+      return const Color(0xFFEF4444); // Red
     } else if (upperLine.contains('FEX') ||
         upperLine.contains('RB') && upperLine.contains('10')) {
-      return const Color(0xFF3B82F6);
-    } else if (upperLine.contains('RB')) {
-      return const Color(0xFF10B981);
-    } else if (upperLine.contains('S')) {
-      return const Color(0xFF8B5CF6);
+      return const Color(0xFF3B82F6); // Blue
+    } else if (upperLine.startsWith('RE')) {
+      return const Color(0xFFEF4444); // Red for all RE
+    } else if (upperLine.startsWith('RB')) {
+      return const Color(0xFF10B981); // Green for RB
     }
-    return const Color(0xFF6B7280);
+
+    // S-Bahn
+    if (upperLine.startsWith('S') && !upperLine.startsWith('SB')) {
+      return const Color(0xFF8B5CF6); // Purple
+    }
+
+    // U-Bahn
+    if (upperLine.startsWith('U')) {
+      return const Color(0xFF3B82F6); // Blue
+    }
+
+    // Tram/Straßenbahn (typically M lines or numbered lines in Berlin)
+    if (upperLine.startsWith('M') || upperLine.startsWith('TRAM')) {
+      return const Color(0xFFF59E0B); // Amber/Yellow
+    }
+
+    // Bus lines - different colors by type
+    // MetroBus (M lines without tram)
+    if (upperLine.contains('BUS')) {
+      return const Color(0xFFA855F7); // Purple
+    }
+
+    // Express buses (X lines)
+    if (upperLine.startsWith('X')) {
+      return const Color(0xFF14B8A6); // Teal
+    }
+
+    // Night buses (N lines)
+    if (upperLine.startsWith('N')) {
+      return const Color(0xFF6366F1); // Indigo
+    }
+
+    // Regular buses (numbered, often 100-300 range in Berlin)
+    if (RegExp(r'^\d+$').hasMatch(upperLine)) {
+      final num = int.tryParse(upperLine) ?? 0;
+      if (num >= 100 && num < 200) {
+        return const Color(0xFFA855F7); // Purple for 100s
+      } else if (num >= 200 && num < 300) {
+        return const Color(0xFFEC4899); // Pink for 200s
+      } else if (num >= 300) {
+        return const Color(0xFF06B6D4); // Cyan for 300+
+      }
+    }
+
+    // Default for other buses/transport
+    return const Color(0xFFA855F7); // Purple default for buses
   }
 }

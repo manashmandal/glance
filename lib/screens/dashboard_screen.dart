@@ -21,6 +21,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<WeatherWidgetState> _weatherKey = GlobalKey();
   final GlobalKey<TrainDeparturesWidgetState> _trainKey = GlobalKey();
+  final GlobalKey<TrainDeparturesWidgetState> _busKey = GlobalKey();
   Timer? _refreshTimer;
   DateTime? _lastUpdated;
   bool _isFullScreen = false;
@@ -79,6 +80,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await Future.wait([
       _weatherKey.currentState?.refresh() ?? Future.value(),
       _trainKey.currentState?.refresh() ?? Future.value(),
+      _busKey.currentState?.refresh() ?? Future.value(),
     ]);
     if (mounted) {
       setState(() => _lastUpdated = DateTime.now());
@@ -245,16 +247,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Bottom section with train departures
+                  // Bottom section with train and bus departures side by side
                   Expanded(
                     flex: 2,
-                    child: TrainDeparturesWidget(
-                      key: _trainKey,
-                      initialStation: _defaultStation,
-                      initialTransportType: _defaultTransportType,
-                      scaleFactor: _departureScale,
-                      skipMinutes: _skipMinutes,
-                      durationMinutes: _durationMinutes,
+                    child: Row(
+                      children: [
+                        // RE/RB Train departures
+                        Expanded(
+                          child: TrainDeparturesWidget(
+                            key: _trainKey,
+                            initialStation: _defaultStation,
+                            initialTransportType: _defaultTransportType ?? TransportType.regional,
+                            scaleFactor: _departureScale,
+                            skipMinutes: _skipMinutes,
+                            durationMinutes: _durationMinutes,
+                            compactMode: true,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // Bus departures
+                        Expanded(
+                          child: TrainDeparturesWidget(
+                            key: _busKey,
+                            initialStation: _defaultStation,
+                            initialTransportType: TransportType.bus,
+                            scaleFactor: _departureScale,
+                            skipMinutes: _skipMinutes,
+                            durationMinutes: _durationMinutes,
+                            compactMode: true,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
