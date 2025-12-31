@@ -68,7 +68,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  bool get _isPortrait => MediaQuery.of(context).orientation == Orientation.portrait;
+  bool get _isPortrait =>
+      MediaQuery.of(context).orientation == Orientation.portrait;
   bool get _isSmallScreen => MediaQuery.of(context).size.shortestSide < 600;
 
   Future<void> _loadVersion() async {
@@ -180,7 +181,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         initialTransportType: _defaultTransportType ?? TransportType.regional,
         initialSkipMinutes: _skipMinutes,
         initialDurationMinutes: _durationMinutes,
-        onSave: (weatherScale, departureScale, stationId, type, skipMinutes, durationMinutes) {
+        onSave: (weatherScale, departureScale, stationId, type, skipMinutes,
+            durationMinutes) {
           setState(() {
             _weatherScale = weatherScale;
             _departureScale = departureScale;
@@ -280,7 +282,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ? TrainDeparturesWidget(
                     key: const ValueKey('regional'),
                     initialStation: _defaultStation,
-                    initialTransportType: _defaultTransportType ?? TransportType.regional,
+                    initialTransportType:
+                        _defaultTransportType ?? TransportType.regional,
                     scaleFactor: _departureScale,
                     skipMinutes: _skipMinutes,
                     durationMinutes: _durationMinutes,
@@ -306,7 +309,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.black.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -400,7 +405,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: KeyboardListener(
         focusNode: FocusNode()..requestFocus(),
         onKeyEvent: (event) {
-          if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.escape && _isEditMode) {
+          if (event is KeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.escape &&
+              _isEditMode) {
             _toggleEditMode();
           }
         },
@@ -409,7 +416,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               // Header with controls
               Padding(
-                padding: EdgeInsets.fromLTRB(padding, _isSmallScreen ? 8 : 16, padding, 8),
+                padding: EdgeInsets.fromLTRB(
+                    padding, _isSmallScreen ? 8 : 16, padding, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -435,7 +443,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           IconButton(
                             icon: Icon(
                               Icons.dashboard_customize,
-                              color: _isEditMode ? const Color(0xFF3B82F6) : iconColor,
+                              color: _isEditMode
+                                  ? const Color(0xFF3B82F6)
+                                  : iconColor,
                             ),
                             onPressed: _toggleEditMode,
                             tooltip: 'Edit Layout',
@@ -446,7 +456,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             color: iconColor,
                           ),
                           onPressed: () => GlanceApp.of(context)?.toggleTheme(),
-                          tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+                          tooltip: isDark
+                              ? 'Switch to Light Mode'
+                              : 'Switch to Dark Mode',
                         ),
                       ],
                     ),
@@ -472,7 +484,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final containerSize = Size(constraints.maxWidth, constraints.maxHeight);
+                      final containerSize =
+                          Size(constraints.maxWidth, constraints.maxHeight);
                       return Stack(
                         clipBehavior: Clip.none,
                         children: [
@@ -487,7 +500,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 isEditMode: _isEditMode,
                                 layout: entry.value,
                                 containerSize: containerSize,
-                                onLayoutUpdate: (newLayout) => _updateWidgetLayout(entry.key, newLayout),
+                                onLayoutUpdate: (newLayout) =>
+                                    _updateWidgetLayout(entry.key, newLayout),
                                 minWidth: _getMinWidth(entry.key),
                                 minHeight: _getMinHeight(entry.key),
                                 child: _buildWidget(entry.key),

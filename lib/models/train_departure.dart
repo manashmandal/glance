@@ -121,7 +121,8 @@ class TrainDeparture {
 
     return TrainDeparture(
       time: time,
-      destination: origin, // For arrivals, we show the origin as "destination" (where it's coming FROM)
+      destination:
+          origin, // For arrivals, we show the origin as "destination" (where it's coming FROM)
       line: line,
       lineColor: lineColor,
       platform: platform.isEmpty ? '-' : 'Pl. $platform',

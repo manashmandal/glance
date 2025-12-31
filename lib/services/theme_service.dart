@@ -100,12 +100,18 @@ class AppTheme {
 extension ThemeColors on BuildContext {
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
 
-  Color get backgroundColor => isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
-  Color get surfaceColor => isDark ? AppTheme.darkSurface : AppTheme.lightSurface;
+  Color get backgroundColor =>
+      isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
+  Color get surfaceColor =>
+      isDark ? AppTheme.darkSurface : AppTheme.lightSurface;
   Color get cardColor => isDark ? AppTheme.darkCard : AppTheme.lightCard;
   Color get borderColor => isDark ? AppTheme.darkBorder : AppTheme.lightBorder;
-  Color get textPrimary => isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary;
-  Color get textSecondary => isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary;
-  Color get textTertiary => isDark ? AppTheme.darkTextTertiary : AppTheme.lightTextTertiary;
-  Color get textMuted => isDark ? AppTheme.darkTextMuted : AppTheme.lightTextMuted;
+  Color get textPrimary =>
+      isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary;
+  Color get textSecondary =>
+      isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary;
+  Color get textTertiary =>
+      isDark ? AppTheme.darkTextTertiary : AppTheme.lightTextTertiary;
+  Color get textMuted =>
+      isDark ? AppTheme.darkTextMuted : AppTheme.lightTextMuted;
 }

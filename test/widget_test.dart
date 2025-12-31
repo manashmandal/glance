@@ -25,7 +25,7 @@ class MockHttpClient implements HttpClient {
   Future<HttpClientRequest> getUrl(Uri url) async {
     return MockHttpClientRequest();
   }
-  
+
   @override
   dynamic noSuchMethod(Invocation invocation) {
     return null;
@@ -37,7 +37,7 @@ class MockHttpClientRequest implements HttpClientRequest {
   Future<HttpClientResponse> close() async {
     return MockHttpClientResponse();
   }
-  
+
   @override
   dynamic noSuchMethod(Invocation invocation) {
     return null;
@@ -50,14 +50,18 @@ class MockHttpClientResponse implements HttpClientResponse {
 
   @override
   Stream<S> transform<S>(StreamTransformer<List<int>, S> streamTransformer) {
-    return Stream.value(utf8.encode('{}')).cast<List<int>>().transform(streamTransformer);
+    return Stream.value(utf8.encode('{}'))
+        .cast<List<int>>()
+        .transform(streamTransformer);
   }
-  
+
   @override
-  StreamSubscription<List<int>> listen(void Function(List<int> event)? onData, {Function? onError, void Function()? onDone, bool? cancelOnError}) {
-    return Stream.value(utf8.encode('{}')).listen(onData, onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+  StreamSubscription<List<int>> listen(void Function(List<int> event)? onData,
+      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
+    return Stream.value(utf8.encode('{}')).listen(onData,
+        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
   }
-  
+
   @override
   dynamic noSuchMethod(Invocation invocation) {
     return null;
@@ -96,7 +100,8 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const app.GlanceApp());
     await tester.pump(); // Start futures
-    await tester.pump(const Duration(milliseconds: 100)); // Wait for futures to complete
+    await tester.pump(
+        const Duration(milliseconds: 100)); // Wait for futures to complete
 
     // Verify that the dashboard screen is present.
     expect(find.byType(DashboardScreen), findsOneWidget);

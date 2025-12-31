@@ -250,7 +250,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       await SettingsService.saveDefaultTransportType(
                           _selectedTransportType);
                       await SettingsService.saveSkipMinutes(_skipMinutes);
-                      await SettingsService.saveDurationMinutes(_durationMinutes);
+                      await SettingsService.saveDurationMinutes(
+                          _durationMinutes);
                       widget.onSave(
                         _weatherScale,
                         _departureScale,
