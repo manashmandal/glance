@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:window_manager/window_manager.dart';
@@ -7,9 +8,13 @@ import '../widgets/clock_widget.dart';
 import '../widgets/weather_widget.dart';
 import '../widgets/train_departures_widget.dart';
 import '../widgets/settings_dialog.dart';
+import '../widgets/draggable_resizable_container.dart';
+import '../widgets/edit_mode_toolbar.dart';
 import '../services/settings_service.dart';
+import '../services/layout_service.dart';
 import '../models/station.dart';
 import '../models/transport_type.dart';
+import '../models/widget_layout.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,14 +25,17 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<WeatherWidgetState> _weatherKey = GlobalKey();
-  final GlobalKey<TrainDeparturesWidgetState> _trainKey = GlobalKey();
-  final GlobalKey<TrainDeparturesWidgetState> _busKey = GlobalKey();
   Timer? _refreshTimer;
+  Timer? _saveDebounceTimer;
   DateTime? _lastUpdated;
   bool _isFullScreen = false;
+  bool _isEditMode = false;
 
   // Transport mode toggle: 0 = Regional, 1 = Bus
   int _selectedTransportMode = 0;
+
+  // Layout
+  DashboardLayout _dashboardLayout = DashboardLayout.defaultLayout;
 
   // Settings
   double _weatherScale = 1.0;
@@ -43,6 +51,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _loadSettings();
+    _loadLayout();
     _loadVersion();
     _startRefreshTimer();
   }
@@ -72,6 +81,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() => _settingsLoaded = true);
   }
 
+  Future<void> _loadLayout() async {
+    final layout = await LayoutService.getLayout();
+    if (mounted) {
+      setState(() => _dashboardLayout = layout);
+    }
+  }
+
   void _startRefreshTimer() {
     _refreshAll();
     _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) {
@@ -80,11 +96,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _refreshAll() async {
-    final activeTransportKey = _selectedTransportMode == 0 ? _trainKey : _busKey;
-    await Future.wait([
-      _weatherKey.currentState?.refresh() ?? Future.value(),
-      activeTransportKey.currentState?.refresh() ?? Future.value(),
-    ]);
+    await _weatherKey.currentState?.refresh();
     if (mounted) {
       setState(() => _lastUpdated = DateTime.now());
     }
@@ -93,6 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    _saveDebounceTimer?.cancel();
     super.dispose();
   }
 
@@ -107,6 +120,163 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (e) {
       print('Failed to toggle full screen: $e');
     }
+  }
+
+  void _toggleEditMode() {
+    setState(() => _isEditMode = !_isEditMode);
+    if (!_isEditMode) {
+      _saveLayout();
+    }
+  }
+
+  void _updateWidgetLayout(String widgetId, WidgetLayout layout) {
+    setState(() {
+      _dashboardLayout = _dashboardLayout.updateWidget(widgetId, layout);
+    });
+    _debounceSaveLayout();
+  }
+
+  void _debounceSaveLayout() {
+    _saveDebounceTimer?.cancel();
+    _saveDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _saveLayout();
+    });
+  }
+
+  Future<void> _saveLayout() async {
+    await LayoutService.saveLayout(_dashboardLayout);
+  }
+
+  Future<void> _resetLayout() async {
+    await LayoutService.resetToDefault();
+    setState(() => _dashboardLayout = DashboardLayout.defaultLayout);
+  }
+
+  void _showSettings() {
+    showDialog(
+      context: context,
+      builder: (context) => SettingsDialog(
+        initialWeatherScale: _weatherScale,
+        initialDepartureScale: _departureScale,
+        initialStationId: _defaultStation?.id ?? Station.defaultStation.id,
+        initialTransportType: _defaultTransportType ?? TransportType.regional,
+        initialSkipMinutes: _skipMinutes,
+        initialDurationMinutes: _durationMinutes,
+        onSave: (weatherScale, departureScale, stationId, type, skipMinutes, durationMinutes) {
+          setState(() {
+            _weatherScale = weatherScale;
+            _departureScale = departureScale;
+            _defaultStation = Station.popularStations.firstWhere(
+              (s) => s.id == stationId,
+              orElse: () => Station.defaultStation,
+            );
+            _defaultTransportType = type;
+            _skipMinutes = skipMinutes;
+            _durationMinutes = durationMinutes;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildWidget(String widgetId) {
+    switch (widgetId) {
+      case 'clock':
+        return const ClockWidget();
+      case 'logo':
+        return _buildLogoWidget();
+      case 'weather':
+        return WeatherWidget(
+          key: _weatherKey,
+          scaleFactor: _weatherScale,
+        );
+      case 'departures':
+        return _buildDeparturesWidget();
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Widget _buildLogoWidget() {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF252830),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(
+            child: Image.asset(
+              'assets/images/logo.png',
+              height: 80,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Glance',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 1.0,
+            ),
+          ),
+          Text(
+            _version,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.white54,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeparturesWidget() {
+    return Column(
+      children: [
+        _buildTransportModeToggle(),
+        const SizedBox(height: 12),
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0.05, 0),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              );
+            },
+            child: _selectedTransportMode == 0
+                ? TrainDeparturesWidget(
+                    key: const ValueKey('regional'),
+                    initialStation: _defaultStation,
+                    initialTransportType: _defaultTransportType ?? TransportType.regional,
+                    scaleFactor: _departureScale,
+                    skipMinutes: _skipMinutes,
+                    durationMinutes: _durationMinutes,
+                    compactMode: false,
+                  )
+                : TrainDeparturesWidget(
+                    key: const ValueKey('bus'),
+                    initialStation: _defaultStation,
+                    initialTransportType: TransportType.bus,
+                    scaleFactor: _departureScale,
+                    skipMinutes: _skipMinutes,
+                    durationMinutes: _durationMinutes,
+                    compactMode: false,
+                  ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildTransportModeToggle() {
@@ -184,34 +354,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void _showSettings() {
-    showDialog(
-      context: context,
-      builder: (context) => SettingsDialog(
-        initialWeatherScale: _weatherScale,
-        initialDepartureScale: _departureScale,
-        initialStationId: _defaultStation?.id ?? Station.defaultStation.id,
-        initialTransportType: _defaultTransportType ?? TransportType.regional,
-        initialSkipMinutes: _skipMinutes,
-        initialDurationMinutes: _durationMinutes,
-        onSave: (weatherScale, departureScale, stationId, type, skipMinutes, durationMinutes) {
-          setState(() {
-            _weatherScale = weatherScale;
-            _departureScale = departureScale;
-            _defaultStation = Station.popularStations.firstWhere(
-              (s) => s.id == stationId,
-              orElse: () => Station.defaultStation,
-            );
-            _defaultTransportType = type;
-            _skipMinutes = skipMinutes;
-            _durationMinutes = durationMinutes;
-            // Trigger rebuild with new settings
-          });
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (!_settingsLoaded) {
@@ -223,155 +365,145 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1D23),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  // Header with controls
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Hidden dummy to balance row if needed, or just alignment
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              _isFullScreen
-                                  ? Icons.fullscreen_exit
-                                  : Icons.fullscreen,
-                              color: Colors.white54,
-                            ),
-                            onPressed: _toggleFullScreen,
-                            tooltip: 'Toggle Full Screen',
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.settings,
-                                color: Colors.white54),
-                            onPressed: _showSettings,
-                            tooltip: 'Settings',
-                          ),
-                        ],
-                      ),
-                      if (_lastUpdated != null)
-                        Text(
-                          'Last updated at: ${DateFormat('HH:mm').format(_lastUpdated!)}',
-                          style: const TextStyle(
-                            color: Colors.white24,
-                            fontSize: 12,
-                          ),
-                        ),
-                      IconButton(
-                        icon: const Icon(Icons.refresh, color: Colors.white54),
-                        onPressed: _refreshAll,
-                        tooltip: 'Force Refresh',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Top row with clock and weather
-                  Expanded(
-                    flex: 1,
-                    child: Row(
+      body: KeyboardListener(
+        focusNode: FocusNode()..requestFocus(),
+        onKeyEvent: (event) {
+          if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.escape && _isEditMode) {
+            _toggleEditMode();
+          }
+        },
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header with controls
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
                       children: [
-                        // Clock module
-                        const Expanded(
-                          flex: 1,
-                          child: ClockWidget(),
-                        ),
-                        const SizedBox(width: 16),
-                        // Branding
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                'assets/images/logo.png',
-                                height: 80,
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                'Glance',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                              Text(
-                                _version,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.white54,
-                                ),
-                              ),
-                            ],
+                        IconButton(
+                          icon: Icon(
+                            _isFullScreen
+                                ? Icons.fullscreen_exit
+                                : Icons.fullscreen,
+                            color: Colors.white54,
                           ),
+                          onPressed: _toggleFullScreen,
+                          tooltip: 'Toggle Full Screen',
                         ),
-                        const SizedBox(width: 16),
-                        // Weather module
-                        Expanded(
-                          flex: 1,
-                          child: WeatherWidget(
-                            key: _weatherKey,
-                            scaleFactor: _weatherScale,
+                        IconButton(
+                          icon: const Icon(Icons.settings, color: Colors.white54),
+                          onPressed: _showSettings,
+                          tooltip: 'Settings',
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.dashboard_customize,
+                            color: _isEditMode ? const Color(0xFF3B82F6) : Colors.white54,
                           ),
+                          onPressed: _toggleEditMode,
+                          tooltip: 'Edit Layout',
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Transport mode toggle
-                  _buildTransportModeToggle(),
-                  const SizedBox(height: 16),
-                  // Bottom section with departures (switched by toggle)
-                  Expanded(
-                    flex: 2,
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      transitionBuilder: (child, animation) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: SlideTransition(
-                            position: Tween<Offset>(
-                              begin: const Offset(0.05, 0),
-                              end: Offset.zero,
-                            ).animate(animation),
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: _selectedTransportMode == 0
-                          ? TrainDeparturesWidget(
-                              key: const ValueKey('regional'),
-                              initialStation: _defaultStation,
-                              initialTransportType: _defaultTransportType ?? TransportType.regional,
-                              scaleFactor: _departureScale,
-                              skipMinutes: _skipMinutes,
-                              durationMinutes: _durationMinutes,
-                              compactMode: false,
-                            )
-                          : TrainDeparturesWidget(
-                              key: const ValueKey('bus'),
-                              initialStation: _defaultStation,
-                              initialTransportType: TransportType.bus,
-                              scaleFactor: _departureScale,
-                              skipMinutes: _skipMinutes,
-                              durationMinutes: _durationMinutes,
-                              compactMode: false,
-                            ),
+                    if (_lastUpdated != null)
+                      Text(
+                        'Last updated at: ${DateFormat('HH:mm').format(_lastUpdated!)}',
+                        style: const TextStyle(
+                          color: Colors.white24,
+                          fontSize: 12,
+                        ),
+                      ),
+                    IconButton(
+                      icon: const Icon(Icons.refresh, color: Colors.white54),
+                      onPressed: _refreshAll,
+                      tooltip: 'Force Refresh',
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+              // Main content area with Stack layout
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final containerSize = Size(constraints.maxWidth, constraints.maxHeight);
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          // Render widgets based on layout
+                          for (final entry in _dashboardLayout.layouts.entries)
+                            Positioned(
+                              left: entry.value.x * containerSize.width,
+                              top: entry.value.y * containerSize.height,
+                              width: entry.value.width * containerSize.width,
+                              height: entry.value.height * containerSize.height,
+                              child: DraggableResizableContainer(
+                                isEditMode: _isEditMode,
+                                layout: entry.value,
+                                containerSize: containerSize,
+                                onLayoutUpdate: (newLayout) => _updateWidgetLayout(entry.key, newLayout),
+                                minWidth: _getMinWidth(entry.key),
+                                minHeight: _getMinHeight(entry.key),
+                                child: _buildWidget(entry.key),
+                              ),
+                            ),
+                          // Edit mode toolbar
+                          if (_isEditMode)
+                            Positioned(
+                              bottom: 20,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: EditModeToolbar(
+                                  onDone: _toggleEditMode,
+                                  onReset: _resetLayout,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  double _getMinWidth(String widgetId) {
+    switch (widgetId) {
+      case 'clock':
+        return 180;
+      case 'logo':
+        return 150;
+      case 'weather':
+        return 200;
+      case 'departures':
+        return 350;
+      default:
+        return 150;
+    }
+  }
+
+  double _getMinHeight(String widgetId) {
+    switch (widgetId) {
+      case 'clock':
+        return 120;
+      case 'logo':
+        return 120;
+      case 'weather':
+        return 150;
+      case 'departures':
+        return 200;
+      default:
+        return 100;
+    }
   }
 }
