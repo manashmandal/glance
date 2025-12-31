@@ -38,6 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // Layout
   DashboardLayout _dashboardLayout = DashboardLayout.defaultLayout;
+  Orientation? _lastOrientation;
 
   // Settings
   double _weatherScale = 1.0;
@@ -53,10 +54,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _loadSettings();
-    _loadLayout();
     _loadVersion();
     _startRefreshTimer();
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final orientation = MediaQuery.of(context).orientation;
+    if (_lastOrientation != orientation) {
+      _lastOrientation = orientation;
+      _loadLayoutForOrientation();
+    }
+  }
+
+  bool get _isPortrait => MediaQuery.of(context).orientation == Orientation.portrait;
+  bool get _isSmallScreen => MediaQuery.of(context).size.shortestSide < 600;
 
   Future<void> _loadVersion() async {
     final packageInfo = await PackageInfo.fromPlatform();
@@ -83,8 +96,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() => _settingsLoaded = true);
   }
 
-  Future<void> _loadLayout() async {
-    final layout = await LayoutService.getLayout();
+  Future<void> _loadLayoutForOrientation() async {
+    final layout = await LayoutService.getLayout(isPortrait: _isPortrait);
     if (mounted) {
       setState(() => _dashboardLayout = layout);
     }
@@ -146,12 +159,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _saveLayout() async {
-    await LayoutService.saveLayout(_dashboardLayout);
+    await LayoutService.saveLayout(_dashboardLayout, isPortrait: _isPortrait);
   }
 
   Future<void> _resetLayout() async {
-    await LayoutService.resetToDefault();
-    setState(() => _dashboardLayout = DashboardLayout.defaultLayout);
+    await LayoutService.resetToDefault(isPortrait: _isPortrait);
+    final defaultLayout = _isPortrait
+        ? DashboardLayout.defaultPortraitLayout
+        : DashboardLayout.defaultLandscapeLayout;
+    setState(() => _dashboardLayout = defaultLayout);
   }
 
   void _showSettings() {
@@ -239,6 +255,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDeparturesWidget() {
+    final useCompactMode = _isSmallScreen || _isPortrait;
+
     return Column(
       children: [
         _buildTransportModeToggle(),
@@ -266,7 +284,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     scaleFactor: _departureScale,
                     skipMinutes: _skipMinutes,
                     durationMinutes: _durationMinutes,
-                    compactMode: false,
+                    compactMode: useCompactMode,
                   )
                 : TrainDeparturesWidget(
                     key: const ValueKey('bus'),
@@ -275,7 +293,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     scaleFactor: _departureScale,
                     skipMinutes: _skipMinutes,
                     durationMinutes: _durationMinutes,
-                    compactMode: false,
+                    compactMode: useCompactMode,
                   ),
           ),
         ),
@@ -366,6 +384,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final iconColor = isDark ? Colors.white54 : Colors.black54;
     final mutedTextColor = isDark ? Colors.white24 : Colors.black26;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final padding = screenWidth < 600 ? 12.0 : 24.0;
+    final canEdit = !_isSmallScreen;
 
     if (!_settingsLoaded) {
       return Scaffold(
@@ -388,35 +409,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               // Header with controls
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                padding: EdgeInsets.fromLTRB(padding, _isSmallScreen ? 8 : 16, padding, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        IconButton(
-                          icon: Icon(
-                            _isFullScreen
-                                ? Icons.fullscreen_exit
-                                : Icons.fullscreen,
-                            color: iconColor,
+                        if (!_isSmallScreen)
+                          IconButton(
+                            icon: Icon(
+                              _isFullScreen
+                                  ? Icons.fullscreen_exit
+                                  : Icons.fullscreen,
+                              color: iconColor,
+                            ),
+                            onPressed: _toggleFullScreen,
+                            tooltip: 'Toggle Full Screen',
                           ),
-                          onPressed: _toggleFullScreen,
-                          tooltip: 'Toggle Full Screen',
-                        ),
                         IconButton(
                           icon: Icon(Icons.settings, color: iconColor),
                           onPressed: _showSettings,
                           tooltip: 'Settings',
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.dashboard_customize,
-                            color: _isEditMode ? const Color(0xFF3B82F6) : iconColor,
+                        if (canEdit)
+                          IconButton(
+                            icon: Icon(
+                              Icons.dashboard_customize,
+                              color: _isEditMode ? const Color(0xFF3B82F6) : iconColor,
+                            ),
+                            onPressed: _toggleEditMode,
+                            tooltip: 'Edit Layout',
                           ),
-                          onPressed: _toggleEditMode,
-                          tooltip: 'Edit Layout',
-                        ),
                         IconButton(
                           icon: Icon(
                             isDark ? Icons.light_mode : Icons.dark_mode,
@@ -427,7 +450,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ],
                     ),
-                    if (_lastUpdated != null)
+                    if (_lastUpdated != null && !_isSmallScreen)
                       Text(
                         'Last updated at: ${DateFormat('HH:mm').format(_lastUpdated!)}',
                         style: TextStyle(
@@ -446,7 +469,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               // Main content area with Stack layout
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       final containerSize = Size(constraints.maxWidth, constraints.maxHeight);
@@ -497,6 +520,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   double _getMinWidth(String widgetId) {
+    if (_isSmallScreen) {
+      switch (widgetId) {
+        case 'clock':
+          return 120;
+        case 'logo':
+          return 100;
+        case 'weather':
+          return 120;
+        case 'departures':
+          return 200;
+        default:
+          return 100;
+      }
+    }
     switch (widgetId) {
       case 'clock':
         return 180;
@@ -512,6 +549,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   double _getMinHeight(String widgetId) {
+    if (_isSmallScreen) {
+      switch (widgetId) {
+        case 'clock':
+          return 80;
+        case 'logo':
+          return 80;
+        case 'weather':
+          return 100;
+        case 'departures':
+          return 150;
+        default:
+          return 80;
+      }
+    }
     switch (widgetId) {
       case 'clock':
         return 120;

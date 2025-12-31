@@ -7,10 +7,12 @@ import 'services/theme_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Force landscape orientation
+  // Allow all orientations for mobile support
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
   ]);
 
   // Initialize window manager for desktop

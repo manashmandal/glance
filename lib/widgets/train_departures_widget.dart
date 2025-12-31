@@ -202,39 +202,53 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
     final textColor = context.textPrimary;
     final mutedColor = context.textTertiary;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // First row: title and FROM/TO toggle
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(
-              _selectedTransportType == TransportType.bus
-                  ? Icons.directions_bus
-                  : Icons.train,
-              color: textColor,
-              size: 24,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _selectedTransportType == TransportType.bus
+                      ? Icons.directions_bus
+                      : Icons.train,
+                  color: textColor,
+                  size: 18,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  _selectedTransportType.name,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                if (_isLoading) ...[
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(mutedColor),
+                    ),
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(width: 8),
-            Text(
-              _selectedTransportType.name,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-                letterSpacing: -0.5,
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: [
             // FROM/TO Toggle
             Container(
               decoration: BoxDecoration(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.1)
                     : Colors.black.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
                 border: Border.all(
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.2)
@@ -249,17 +263,17 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     onTap: () => _onDirectionChanged(false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                          horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: !_isArrivalsMode
                             ? const Color(0xFF3B82F6)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         'FROM',
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.bold,
                           color: !_isArrivalsMode
                               ? Colors.white
@@ -273,17 +287,17 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     onTap: () => _onDirectionChanged(true),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                          horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: _isArrivalsMode
                             ? const Color(0xFF3B82F6)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         'TO',
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.bold,
                           color: _isArrivalsMode
                               ? Colors.white
@@ -296,76 +310,67 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            // Station dropdown
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.15)
-                    : Colors.black.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.3)
-                      : Colors.black.withValues(alpha: 0.15),
-                  width: 1,
-                ),
-              ),
-              child: DropdownButton<Station>(
-                value: _selectedStation,
-                dropdownColor: isDark
-                    ? const Color(0xFF1A1D23)
-                    : Colors.white,
-                underline: const SizedBox(),
-                isDense: true,
-                icon: Icon(
-                  Icons.keyboard_arrow_down,
-                  color: textColor,
-                  size: 16,
-                ),
-                selectedItemBuilder: (BuildContext context) {
-                  return Station.popularStations.map((Station station) {
-                    return Center(
-                      child: Text(
-                        station.name.length > 15
-                            ? '${station.name.substring(0, 12)}...'
-                            : station.name,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
-                        ),
-                      ),
-                    );
-                  }).toList();
-                },
-                items: Station.popularStations.map((Station station) {
-                  return DropdownMenuItem<Station>(
-                    value: station,
-                    child: Text(
-                      station.name,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 13,
-                      ),
-                    ),
-                  );
-                }).toList(),
-                onChanged: _onStationChanged,
-              ),
-            ),
-            const SizedBox(width: 8),
-            if (_isLoading)
-              SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(mutedColor),
-                ),
-              ),
           ],
+        ),
+        const SizedBox(height: 8),
+        // Second row: Station dropdown (full width)
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.1),
+              width: 1,
+            ),
+          ),
+          child: DropdownButton<Station>(
+            value: _selectedStation,
+            dropdownColor: isDark
+                ? const Color(0xFF1A1D23)
+                : Colors.white,
+            underline: const SizedBox(),
+            isDense: true,
+            isExpanded: true,
+            icon: Icon(
+              Icons.keyboard_arrow_down,
+              color: textColor,
+              size: 18,
+            ),
+            selectedItemBuilder: (BuildContext context) {
+              return Station.popularStations.map((Station station) {
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    station.name,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              }).toList();
+            },
+            items: Station.popularStations.map((Station station) {
+              return DropdownMenuItem<Station>(
+                value: station,
+                child: Text(
+                  station.name,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 13,
+                  ),
+                ),
+              );
+            }).toList(),
+            onChanged: _onStationChanged,
+          ),
         ),
       ],
     );

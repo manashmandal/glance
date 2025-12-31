@@ -69,7 +69,9 @@ class DashboardLayout {
 
   static const List<String> widgetIds = ['clock', 'logo', 'weather', 'departures'];
 
-  static DashboardLayout get defaultLayout => DashboardLayout(
+  static DashboardLayout get defaultLayout => defaultLandscapeLayout;
+
+  static DashboardLayout get defaultLandscapeLayout => DashboardLayout(
     layouts: {
       'clock': const WidgetLayout(
         widgetId: 'clock',
@@ -98,6 +100,39 @@ class DashboardLayout {
         y: 0.38,
         width: 0.96,
         height: 0.58,
+      ),
+    },
+  );
+
+  static DashboardLayout get defaultPortraitLayout => DashboardLayout(
+    layouts: {
+      'clock': const WidgetLayout(
+        widgetId: 'clock',
+        x: 0.02,
+        y: 0.01,
+        width: 0.96,
+        height: 0.12,
+      ),
+      'logo': const WidgetLayout(
+        widgetId: 'logo',
+        x: 0.02,
+        y: 0.14,
+        width: 0.46,
+        height: 0.14,
+      ),
+      'weather': const WidgetLayout(
+        widgetId: 'weather',
+        x: 0.52,
+        y: 0.14,
+        width: 0.46,
+        height: 0.14,
+      ),
+      'departures': const WidgetLayout(
+        widgetId: 'departures',
+        x: 0.02,
+        y: 0.30,
+        width: 0.96,
+        height: 0.68,
       ),
     },
   );
