@@ -5,6 +5,7 @@ import '../models/train_departure.dart';
 import '../models/station.dart';
 import '../models/transport_type.dart';
 import '../services/bvg_service.dart';
+import '../services/theme_service.dart';
 
 class TrainDeparturesWidget extends StatefulWidget {
   final Station? initialStation;
@@ -116,17 +117,23 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF252931).withValues(alpha: 0.6),
+        color: isDark
+            ? const Color(0xFF252931).withValues(alpha: 0.6)
+            : Colors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -150,7 +157,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                       ? Center(
                           child: Text(
                             'No ${_selectedTransportType == TransportType.bus ? 'bus' : 'train'} departures available',
-                            style: const TextStyle(color: Colors.white54),
+                            style: TextStyle(color: context.textTertiary),
                           ),
                         )
                       : ListView.builder(
@@ -191,6 +198,10 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
   }
 
   Widget _buildCompactHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = context.textPrimary;
+    final mutedColor = context.textTertiary;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -200,16 +211,16 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               _selectedTransportType == TransportType.bus
                   ? Icons.directions_bus
                   : Icons.train,
-              color: Colors.white,
+              color: textColor,
               size: 24,
             ),
             const SizedBox(width: 8),
             Text(
               _selectedTransportType.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: textColor,
                 letterSpacing: -0.5,
               ),
             ),
@@ -220,10 +231,14 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
             // FROM/TO Toggle
             Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.black.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : Colors.black.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),
@@ -248,7 +263,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                           fontWeight: FontWeight.bold,
                           color: !_isArrivalsMode
                               ? Colors.white
-                              : Colors.white54,
+                              : mutedColor,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -272,7 +287,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                           fontWeight: FontWeight.bold,
                           color: _isArrivalsMode
                               ? Colors.white
-                              : Colors.white54,
+                              : mutedColor,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -286,21 +301,27 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.3),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.3)
+                      : Colors.black.withValues(alpha: 0.15),
                   width: 1,
                 ),
               ),
               child: DropdownButton<Station>(
                 value: _selectedStation,
-                dropdownColor: const Color(0xFF1A1D23),
+                dropdownColor: isDark
+                    ? const Color(0xFF1A1D23)
+                    : Colors.white,
                 underline: const SizedBox(),
                 isDense: true,
-                icon: const Icon(
+                icon: Icon(
                   Icons.keyboard_arrow_down,
-                  color: Colors.white,
+                  color: textColor,
                   size: 16,
                 ),
                 selectedItemBuilder: (BuildContext context) {
@@ -310,10 +331,10 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                         station.name.length > 15
                             ? '${station.name.substring(0, 12)}...'
                             : station.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: textColor,
                         ),
                       ),
                     );
@@ -324,8 +345,8 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     value: station,
                     child: Text(
                       station.name,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: textColor,
                         fontSize: 13,
                       ),
                     ),
@@ -336,12 +357,12 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
             ),
             const SizedBox(width: 8),
             if (_isLoading)
-              const SizedBox(
+              SizedBox(
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
+                  valueColor: AlwaysStoppedAnimation<Color>(mutedColor),
                 ),
               ),
           ],
@@ -351,15 +372,19 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
   }
 
   Widget _buildFullHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = context.textPrimary;
+    final mutedColor = context.textTertiary;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           _isArrivalsMode ? 'Arrivals' : 'Departures',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: textColor,
             letterSpacing: -0.5,
           ),
         ),
@@ -382,12 +407,14 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               ),
               child: DropdownButton<TransportType>(
                 value: _selectedTransportType,
-                dropdownColor: const Color(0xFF1A1D23),
+                dropdownColor: isDark
+                    ? const Color(0xFF1A1D23)
+                    : Colors.white,
                 underline: const SizedBox(),
                 isDense: true,
-                icon: const Icon(
+                icon: Icon(
                   Icons.keyboard_arrow_down,
-                  color: Colors.white,
+                  color: textColor,
                   size: 20,
                 ),
                 selectedItemBuilder: (BuildContext context) {
@@ -395,15 +422,15 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.filter_list,
-                            color: Colors.white, size: 16),
+                        Icon(Icons.filter_list,
+                            color: textColor, size: 16),
                         const SizedBox(width: 8),
                         Text(
                           type.shortName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: textColor,
                           ),
                         ),
                       ],
@@ -415,8 +442,8 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     value: type,
                     child: Text(
                       type.name,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: textColor,
                         fontSize: 14,
                       ),
                     ),
@@ -428,10 +455,14 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
             const SizedBox(width: 16),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.black.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : Colors.black.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),
@@ -455,7 +486,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
                           color:
-                              !_isArrivalsMode ? Colors.white : Colors.white54,
+                              !_isArrivalsMode ? Colors.white : mutedColor,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -478,7 +509,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
                           color:
-                              _isArrivalsMode ? Colors.white : Colors.white54,
+                              _isArrivalsMode ? Colors.white : mutedColor,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -493,7 +524,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: Colors.white.withValues(alpha: 0.5),
+                color: mutedColor,
                 letterSpacing: 1.0,
               ),
             ),
@@ -502,21 +533,27 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.3),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.3)
+                      : Colors.black.withValues(alpha: 0.15),
                   width: 1.5,
                 ),
               ),
               child: DropdownButton<Station>(
                 value: _selectedStation,
-                dropdownColor: const Color(0xFF1A1D23),
+                dropdownColor: isDark
+                    ? const Color(0xFF1A1D23)
+                    : Colors.white,
                 underline: const SizedBox(),
                 isDense: false,
-                icon: const Icon(
+                icon: Icon(
                   Icons.keyboard_arrow_down,
-                  color: Colors.white,
+                  color: textColor,
                   size: 20,
                 ),
                 selectedItemBuilder: (BuildContext context) {
@@ -524,10 +561,10 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     return Center(
                       child: Text(
                         station.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: textColor,
                         ),
                       ),
                     );
@@ -538,8 +575,8 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     value: station,
                     child: Text(
                       station.name,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: textColor,
                         fontSize: 15,
                       ),
                     ),
@@ -550,12 +587,12 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
             ),
             const SizedBox(width: 12),
             if (_isLoading)
-              const SizedBox(
+              SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
+                  valueColor: AlwaysStoppedAnimation<Color>(mutedColor),
                 ),
               ),
           ],
@@ -565,13 +602,18 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
   }
 
   Widget _buildCompactTableHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headerColor = context.textSecondary;
+
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: 12 * widget.scaleFactor,
         vertical: 10 * widget.scaleFactor,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -583,7 +625,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               style: TextStyle(
                 fontSize: 13 * widget.scaleFactor,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: headerColor,
               ),
             ),
           ),
@@ -594,7 +636,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               style: TextStyle(
                 fontSize: 13 * widget.scaleFactor,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: headerColor,
               ),
             ),
           ),
@@ -604,7 +646,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               style: TextStyle(
                 fontSize: 13 * widget.scaleFactor,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: headerColor,
               ),
             ),
           ),
@@ -615,7 +657,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               style: TextStyle(
                 fontSize: 13 * widget.scaleFactor,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: headerColor,
               ),
             ),
           ),
@@ -625,13 +667,18 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
   }
 
   Widget _buildFullTableHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headerColor = context.textSecondary;
+
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: 20 * widget.scaleFactor,
         vertical: 16 * widget.scaleFactor,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -643,7 +690,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               style: TextStyle(
                 fontSize: 16 * widget.scaleFactor,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: headerColor,
               ),
             ),
           ),
@@ -654,7 +701,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               style: TextStyle(
                 fontSize: 16 * widget.scaleFactor,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: headerColor,
               ),
             ),
           ),
@@ -665,7 +712,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               style: TextStyle(
                 fontSize: 16 * widget.scaleFactor,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: headerColor,
               ),
             ),
           ),
@@ -678,7 +725,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                 style: TextStyle(
                   fontSize: 16 * widget.scaleFactor,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.7),
+                  color: headerColor,
                 ),
               ),
             ),
@@ -690,7 +737,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               style: TextStyle(
                 fontSize: 16 * widget.scaleFactor,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: headerColor,
               ),
             ),
           ),
@@ -701,7 +748,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               style: TextStyle(
                 fontSize: 16 * widget.scaleFactor,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: headerColor,
               ),
             ),
           ),
@@ -746,14 +793,22 @@ class TrainRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = context.textPrimary;
+    final mutedColor = context.textSecondary;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.03)
+            : Colors.black.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -766,7 +821,7 @@ class TrainRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20 * scaleFactor,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: textColor,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
@@ -778,7 +833,7 @@ class TrainRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20 * scaleFactor,
                 fontWeight: FontWeight.bold,
-                color: Colors.white70,
+                color: mutedColor,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
@@ -790,7 +845,7 @@ class TrainRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18 * scaleFactor,
                 fontWeight: FontWeight.w500,
-                color: Colors.white,
+                color: textColor,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -861,7 +916,7 @@ class TrainRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18 * scaleFactor,
                 fontWeight: FontWeight.w500,
-                color: Colors.white.withValues(alpha: 0.8),
+                color: mutedColor,
               ),
             ),
           ),
@@ -915,14 +970,22 @@ class CompactTrainRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = context.textPrimary;
+    final mutedColor = context.textSecondary;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.03)
+            : Colors.black.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -935,7 +998,7 @@ class CompactTrainRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16 * scaleFactor,
                 fontWeight: FontWeight.bold,
-                color: Colors.white70,
+                color: mutedColor,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
@@ -989,7 +1052,7 @@ class CompactTrainRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14 * scaleFactor,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white,
+                  color: textColor,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),

@@ -15,6 +15,8 @@ import '../services/layout_service.dart';
 import '../models/station.dart';
 import '../models/transport_type.dart';
 import '../models/widget_layout.dart';
+import '../main.dart';
+import '../services/theme_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -198,10 +200,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildLogoWidget() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF252830),
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: isDark ? null : Border.all(color: context.borderColor),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -213,20 +217,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Glance',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: context.textPrimary,
               letterSpacing: 1.0,
             ),
           ),
           Text(
             _version,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Colors.white54,
+              color: context.textTertiary,
             ),
           ),
         ],
@@ -280,10 +284,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildTransportModeToggle() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -314,6 +319,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required Color color,
   }) {
     final isSelected = _selectedTransportMode == index;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final unselectedColor = isDark ? Colors.white38 : Colors.black38;
     return GestureDetector(
       onTap: () {
         if (_selectedTransportMode != index) {
@@ -337,13 +344,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Icon(
               icon,
               size: 20,
-              color: isSelected ? color : Colors.white38,
+              color: isSelected ? color : unselectedColor,
             ),
             const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? color : Colors.white38,
+                color: isSelected ? color : unselectedColor,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 fontSize: 14,
               ),
@@ -356,15 +363,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDark ? Colors.white54 : Colors.black54;
+    final mutedTextColor = isDark ? Colors.white24 : Colors.black26;
+
     if (!_settingsLoaded) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF1A1D23),
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: context.backgroundColor,
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1D23),
+      backgroundColor: context.backgroundColor,
       body: KeyboardListener(
         focusNode: FocusNode()..requestFocus(),
         onKeyEvent: (event) {
@@ -388,36 +399,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             _isFullScreen
                                 ? Icons.fullscreen_exit
                                 : Icons.fullscreen,
-                            color: Colors.white54,
+                            color: iconColor,
                           ),
                           onPressed: _toggleFullScreen,
                           tooltip: 'Toggle Full Screen',
                         ),
                         IconButton(
-                          icon: const Icon(Icons.settings, color: Colors.white54),
+                          icon: Icon(Icons.settings, color: iconColor),
                           onPressed: _showSettings,
                           tooltip: 'Settings',
                         ),
                         IconButton(
                           icon: Icon(
                             Icons.dashboard_customize,
-                            color: _isEditMode ? const Color(0xFF3B82F6) : Colors.white54,
+                            color: _isEditMode ? const Color(0xFF3B82F6) : iconColor,
                           ),
                           onPressed: _toggleEditMode,
                           tooltip: 'Edit Layout',
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            isDark ? Icons.light_mode : Icons.dark_mode,
+                            color: iconColor,
+                          ),
+                          onPressed: () => GlanceApp.of(context)?.toggleTheme(),
+                          tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
                         ),
                       ],
                     ),
                     if (_lastUpdated != null)
                       Text(
                         'Last updated at: ${DateFormat('HH:mm').format(_lastUpdated!)}',
-                        style: const TextStyle(
-                          color: Colors.white24,
+                        style: TextStyle(
+                          color: mutedTextColor,
                           fontSize: 12,
                         ),
                       ),
                     IconButton(
-                      icon: const Icon(Icons.refresh, color: Colors.white54),
+                      icon: Icon(Icons.refresh, color: iconColor),
                       onPressed: _refreshAll,
                       tooltip: 'Force Refresh',
                     ),

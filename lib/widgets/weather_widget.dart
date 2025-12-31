@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'dart:async';
 import '../models/weather_data.dart';
 import '../services/weather_service.dart';
+import '../services/theme_service.dart';
 
 class WeatherWidget extends StatefulWidget {
   final double scaleFactor;
@@ -51,19 +52,23 @@ class WeatherWidgetState extends State<WeatherWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF3B82F6).withValues(alpha: 0.3),
-            const Color(0xFFF59E0B).withValues(alpha: 0.3),
+            const Color(0xFF3B82F6).withValues(alpha: isDark ? 0.3 : 0.2),
+            const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.3 : 0.2),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.15),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.15)
+              : Colors.black.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
@@ -73,7 +78,7 @@ class WeatherWidgetState extends State<WeatherWidget> {
             offset: const Offset(0, 10),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -86,21 +91,25 @@ class WeatherWidgetState extends State<WeatherWidget> {
           child: Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: const Color(0xFF252931).withValues(alpha: 0.5),
+              color: isDark
+                  ? const Color(0xFF252931).withValues(alpha: 0.5)
+                  : Colors.white.withValues(alpha: 0.7),
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 if (_isLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: context.textPrimary,
+                    ),
                   );
                 }
 
                 if (_weather == null) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       'Weather Unavailable',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: context.textPrimary),
                     ),
                   );
                 }
@@ -173,7 +182,7 @@ class WeatherWidgetState extends State<WeatherWidget> {
                             style: TextStyle(
                               fontSize: tempFontSize,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: context.textPrimary,
                               letterSpacing: -0.5,
                             ),
                           ),
@@ -186,7 +195,7 @@ class WeatherWidgetState extends State<WeatherWidget> {
                             style: TextStyle(
                               fontSize: descFontSize,
                               fontWeight: FontWeight.w500,
-                              color: Colors.white.withValues(alpha: 0.9),
+                              color: context.textSecondary,
                             ),
                           ),
                         ),
@@ -198,7 +207,7 @@ class WeatherWidgetState extends State<WeatherWidget> {
                             style: TextStyle(
                               fontSize: descFontSize * 0.9,
                               fontWeight: FontWeight.w400,
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: context.textTertiary,
                             ),
                           ),
                         ),
