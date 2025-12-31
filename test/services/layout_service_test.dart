@@ -10,7 +10,8 @@ void main() {
     });
 
     group('getLayout', () {
-      test('returns default landscape layout when no saved layout exists', () async {
+      test('returns default landscape layout when no saved layout exists',
+          () async {
         final layout = await LayoutService.getLayout(isPortrait: false);
 
         expect(layout.layouts.length, equals(4));
@@ -20,7 +21,8 @@ void main() {
         expect(layout.layouts.containsKey('departures'), isTrue);
       });
 
-      test('returns default portrait layout when no saved layout exists', () async {
+      test('returns default portrait layout when no saved layout exists',
+          () async {
         final layout = await LayoutService.getLayout(isPortrait: true);
 
         expect(layout.layouts.length, equals(4));
@@ -121,9 +123,16 @@ void main() {
               width: 0.3,
               height: 0.3,
             ),
-            'logo': const WidgetLayout(widgetId: 'logo', x: 0.4, y: 0.1, width: 0.3, height: 0.3),
-            'weather': const WidgetLayout(widgetId: 'weather', x: 0.7, y: 0.1, width: 0.2, height: 0.3),
-            'departures': const WidgetLayout(widgetId: 'departures', x: 0.1, y: 0.5, width: 0.8, height: 0.4),
+            'logo': const WidgetLayout(
+                widgetId: 'logo', x: 0.4, y: 0.1, width: 0.3, height: 0.3),
+            'weather': const WidgetLayout(
+                widgetId: 'weather', x: 0.7, y: 0.1, width: 0.2, height: 0.3),
+            'departures': const WidgetLayout(
+                widgetId: 'departures',
+                x: 0.1,
+                y: 0.5,
+                width: 0.8,
+                height: 0.4),
           },
         );
 
@@ -136,31 +145,49 @@ void main() {
               width: 0.9,
               height: 0.1,
             ),
-            'logo': const WidgetLayout(widgetId: 'logo', x: 0.05, y: 0.2, width: 0.4, height: 0.15),
-            'weather': const WidgetLayout(widgetId: 'weather', x: 0.55, y: 0.2, width: 0.4, height: 0.15),
-            'departures': const WidgetLayout(widgetId: 'departures', x: 0.05, y: 0.4, width: 0.9, height: 0.55),
+            'logo': const WidgetLayout(
+                widgetId: 'logo', x: 0.05, y: 0.2, width: 0.4, height: 0.15),
+            'weather': const WidgetLayout(
+                widgetId: 'weather', x: 0.55, y: 0.2, width: 0.4, height: 0.15),
+            'departures': const WidgetLayout(
+                widgetId: 'departures',
+                x: 0.05,
+                y: 0.4,
+                width: 0.9,
+                height: 0.55),
           },
         );
 
         await LayoutService.saveLayout(landscapeLayout, isPortrait: false);
         await LayoutService.saveLayout(portraitLayout, isPortrait: true);
 
-        final retrievedLandscape = await LayoutService.getLayout(isPortrait: false);
-        final retrievedPortrait = await LayoutService.getLayout(isPortrait: true);
+        final retrievedLandscape =
+            await LayoutService.getLayout(isPortrait: false);
+        final retrievedPortrait =
+            await LayoutService.getLayout(isPortrait: true);
 
         expect(retrievedLandscape.layouts['clock']!.width, equals(0.3));
         expect(retrievedPortrait.layouts['clock']!.width, equals(0.9));
       });
 
-      test('falls back to legacy key for landscape when new key missing', () async {
+      test('falls back to legacy key for landscape when new key missing',
+          () async {
         // Simulate legacy layout saved under old key
         final prefs = await SharedPreferences.getInstance();
         final legacyLayout = DashboardLayout(
           layouts: {
-            'clock': const WidgetLayout(widgetId: 'clock', x: 0.15, y: 0.15, width: 0.25, height: 0.25),
-            'logo': const WidgetLayout(widgetId: 'logo', x: 0.4, y: 0.1, width: 0.3, height: 0.3),
-            'weather': const WidgetLayout(widgetId: 'weather', x: 0.7, y: 0.1, width: 0.2, height: 0.3),
-            'departures': const WidgetLayout(widgetId: 'departures', x: 0.1, y: 0.5, width: 0.8, height: 0.4),
+            'clock': const WidgetLayout(
+                widgetId: 'clock', x: 0.15, y: 0.15, width: 0.25, height: 0.25),
+            'logo': const WidgetLayout(
+                widgetId: 'logo', x: 0.4, y: 0.1, width: 0.3, height: 0.3),
+            'weather': const WidgetLayout(
+                widgetId: 'weather', x: 0.7, y: 0.1, width: 0.2, height: 0.3),
+            'departures': const WidgetLayout(
+                widgetId: 'departures',
+                x: 0.1,
+                y: 0.5,
+                width: 0.8,
+                height: 0.4),
           },
         );
         await prefs.setString('dashboard_layout', legacyLayout.toJsonString());
@@ -193,7 +220,8 @@ void main() {
 
     group('resetToDefault', () {
       test('removes landscape layout key', () async {
-        await LayoutService.saveLayout(DashboardLayout.defaultLandscapeLayout, isPortrait: false);
+        await LayoutService.saveLayout(DashboardLayout.defaultLandscapeLayout,
+            isPortrait: false);
 
         final prefs = await SharedPreferences.getInstance();
         expect(prefs.containsKey('dashboard_layout_landscape'), isTrue);
@@ -204,7 +232,8 @@ void main() {
       });
 
       test('removes portrait layout key', () async {
-        await LayoutService.saveLayout(DashboardLayout.defaultPortraitLayout, isPortrait: true);
+        await LayoutService.saveLayout(DashboardLayout.defaultPortraitLayout,
+            isPortrait: true);
 
         final prefs = await SharedPreferences.getInstance();
         expect(prefs.containsKey('dashboard_layout_portrait'), isTrue);
@@ -217,10 +246,18 @@ void main() {
       test('after reset, getLayout returns default', () async {
         final customLayout = DashboardLayout(
           layouts: {
-            'clock': const WidgetLayout(widgetId: 'clock', x: 0.5, y: 0.5, width: 0.2, height: 0.2),
-            'logo': const WidgetLayout(widgetId: 'logo', x: 0.4, y: 0.1, width: 0.3, height: 0.3),
-            'weather': const WidgetLayout(widgetId: 'weather', x: 0.7, y: 0.1, width: 0.2, height: 0.3),
-            'departures': const WidgetLayout(widgetId: 'departures', x: 0.1, y: 0.5, width: 0.8, height: 0.4),
+            'clock': const WidgetLayout(
+                widgetId: 'clock', x: 0.5, y: 0.5, width: 0.2, height: 0.2),
+            'logo': const WidgetLayout(
+                widgetId: 'logo', x: 0.4, y: 0.1, width: 0.3, height: 0.3),
+            'weather': const WidgetLayout(
+                widgetId: 'weather', x: 0.7, y: 0.1, width: 0.2, height: 0.3),
+            'departures': const WidgetLayout(
+                widgetId: 'departures',
+                x: 0.1,
+                y: 0.5,
+                width: 0.8,
+                height: 0.4),
           },
         );
         await LayoutService.saveLayout(customLayout, isPortrait: false);
@@ -236,8 +273,10 @@ void main() {
 
     group('resetAllLayouts', () {
       test('removes all layout keys including legacy', () async {
-        await LayoutService.saveLayout(DashboardLayout.defaultLandscapeLayout, isPortrait: false);
-        await LayoutService.saveLayout(DashboardLayout.defaultPortraitLayout, isPortrait: true);
+        await LayoutService.saveLayout(DashboardLayout.defaultLandscapeLayout,
+            isPortrait: false);
+        await LayoutService.saveLayout(DashboardLayout.defaultPortraitLayout,
+            isPortrait: true);
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('dashboard_layout', 'legacy_data');

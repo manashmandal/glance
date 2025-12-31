@@ -65,7 +65,8 @@ class BvgService {
 
             // Skip arrivals that are before the skip threshold
             if (arrivalTime.isBefore(skipUntil)) {
-              print('\nArrival #$i skipped (within skip window of $skipMinutes min)');
+              print(
+                  '\nArrival #$i skipped (within skip window of $skipMinutes min)');
               continue;
             }
 
@@ -167,7 +168,8 @@ class BvgService {
 
             // Skip departures that are before the skip threshold
             if (departureTime.isBefore(skipUntil)) {
-              print('\nDeparture #$i skipped (within skip window of $skipMinutes min)');
+              print(
+                  '\nDeparture #$i skipped (within skip window of $skipMinutes min)');
               continue;
             }
 

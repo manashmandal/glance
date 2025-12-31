@@ -78,3 +78,4 @@ app.*.map.json
 /linux/flutter/ephemeral/
 /linux/flutter/generated_plugin_registrant.cc
 /linux/flutter/generated_plugin_registrant.h
+.playwright-mcp/

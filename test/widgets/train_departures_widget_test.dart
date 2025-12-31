@@ -39,13 +39,15 @@ class MockHttpClientResponse implements HttpClientResponse {
     final mockData = {
       'departures': [
         {
-          'when': DateTime.now().add(const Duration(minutes: 10)).toIso8601String(),
+          'when':
+              DateTime.now().add(const Duration(minutes: 10)).toIso8601String(),
           'line': {'name': 'RE1', 'productName': 'RE'},
           'direction': 'Berlin Hbf',
           'platform': '1',
         },
         {
-          'when': DateTime.now().add(const Duration(minutes: 20)).toIso8601String(),
+          'when':
+              DateTime.now().add(const Duration(minutes: 20)).toIso8601String(),
           'line': {'name': 'RE2', 'productName': 'RE'},
           'direction': 'Potsdam',
           'platform': '2',
@@ -115,7 +117,8 @@ void main() {
 
   group('TrainDeparturesWidget', () {
     group('compactMode parameter', () {
-      testWidgets('renders in full mode by default', (WidgetTester tester) async {
+      testWidgets('renders in full mode by default',
+          (WidgetTester tester) async {
         tester.view.physicalSize = const Size(1600, 900);
         tester.view.devicePixelRatio = 1.0;
 
@@ -130,7 +133,8 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('renders in compact mode when specified', (WidgetTester tester) async {
+      testWidgets('renders in compact mode when specified',
+          (WidgetTester tester) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -143,7 +147,8 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('compact mode shows transport type name in header', (WidgetTester tester) async {
+      testWidgets('compact mode shows transport type name in header',
+          (WidgetTester tester) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -157,7 +162,8 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('compact mode shows FROM/TO toggle', (WidgetTester tester) async {
+      testWidgets('compact mode shows FROM/TO toggle',
+          (WidgetTester tester) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -171,7 +177,8 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('full mode shows Departures or Arrivals label', (WidgetTester tester) async {
+      testWidgets('full mode shows Departures or Arrivals label',
+          (WidgetTester tester) async {
         tester.view.physicalSize = const Size(1600, 900);
         tester.view.devicePixelRatio = 1.0;
 
@@ -182,14 +189,17 @@ void main() {
         // Either Departures or Arrivals should be present based on mode
         final departures = find.text('Departures');
         final arrivals = find.text('Arrivals');
-        expect(departures.evaluate().isNotEmpty || arrivals.evaluate().isNotEmpty, isTrue);
+        expect(
+            departures.evaluate().isNotEmpty || arrivals.evaluate().isNotEmpty,
+            isTrue);
 
         addTearDown(tester.view.resetPhysicalSize);
       });
     });
 
     group('table headers', () {
-      testWidgets('compact mode shows Min, Line, Destination, Status columns', (WidgetTester tester) async {
+      testWidgets('compact mode shows Min, Line, Destination, Status columns',
+          (WidgetTester tester) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -205,7 +215,9 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('full mode shows Time, Min, Destination, Line, Platform, Status columns', (WidgetTester tester) async {
+      testWidgets(
+          'full mode shows Time, Min, Destination, Line, Platform, Status columns',
+          (WidgetTester tester) async {
         tester.view.physicalSize = const Size(1600, 900);
         tester.view.devicePixelRatio = 1.0;
 
@@ -226,7 +238,8 @@ void main() {
     });
 
     group('station selector', () {
-      testWidgets('shows station dropdown in both modes', (WidgetTester tester) async {
+      testWidgets('shows station dropdown in both modes',
+          (WidgetTester tester) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -242,7 +255,8 @@ void main() {
     });
 
     group('transport type', () {
-      testWidgets('initializes with provided transport type', (WidgetTester tester) async {
+      testWidgets('initializes with provided transport type',
+          (WidgetTester tester) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -274,7 +288,8 @@ void main() {
     });
 
     group('responsive behavior', () {
-      testWidgets('compact mode uses smaller padding', (WidgetTester tester) async {
+      testWidgets('compact mode uses smaller padding',
+          (WidgetTester tester) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 

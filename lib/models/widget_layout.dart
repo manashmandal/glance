@@ -67,75 +67,80 @@ class DashboardLayout {
     this.version = 1,
   });
 
-  static const List<String> widgetIds = ['clock', 'logo', 'weather', 'departures'];
+  static const List<String> widgetIds = [
+    'clock',
+    'logo',
+    'weather',
+    'departures'
+  ];
 
   static DashboardLayout get defaultLayout => defaultLandscapeLayout;
 
   static DashboardLayout get defaultLandscapeLayout => DashboardLayout(
-    layouts: {
-      'clock': const WidgetLayout(
-        widgetId: 'clock',
-        x: 0.02,
-        y: 0.02,
-        width: 0.30,
-        height: 0.32,
-      ),
-      'logo': const WidgetLayout(
-        widgetId: 'logo',
-        x: 0.35,
-        y: 0.02,
-        width: 0.30,
-        height: 0.32,
-      ),
-      'weather': const WidgetLayout(
-        widgetId: 'weather',
-        x: 0.68,
-        y: 0.02,
-        width: 0.30,
-        height: 0.32,
-      ),
-      'departures': const WidgetLayout(
-        widgetId: 'departures',
-        x: 0.02,
-        y: 0.38,
-        width: 0.96,
-        height: 0.58,
-      ),
-    },
-  );
+        layouts: {
+          'clock': const WidgetLayout(
+            widgetId: 'clock',
+            x: 0.02,
+            y: 0.02,
+            width: 0.30,
+            height: 0.32,
+          ),
+          'logo': const WidgetLayout(
+            widgetId: 'logo',
+            x: 0.35,
+            y: 0.02,
+            width: 0.30,
+            height: 0.32,
+          ),
+          'weather': const WidgetLayout(
+            widgetId: 'weather',
+            x: 0.68,
+            y: 0.02,
+            width: 0.30,
+            height: 0.32,
+          ),
+          'departures': const WidgetLayout(
+            widgetId: 'departures',
+            x: 0.02,
+            y: 0.38,
+            width: 0.96,
+            height: 0.58,
+          ),
+        },
+      );
 
   static DashboardLayout get defaultPortraitLayout => DashboardLayout(
-    layouts: {
-      'clock': const WidgetLayout(
-        widgetId: 'clock',
-        x: 0.02,
-        y: 0.01,
-        width: 0.96,
-        height: 0.12,
-      ),
-      'logo': const WidgetLayout(
-        widgetId: 'logo',
-        x: 0.02,
-        y: 0.14,
-        width: 0.46,
-        height: 0.14,
-      ),
-      'weather': const WidgetLayout(
-        widgetId: 'weather',
-        x: 0.52,
-        y: 0.14,
-        width: 0.46,
-        height: 0.14,
-      ),
-      'departures': const WidgetLayout(
-        widgetId: 'departures',
-        x: 0.02,
-        y: 0.30,
-        width: 0.96,
-        height: 0.68,
-      ),
-    },
-  );
+        layouts: {
+          'clock': const WidgetLayout(
+            widgetId: 'clock',
+            x: 0.02,
+            y: 0.01,
+            width: 0.96,
+            height: 0.12,
+          ),
+          'logo': const WidgetLayout(
+            widgetId: 'logo',
+            x: 0.02,
+            y: 0.14,
+            width: 0.46,
+            height: 0.14,
+          ),
+          'weather': const WidgetLayout(
+            widgetId: 'weather',
+            x: 0.52,
+            y: 0.14,
+            width: 0.46,
+            height: 0.14,
+          ),
+          'departures': const WidgetLayout(
+            widgetId: 'departures',
+            x: 0.02,
+            y: 0.30,
+            width: 0.96,
+            height: 0.68,
+          ),
+        },
+      );
 
   DashboardLayout copyWith({
     Map<String, WidgetLayout>? layouts,
@@ -166,7 +171,8 @@ class DashboardLayout {
 
     return DashboardLayout(
       layouts: layoutsJson.map(
-        (key, value) => MapEntry(key, WidgetLayout.fromJson(value as Map<String, dynamic>)),
+        (key, value) =>
+            MapEntry(key, WidgetLayout.fromJson(value as Map<String, dynamic>)),
       ),
       version: json['version'] as int? ?? 1,
     );

@@ -231,8 +231,10 @@ void main() {
         final restored = DashboardLayout.fromJsonString(jsonString);
 
         expect(restored.layouts.length, equals(original.layouts.length));
-        expect(restored.layouts['clock']!.x, equals(original.layouts['clock']!.x));
-        expect(restored.layouts['clock']!.width, equals(original.layouts['clock']!.width));
+        expect(
+            restored.layouts['clock']!.x, equals(original.layouts['clock']!.x));
+        expect(restored.layouts['clock']!.width,
+            equals(original.layouts['clock']!.width));
         expect(restored.version, equals(original.version));
       });
 

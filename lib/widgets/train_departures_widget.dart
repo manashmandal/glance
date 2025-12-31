@@ -34,7 +34,8 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
   bool _isLoading = true;
   late Station _selectedStation;
   late TransportType _selectedTransportType;
-  bool _isArrivalsMode = false; // false = departures (FROM), true = arrivals (TO)
+  bool _isArrivalsMode =
+      false; // false = departures (FROM), true = arrivals (TO)
 
   @override
   void initState() {
@@ -150,7 +151,9 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               children: [
                 widget.compactMode ? _buildCompactHeader() : _buildFullHeader(),
                 SizedBox(height: widget.compactMode ? 16 : 24),
-                widget.compactMode ? _buildCompactTableHeader() : _buildFullTableHeader(),
+                widget.compactMode
+                    ? _buildCompactTableHeader()
+                    : _buildFullTableHeader(),
                 const SizedBox(height: 12),
                 Expanded(
                   child: _departures.isEmpty && !_isLoading
@@ -275,9 +278,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
-                          color: !_isArrivalsMode
-                              ? Colors.white
-                              : mutedColor,
+                          color: !_isArrivalsMode ? Colors.white : mutedColor,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -299,9 +300,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
-                          color: _isArrivalsMode
-                              ? Colors.white
-                              : mutedColor,
+                          color: _isArrivalsMode ? Colors.white : mutedColor,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -330,9 +329,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
           ),
           child: DropdownButton<Station>(
             value: _selectedStation,
-            dropdownColor: isDark
-                ? const Color(0xFF1A1D23)
-                : Colors.white,
+            dropdownColor: isDark ? const Color(0xFF1A1D23) : Colors.white,
             underline: const SizedBox(),
             isDense: true,
             isExpanded: true,
@@ -412,9 +409,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               ),
               child: DropdownButton<TransportType>(
                 value: _selectedTransportType,
-                dropdownColor: isDark
-                    ? const Color(0xFF1A1D23)
-                    : Colors.white,
+                dropdownColor: isDark ? const Color(0xFF1A1D23) : Colors.white,
                 underline: const SizedBox(),
                 isDense: true,
                 icon: Icon(
@@ -427,8 +422,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.filter_list,
-                            color: textColor, size: 16),
+                        Icon(Icons.filter_list, color: textColor, size: 16),
                         const SizedBox(width: 8),
                         Text(
                           type.shortName,
@@ -490,8 +484,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color:
-                              !_isArrivalsMode ? Colors.white : mutedColor,
+                          color: !_isArrivalsMode ? Colors.white : mutedColor,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -513,8 +506,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color:
-                              _isArrivalsMode ? Colors.white : mutedColor,
+                          color: _isArrivalsMode ? Colors.white : mutedColor,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -535,8 +527,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
             ),
             const SizedBox(width: 8),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.15)
@@ -551,9 +542,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
               ),
               child: DropdownButton<Station>(
                 value: _selectedStation,
-                dropdownColor: isDark
-                    ? const Color(0xFF1A1D23)
-                    : Colors.white,
+                dropdownColor: isDark ? const Color(0xFF1A1D23) : Colors.white,
                 underline: const SizedBox(),
                 isDense: false,
                 icon: Icon(
