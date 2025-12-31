@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'package:intl/intl.dart';
+import '../services/theme_service.dart';
 
 class ClockWidget extends StatefulWidget {
   const ClockWidget({super.key});
@@ -34,18 +35,23 @@ class _ClockWidgetState extends State<ClockWidget> {
   Widget build(BuildContext context) {
     final timeFormat = DateFormat('h:mm a');
     final dateFormat = DateFormat('EEEE, MMMM d');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF252931).withValues(alpha: 0.6),
+        color: isDark
+            ? const Color(0xFF252931).withValues(alpha: 0.6)
+            : Colors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -78,7 +84,7 @@ class _ClockWidgetState extends State<ClockWidget> {
                           style: TextStyle(
                             fontSize: timeFontSize,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: context.textPrimary,
                             letterSpacing: -4,
                             height: 1,
                           ),
@@ -94,7 +100,7 @@ class _ClockWidgetState extends State<ClockWidget> {
                           style: TextStyle(
                             fontSize: dateFontSize,
                             fontWeight: FontWeight.w400,
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: context.textSecondary,
                             letterSpacing: 0.5,
                           ),
                         ),

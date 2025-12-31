@@ -1,0 +1,104 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        type: choice
+        options:
+          - release
+          - debug
+        default: 'release'
+      upload_to_release:
+        description: 'Upload to latest release (if exists)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Extract version from pubspec
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
+          BUILD=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f2)
+          echo "name=$VERSION" >> $GITHUB_OUTPUT
+          echo "code=$BUILD" >> $GITHUB_OUTPUT
+          echo "full=$VERSION+$BUILD" >> $GITHUB_OUTPUT
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build APK
+        run: |
+          flutter build apk --${{ github.event.inputs.build_type }} \
+            --build-name=${{ steps.version.outputs.name }} \
+            --build-number=${{ steps.version.outputs.code }}
+
+      - name: Rename APK with version
+        run: |
+          BUILD_TYPE="${{ github.event.inputs.build_type }}"
+          if [ "$BUILD_TYPE" = "release" ]; then
+            mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/glance-${{ steps.version.outputs.name }}-release.apk
+            echo "apk_name=glance-${{ steps.version.outputs.name }}-release.apk" >> $GITHUB_ENV
+          else
+            mv build/app/outputs/flutter-apk/app-debug.apk build/app/outputs/flutter-apk/glance-${{ steps.version.outputs.name }}-debug.apk
+            echo "apk_name=glance-${{ steps.version.outputs.name }}-debug.apk" >> $GITHUB_ENV
+          fi
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.apk_name }}
+          path: build/app/outputs/flutter-apk/${{ env.apk_name }}
+          retention-days: 30
+
+      - name: Upload to latest release
+        if: ${{ github.event.inputs.upload_to_release == 'true' }}
+        run: |
+          LATEST_RELEASE=$(gh release list --limit 1 --json tagName -q '.[0].tagName' 2>/dev/null || echo "")
+          if [ -n "$LATEST_RELEASE" ]; then
+            echo "Uploading to release: $LATEST_RELEASE"
+            gh release upload "$LATEST_RELEASE" "build/app/outputs/flutter-apk/${{ env.apk_name }}" --clobber
+          else
+            echo "No release found, skipping upload to release"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** ${{ steps.version.outputs.full }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Type:** ${{ github.event.inputs.build_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **APK:** ${{ env.apk_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
