@@ -54,15 +54,6 @@ class _DraggableResizableContainerState
     return (value / snapIncrement).round() * snapIncrement;
   }
 
-  WidgetLayout _snapLayout(WidgetLayout layout) {
-    return layout.copyWith(
-      x: _snapToGrid(layout.x).clamp(0.0, 1.0 - layout.width),
-      y: _snapToGrid(layout.y).clamp(0.0, 1.0 - layout.height),
-      width: _snapToGrid(layout.width),
-      height: _snapToGrid(layout.height),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
