@@ -195,8 +195,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _durationMinutes = durationMinutes;
           });
         },
+        onPresetSelected: _applyLayoutPreset,
       ),
     );
+  }
+
+  Future<void> _applyLayoutPreset(LayoutPreset preset) async {
+    final layout =
+        _isPortrait ? preset.portraitLayout : preset.landscapeLayout;
+    setState(() => _dashboardLayout = layout);
+    await _saveLayout();
   }
 
   Widget _buildWidget(String widgetId) {

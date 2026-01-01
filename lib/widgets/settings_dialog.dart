@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/station.dart';
 import '../models/transport_type.dart';
+import '../models/widget_layout.dart';
 import '../services/settings_service.dart';
 
 class SettingsDialog extends StatefulWidget {
@@ -11,6 +12,7 @@ class SettingsDialog extends StatefulWidget {
   final int initialSkipMinutes;
   final int initialDurationMinutes;
   final Function(double, double, String, TransportType, int, int) onSave;
+  final Function(LayoutPreset)? onPresetSelected;
 
   const SettingsDialog({
     super.key,
@@ -21,6 +23,7 @@ class SettingsDialog extends StatefulWidget {
     required this.initialSkipMinutes,
     required this.initialDurationMinutes,
     required this.onSave,
+    this.onPresetSelected,
   });
 
   @override
@@ -46,6 +49,219 @@ class _SettingsDialogState extends State<SettingsDialog> {
     _durationMinutes = widget.initialDurationMinutes;
   }
 
+  Widget _buildLayoutPresetsGrid() {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      childAspectRatio: 1.6,
+      children: DashboardLayout.presets.map((preset) {
+        return _buildPresetCard(preset);
+      }).toList(),
+    );
+  }
+
+  Widget _buildPresetCard(LayoutPreset preset) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          widget.onPresetSelected?.call(preset);
+          Navigator.pop(context);
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _buildPresetPreview(preset)),
+              const SizedBox(height: 6),
+              Text(
+                preset.name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                preset.description,
+                style: const TextStyle(
+                  color: Colors.white54,
+                  fontSize: 10,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPresetPreview(LayoutPreset preset) {
+    final layout = preset.landscapeLayout;
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: layout.layouts.entries.map((entry) {
+              final widgetLayout = entry.value;
+              return Positioned(
+                left: widgetLayout.x * constraints.maxWidth,
+                top: widgetLayout.y * constraints.maxHeight,
+                width: widgetLayout.width * constraints.maxWidth,
+                height: widgetLayout.height * constraints.maxHeight,
+                child: _buildSkeletonWidget(entry.key, constraints),
+              );
+            }).toList(),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSkeletonWidget(String widgetId, BoxConstraints parentConstraints) {
+    return Container(
+      margin: const EdgeInsets.all(1),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(2),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.15),
+          width: 0.5,
+        ),
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: Center(child: _getSkeletonContent(widgetId)),
+    );
+  }
+
+  Widget _getSkeletonContent(String widgetId) {
+    switch (widgetId) {
+      case 'clock':
+        return FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 28,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Container(
+                width: 18,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ],
+          ),
+        );
+      case 'logo':
+        return Center(
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        );
+      case 'weather':
+        return FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 3),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 12,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Container(
+                    width: 8,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      case 'departures':
+        return FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (int i = 0; i < 4; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 2),
+                    child: Container(
+                      width: 60,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2 - (i * 0.04)),
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      default:
+        return const SizedBox();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -54,11 +270,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               const Text(
                 'Settings',
                 style: TextStyle(
@@ -225,6 +442,26 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   const Text('180', style: TextStyle(color: Colors.white54)),
                 ],
               ),
+              if (widget.onPresetSelected != null) ...[
+                const SizedBox(height: 24),
+                const Divider(color: Colors.white24),
+                const SizedBox(height: 16),
+                const Text(
+                  'Layout Presets',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Quick-apply a layout style',
+                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+                const SizedBox(height: 12),
+                _buildLayoutPresetsGrid(),
+              ],
               const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -270,6 +507,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
