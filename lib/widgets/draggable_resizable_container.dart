@@ -48,6 +48,11 @@ class _DraggableResizableContainerState
 
   static const double handleSize = 12.0;
   static const double handleHitArea = 20.0;
+  static const double snapIncrement = 0.02; // 2% grid for snappy feel
+
+  double _snapToGrid(double value) {
+    return (value / snapIncrement).round() * snapIncrement;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,8 +71,7 @@ class _DraggableResizableContainerState
               onPanStart: widget.isEditMode ? _onDragStart : null,
               onPanUpdate: widget.isEditMode ? _onDragUpdate : null,
               onPanEnd: widget.isEditMode ? _onDragEnd : null,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
+              child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   border: widget.isEditMode
@@ -120,8 +124,7 @@ class _DraggableResizableContainerState
             width: handleHitArea,
             height: handleHitArea,
             alignment: Alignment.center,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
+            child: Container(
               width: handleSize,
               height: handleSize,
               decoration: BoxDecoration(
@@ -169,8 +172,7 @@ class _DraggableResizableContainerState
             width: isHorizontal ? null : handleHitArea,
             height: isHorizontal ? handleHitArea : null,
             alignment: Alignment.center,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
+            child: Container(
               width: isHorizontal ? 40 : 6,
               height: isHorizontal ? 6 : 40,
               decoration: BoxDecoration(
@@ -220,6 +222,10 @@ class _DraggableResizableContainerState
         .clamp(0.0, 1.0 - widget.layout.width);
     var newY = (_dragStartLayout!.y + deltaYPercent)
         .clamp(0.0, 1.0 - widget.layout.height);
+
+    // Snap to grid for snappy feel
+    newX = _snapToGrid(newX).clamp(0.0, 1.0 - widget.layout.width);
+    newY = _snapToGrid(newY).clamp(0.0, 1.0 - widget.layout.height);
 
     widget.onLayoutUpdate(widget.layout.copyWith(x: newX, y: newY));
   }
@@ -304,6 +310,12 @@ class _DraggableResizableContainerState
             .clamp(minWidthPercent, 1.0 - _dragStartLayout!.x);
         break;
     }
+
+    // Snap all values to grid for snappy feel
+    newX = _snapToGrid(newX);
+    newY = _snapToGrid(newY);
+    newWidth = _snapToGrid(newWidth);
+    newHeight = _snapToGrid(newHeight);
 
     widget.onLayoutUpdate(widget.layout.copyWith(
       x: newX,
