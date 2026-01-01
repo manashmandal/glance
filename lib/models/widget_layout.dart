@@ -94,35 +94,35 @@ class DashboardLayout {
 
   // Layout presets for quick configuration
   static List<LayoutPreset> get presets => [
-    LayoutPreset(
-      id: 'classic',
-      name: 'Classic',
-      description: 'Info bar on top, departures below',
-      landscapeLayout: defaultLandscapeLayout,
-      portraitLayout: defaultPortraitLayout,
-    ),
-    LayoutPreset(
-      id: 'focus_departures',
-      name: 'Focus Departures',
-      description: 'Large departures, compact info sidebar',
-      landscapeLayout: _focusDeparturesLandscape,
-      portraitLayout: _focusDeparturesPortrait,
-    ),
-    LayoutPreset(
-      id: 'split_view',
-      name: 'Split View',
-      description: 'Departures left, info panels right',
-      landscapeLayout: _splitViewLandscape,
-      portraitLayout: _splitViewPortrait,
-    ),
-    LayoutPreset(
-      id: 'compact_header',
-      name: 'Compact Header',
-      description: 'Minimal header, maximum departures',
-      landscapeLayout: _compactHeaderLandscape,
-      portraitLayout: _compactHeaderPortrait,
-    ),
-  ];
+        LayoutPreset(
+          id: 'classic',
+          name: 'Classic',
+          description: 'Info bar on top, departures below',
+          landscapeLayout: defaultLandscapeLayout,
+          portraitLayout: defaultPortraitLayout,
+        ),
+        LayoutPreset(
+          id: 'focus_departures',
+          name: 'Focus Departures',
+          description: 'Large departures, compact info sidebar',
+          landscapeLayout: _focusDeparturesLandscape,
+          portraitLayout: _focusDeparturesPortrait,
+        ),
+        LayoutPreset(
+          id: 'split_view',
+          name: 'Split View',
+          description: 'Departures left, info panels right',
+          landscapeLayout: _splitViewLandscape,
+          portraitLayout: _splitViewPortrait,
+        ),
+        LayoutPreset(
+          id: 'compact_header',
+          name: 'Compact Header',
+          description: 'Minimal header, maximum departures',
+          landscapeLayout: _compactHeaderLandscape,
+          portraitLayout: _compactHeaderPortrait,
+        ),
+      ];
 
   // Focus Departures: Departures take most space, info on right column
   static DashboardLayout get _focusDeparturesLandscape => DashboardLayout(

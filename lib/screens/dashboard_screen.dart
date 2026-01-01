@@ -201,8 +201,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _applyLayoutPreset(LayoutPreset preset) async {
-    final layout =
-        _isPortrait ? preset.portraitLayout : preset.landscapeLayout;
+    final layout = _isPortrait ? preset.portraitLayout : preset.landscapeLayout;
     setState(() => _dashboardLayout = layout);
     await _saveLayout();
   }
