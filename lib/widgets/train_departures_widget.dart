@@ -46,6 +46,25 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
     refresh();
   }
 
+  @override
+  void didUpdateWidget(TrainDeparturesWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.skipMinutes != oldWidget.skipMinutes ||
+        widget.durationMinutes != oldWidget.durationMinutes ||
+        widget.initialStation?.id != oldWidget.initialStation?.id ||
+        widget.initialTransportType != oldWidget.initialTransportType) {
+      if (widget.initialStation != null &&
+          widget.initialStation!.id != _selectedStation.id) {
+        _selectedStation = widget.initialStation!;
+      }
+      if (widget.initialTransportType != null &&
+          widget.initialTransportType != _selectedTransportType) {
+        _selectedTransportType = widget.initialTransportType!;
+      }
+      refresh();
+    }
+  }
+
   Future<void> refresh() async {
     if (!mounted) return;
     // Only show loading if empty

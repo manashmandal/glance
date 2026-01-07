@@ -27,6 +27,9 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<WeatherWidgetState> _weatherKey = GlobalKey();
+  final GlobalKey<TrainDeparturesWidgetState> _regionalDeparturesKey =
+      GlobalKey();
+  final GlobalKey<TrainDeparturesWidgetState> _busDeparturesKey = GlobalKey();
   Timer? _refreshTimer;
   Timer? _saveDebounceTimer;
   DateTime? _lastUpdated;
@@ -112,7 +115,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _refreshAll() async {
-    await _weatherKey.currentState?.refresh();
+    await Future.wait([
+      _weatherKey.currentState?.refresh() ?? Future.value(),
+      _regionalDeparturesKey.currentState?.refresh() ?? Future.value(),
+      _busDeparturesKey.currentState?.refresh() ?? Future.value(),
+    ]);
     if (mounted) {
       setState(() => _lastUpdated = DateTime.now());
     }
@@ -287,7 +294,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
             child: _selectedTransportMode == 0
                 ? TrainDeparturesWidget(
-                    key: const ValueKey('regional'),
+                    key: _regionalDeparturesKey,
                     initialStation: _defaultStation,
                     initialTransportType:
                         _defaultTransportType ?? TransportType.regional,
@@ -297,7 +304,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     compactMode: useCompactMode,
                   )
                 : TrainDeparturesWidget(
-                    key: const ValueKey('bus'),
+                    key: _busDeparturesKey,
                     initialStation: _defaultStation,
                     initialTransportType: TransportType.bus,
                     scaleFactor: _departureScale,

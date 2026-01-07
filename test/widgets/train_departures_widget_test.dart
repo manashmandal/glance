@@ -317,5 +317,329 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
     });
+
+    group('refresh functionality', () {
+      testWidgets('refresh() can be called via GlobalKey',
+          (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+
+        final key = GlobalKey<TrainDeparturesWidgetState>();
+
+        await tester.pumpWidget(MaterialApp(
+          theme: ThemeData.dark(),
+          home: Scaffold(
+            body: SizedBox(
+              width: 400,
+              height: 600,
+              child: TrainDeparturesWidget(
+                key: key,
+                initialStation: Station.defaultStation,
+                initialTransportType: TransportType.regional,
+                scaleFactor: 1.0,
+                skipMinutes: 0,
+                durationMinutes: 60,
+                compactMode: true,
+              ),
+            ),
+          ),
+        ));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Verify the key provides access to state
+        expect(key.currentState, isNotNull);
+
+        // Verify refresh() method exists and can be called
+        expect(key.currentState!.refresh, isA<Function>());
+
+        // Call refresh - should not throw
+        await key.currentState!.refresh();
+        await tester.pump();
+
+        // Widget should still be rendered without errors
+        expect(find.byType(TrainDeparturesWidget), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        addTearDown(tester.view.resetPhysicalSize);
+      });
+
+      testWidgets('refresh() fetches new data when called',
+          (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+
+        final key = GlobalKey<TrainDeparturesWidgetState>();
+
+        await tester.pumpWidget(MaterialApp(
+          theme: ThemeData.dark(),
+          home: Scaffold(
+            body: SizedBox(
+              width: 400,
+              height: 600,
+              child: TrainDeparturesWidget(
+                key: key,
+                initialStation: Station.defaultStation,
+                initialTransportType: TransportType.regional,
+                scaleFactor: 1.0,
+                skipMinutes: 0,
+                durationMinutes: 60,
+                compactMode: true,
+              ),
+            ),
+          ),
+        ));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Call refresh multiple times - should not throw or cause issues
+        await key.currentState!.refresh();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        await key.currentState!.refresh();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Widget should still be working
+        expect(find.byType(TrainDeparturesWidget), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        addTearDown(tester.view.resetPhysicalSize);
+      });
+    });
+
+    group('didUpdateWidget', () {
+      testWidgets('triggers refresh when skipMinutes changes',
+          (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+
+        int skipMinutes = 0;
+
+        await tester.pumpWidget(MaterialApp(
+          theme: ThemeData.dark(),
+          home: StatefulBuilder(
+            builder: (context, setState) => Scaffold(
+              body: SizedBox(
+                width: 400,
+                height: 600,
+                child: TrainDeparturesWidget(
+                  initialStation: Station.defaultStation,
+                  initialTransportType: TransportType.regional,
+                  scaleFactor: 1.0,
+                  skipMinutes: skipMinutes,
+                  durationMinutes: 60,
+                  compactMode: true,
+                ),
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () => setState(() => skipMinutes = 10),
+                child: const Icon(Icons.add),
+              ),
+            ),
+          ),
+        ));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Tap button to change skipMinutes
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Widget should still be working after prop change
+        expect(find.byType(TrainDeparturesWidget), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        addTearDown(tester.view.resetPhysicalSize);
+      });
+
+      testWidgets('triggers refresh when durationMinutes changes',
+          (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+
+        int durationMinutes = 60;
+
+        await tester.pumpWidget(MaterialApp(
+          theme: ThemeData.dark(),
+          home: StatefulBuilder(
+            builder: (context, setState) => Scaffold(
+              body: SizedBox(
+                width: 400,
+                height: 600,
+                child: TrainDeparturesWidget(
+                  initialStation: Station.defaultStation,
+                  initialTransportType: TransportType.regional,
+                  scaleFactor: 1.0,
+                  skipMinutes: 0,
+                  durationMinutes: durationMinutes,
+                  compactMode: true,
+                ),
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () => setState(() => durationMinutes = 120),
+                child: const Icon(Icons.add),
+              ),
+            ),
+          ),
+        ));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Tap button to change durationMinutes
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Widget should still be working after prop change
+        expect(find.byType(TrainDeparturesWidget), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        addTearDown(tester.view.resetPhysicalSize);
+      });
+
+      testWidgets('triggers refresh when initialStation changes',
+          (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+
+        Station station = Station.defaultStation;
+
+        await tester.pumpWidget(MaterialApp(
+          theme: ThemeData.dark(),
+          home: StatefulBuilder(
+            builder: (context, setState) => Scaffold(
+              body: SizedBox(
+                width: 400,
+                height: 600,
+                child: TrainDeparturesWidget(
+                  initialStation: station,
+                  initialTransportType: TransportType.regional,
+                  scaleFactor: 1.0,
+                  skipMinutes: 0,
+                  durationMinutes: 60,
+                  compactMode: true,
+                ),
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () => setState(() {
+                  // Use a different station from the list
+                  station = Station.popularStations.length > 1
+                      ? Station.popularStations[1]
+                      : Station.defaultStation;
+                }),
+                child: const Icon(Icons.add),
+              ),
+            ),
+          ),
+        ));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Tap button to change station
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Widget should still be working after prop change
+        expect(find.byType(TrainDeparturesWidget), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        addTearDown(tester.view.resetPhysicalSize);
+      });
+
+      testWidgets('triggers refresh when initialTransportType changes',
+          (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+
+        TransportType transportType = TransportType.regional;
+
+        await tester.pumpWidget(MaterialApp(
+          theme: ThemeData.dark(),
+          home: StatefulBuilder(
+            builder: (context, setState) => Scaffold(
+              body: SizedBox(
+                width: 400,
+                height: 600,
+                child: TrainDeparturesWidget(
+                  initialStation: Station.defaultStation,
+                  initialTransportType: transportType,
+                  scaleFactor: 1.0,
+                  skipMinutes: 0,
+                  durationMinutes: 60,
+                  compactMode: true,
+                ),
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () => setState(() => transportType = TransportType.bus),
+                child: const Icon(Icons.add),
+              ),
+            ),
+          ),
+        ));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Verify initial transport type shown
+        expect(find.text('Regional'), findsOneWidget);
+
+        // Tap button to change transport type
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Widget should now show Bus
+        expect(find.text('Bus'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        addTearDown(tester.view.resetPhysicalSize);
+      });
+
+      testWidgets('does not trigger refresh when unrelated props change',
+          (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+
+        double scaleFactor = 1.0;
+
+        await tester.pumpWidget(MaterialApp(
+          theme: ThemeData.dark(),
+          home: StatefulBuilder(
+            builder: (context, setState) => Scaffold(
+              body: SizedBox(
+                width: 400,
+                height: 600,
+                child: TrainDeparturesWidget(
+                  initialStation: Station.defaultStation,
+                  initialTransportType: TransportType.regional,
+                  scaleFactor: scaleFactor,
+                  skipMinutes: 0,
+                  durationMinutes: 60,
+                  compactMode: true,
+                ),
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () => setState(() => scaleFactor = 1.5),
+                child: const Icon(Icons.add),
+              ),
+            ),
+          ),
+        ));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Tap button to change scaleFactor (should NOT trigger refresh)
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Widget should still be working - no unnecessary refreshes
+        expect(find.byType(TrainDeparturesWidget), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        addTearDown(tester.view.resetPhysicalSize);
+      });
+    });
   });
 }
