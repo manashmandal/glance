@@ -196,10 +196,6 @@ void main() {
         final lastUpdatedFinder = find.textContaining('Last updated at:');
         expect(lastUpdatedFinder, findsOneWidget);
 
-        // Get initial text
-        final initialText =
-            (tester.widget(lastUpdatedFinder) as Text).data ?? '';
-
         // Wait a bit and tap refresh
         await tester.pump(const Duration(seconds: 1));
 
