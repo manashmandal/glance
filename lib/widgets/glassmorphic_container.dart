@@ -34,8 +34,7 @@ class GlassmorphicContainer extends StatelessWidget {
           color: borderColor.withValues(alpha: 0.1),
           width: borderWidth,
         ),
-        boxShadow:
-            boxShadows ??
+        boxShadow: boxShadows ??
             [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.3),

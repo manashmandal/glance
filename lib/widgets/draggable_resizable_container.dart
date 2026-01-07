@@ -64,8 +64,8 @@ class _DraggableResizableContainerState
           child: MouseRegion(
             cursor: widget.isEditMode && !_isResizing
                 ? (_isDragging
-                      ? SystemMouseCursors.grabbing
-                      : SystemMouseCursors.grab)
+                    ? SystemMouseCursors.grabbing
+                    : SystemMouseCursors.grab)
                 : SystemMouseCursors.basic,
             child: GestureDetector(
               onPanStart: widget.isEditMode ? _onDragStart : null,

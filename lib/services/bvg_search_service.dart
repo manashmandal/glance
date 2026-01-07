@@ -11,9 +11,9 @@ class BvgSearchService {
           '$baseUrl/locations?query=$query&results=5&stops=true&addresses=false&poi=false';
       print('Searching stations: $url');
 
-      final response = await http
-          .get(Uri.parse(url), headers: {'Accept': 'application/json'})
-          .timeout(const Duration(seconds: 10));
+      final response = await http.get(Uri.parse(url), headers: {
+        'Accept': 'application/json'
+      }).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);

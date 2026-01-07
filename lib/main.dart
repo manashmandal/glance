@@ -66,9 +66,8 @@ class _GlanceAppState extends State<GlanceApp> {
   }
 
   void toggleTheme() {
-    final newMode = _themeMode == ThemeMode.dark
-        ? ThemeMode.light
-        : ThemeMode.dark;
+    final newMode =
+        _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     setState(() => _themeMode = newMode);
     ThemeService.setThemeMode(newMode);
   }

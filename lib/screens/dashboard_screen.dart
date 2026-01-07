@@ -188,27 +188,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
         initialTransportType: _defaultTransportType ?? TransportType.regional,
         initialSkipMinutes: _skipMinutes,
         initialDurationMinutes: _durationMinutes,
-        onSave:
-            (
-              weatherScale,
-              departureScale,
-              stationId,
-              type,
-              skipMinutes,
-              durationMinutes,
-            ) {
-              setState(() {
-                _weatherScale = weatherScale;
-                _departureScale = departureScale;
-                _defaultStation = Station.popularStations.firstWhere(
-                  (s) => s.id == stationId,
-                  orElse: () => Station.defaultStation,
-                );
-                _defaultTransportType = type;
-                _skipMinutes = skipMinutes;
-                _durationMinutes = durationMinutes;
-              });
-            },
+        onSave: (
+          weatherScale,
+          departureScale,
+          stationId,
+          type,
+          skipMinutes,
+          durationMinutes,
+        ) {
+          setState(() {
+            _weatherScale = weatherScale;
+            _departureScale = departureScale;
+            _defaultStation = Station.popularStations.firstWhere(
+              (s) => s.id == stationId,
+              orElse: () => Station.defaultStation,
+            );
+            _defaultTransportType = type;
+            _skipMinutes = skipMinutes;
+            _durationMinutes = durationMinutes;
+          });
+        },
         onPresetSelected: _applyLayoutPreset,
       ),
     );

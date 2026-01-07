@@ -91,302 +91,302 @@ class DashboardLayout {
 
   // Layout presets for quick configuration
   static List<LayoutPreset> get presets => [
-    LayoutPreset(
-      id: 'classic',
-      name: 'Classic',
-      description: 'Info bar on top, departures below',
-      landscapeLayout: defaultLandscapeLayout,
-      portraitLayout: defaultPortraitLayout,
-    ),
-    LayoutPreset(
-      id: 'focus_departures',
-      name: 'Focus Departures',
-      description: 'Large departures, compact info sidebar',
-      landscapeLayout: _focusDeparturesLandscape,
-      portraitLayout: _focusDeparturesPortrait,
-    ),
-    LayoutPreset(
-      id: 'split_view',
-      name: 'Split View',
-      description: 'Departures left, info panels right',
-      landscapeLayout: _splitViewLandscape,
-      portraitLayout: _splitViewPortrait,
-    ),
-    LayoutPreset(
-      id: 'compact_header',
-      name: 'Compact Header',
-      description: 'Minimal header, maximum departures',
-      landscapeLayout: _compactHeaderLandscape,
-      portraitLayout: _compactHeaderPortrait,
-    ),
-  ];
+        LayoutPreset(
+          id: 'classic',
+          name: 'Classic',
+          description: 'Info bar on top, departures below',
+          landscapeLayout: defaultLandscapeLayout,
+          portraitLayout: defaultPortraitLayout,
+        ),
+        LayoutPreset(
+          id: 'focus_departures',
+          name: 'Focus Departures',
+          description: 'Large departures, compact info sidebar',
+          landscapeLayout: _focusDeparturesLandscape,
+          portraitLayout: _focusDeparturesPortrait,
+        ),
+        LayoutPreset(
+          id: 'split_view',
+          name: 'Split View',
+          description: 'Departures left, info panels right',
+          landscapeLayout: _splitViewLandscape,
+          portraitLayout: _splitViewPortrait,
+        ),
+        LayoutPreset(
+          id: 'compact_header',
+          name: 'Compact Header',
+          description: 'Minimal header, maximum departures',
+          landscapeLayout: _compactHeaderLandscape,
+          portraitLayout: _compactHeaderPortrait,
+        ),
+      ];
 
   // Focus Departures: Departures take most space, info on right column
   static DashboardLayout get _focusDeparturesLandscape => DashboardLayout(
-    layouts: {
-      'departures': const WidgetLayout(
-        widgetId: 'departures',
-        x: 0.02,
-        y: 0.02,
-        width: 0.72,
-        height: 0.96,
-      ),
-      'clock': const WidgetLayout(
-        widgetId: 'clock',
-        x: 0.76,
-        y: 0.02,
-        width: 0.22,
-        height: 0.30,
-      ),
-      'logo': const WidgetLayout(
-        widgetId: 'logo',
-        x: 0.76,
-        y: 0.34,
-        width: 0.22,
-        height: 0.30,
-      ),
-      'weather': const WidgetLayout(
-        widgetId: 'weather',
-        x: 0.76,
-        y: 0.66,
-        width: 0.22,
-        height: 0.32,
-      ),
-    },
-  );
+        layouts: {
+          'departures': const WidgetLayout(
+            widgetId: 'departures',
+            x: 0.02,
+            y: 0.02,
+            width: 0.72,
+            height: 0.96,
+          ),
+          'clock': const WidgetLayout(
+            widgetId: 'clock',
+            x: 0.76,
+            y: 0.02,
+            width: 0.22,
+            height: 0.30,
+          ),
+          'logo': const WidgetLayout(
+            widgetId: 'logo',
+            x: 0.76,
+            y: 0.34,
+            width: 0.22,
+            height: 0.30,
+          ),
+          'weather': const WidgetLayout(
+            widgetId: 'weather',
+            x: 0.76,
+            y: 0.66,
+            width: 0.22,
+            height: 0.32,
+          ),
+        },
+      );
 
   static DashboardLayout get _focusDeparturesPortrait => DashboardLayout(
-    layouts: {
-      'clock': const WidgetLayout(
-        widgetId: 'clock',
-        x: 0.02,
-        y: 0.02,
-        width: 0.48,
-        height: 0.10,
-      ),
-      'weather': const WidgetLayout(
-        widgetId: 'weather',
-        x: 0.52,
-        y: 0.02,
-        width: 0.46,
-        height: 0.10,
-      ),
-      'departures': const WidgetLayout(
-        widgetId: 'departures',
-        x: 0.02,
-        y: 0.14,
-        width: 0.96,
-        height: 0.76,
-      ),
-      'logo': const WidgetLayout(
-        widgetId: 'logo',
-        x: 0.02,
-        y: 0.92,
-        width: 0.96,
-        height: 0.06,
-      ),
-    },
-  );
+        layouts: {
+          'clock': const WidgetLayout(
+            widgetId: 'clock',
+            x: 0.02,
+            y: 0.02,
+            width: 0.48,
+            height: 0.10,
+          ),
+          'weather': const WidgetLayout(
+            widgetId: 'weather',
+            x: 0.52,
+            y: 0.02,
+            width: 0.46,
+            height: 0.10,
+          ),
+          'departures': const WidgetLayout(
+            widgetId: 'departures',
+            x: 0.02,
+            y: 0.14,
+            width: 0.96,
+            height: 0.76,
+          ),
+          'logo': const WidgetLayout(
+            widgetId: 'logo',
+            x: 0.02,
+            y: 0.92,
+            width: 0.96,
+            height: 0.06,
+          ),
+        },
+      );
 
   // Split View: Departures left, stacked info on right
   static DashboardLayout get _splitViewLandscape => DashboardLayout(
-    layouts: {
-      'departures': const WidgetLayout(
-        widgetId: 'departures',
-        x: 0.02,
-        y: 0.02,
-        width: 0.60,
-        height: 0.96,
-      ),
-      'clock': const WidgetLayout(
-        widgetId: 'clock',
-        x: 0.64,
-        y: 0.02,
-        width: 0.34,
-        height: 0.32,
-      ),
-      'weather': const WidgetLayout(
-        widgetId: 'weather',
-        x: 0.64,
-        y: 0.36,
-        width: 0.34,
-        height: 0.32,
-      ),
-      'logo': const WidgetLayout(
-        widgetId: 'logo',
-        x: 0.64,
-        y: 0.70,
-        width: 0.34,
-        height: 0.28,
-      ),
-    },
-  );
+        layouts: {
+          'departures': const WidgetLayout(
+            widgetId: 'departures',
+            x: 0.02,
+            y: 0.02,
+            width: 0.60,
+            height: 0.96,
+          ),
+          'clock': const WidgetLayout(
+            widgetId: 'clock',
+            x: 0.64,
+            y: 0.02,
+            width: 0.34,
+            height: 0.32,
+          ),
+          'weather': const WidgetLayout(
+            widgetId: 'weather',
+            x: 0.64,
+            y: 0.36,
+            width: 0.34,
+            height: 0.32,
+          ),
+          'logo': const WidgetLayout(
+            widgetId: 'logo',
+            x: 0.64,
+            y: 0.70,
+            width: 0.34,
+            height: 0.28,
+          ),
+        },
+      );
 
   static DashboardLayout get _splitViewPortrait => DashboardLayout(
-    layouts: {
-      'clock': const WidgetLayout(
-        widgetId: 'clock',
-        x: 0.02,
-        y: 0.02,
-        width: 0.46,
-        height: 0.14,
-      ),
-      'weather': const WidgetLayout(
-        widgetId: 'weather',
-        x: 0.52,
-        y: 0.02,
-        width: 0.46,
-        height: 0.14,
-      ),
-      'logo': const WidgetLayout(
-        widgetId: 'logo',
-        x: 0.02,
-        y: 0.18,
-        width: 0.96,
-        height: 0.10,
-      ),
-      'departures': const WidgetLayout(
-        widgetId: 'departures',
-        x: 0.02,
-        y: 0.30,
-        width: 0.96,
-        height: 0.68,
-      ),
-    },
-  );
+        layouts: {
+          'clock': const WidgetLayout(
+            widgetId: 'clock',
+            x: 0.02,
+            y: 0.02,
+            width: 0.46,
+            height: 0.14,
+          ),
+          'weather': const WidgetLayout(
+            widgetId: 'weather',
+            x: 0.52,
+            y: 0.02,
+            width: 0.46,
+            height: 0.14,
+          ),
+          'logo': const WidgetLayout(
+            widgetId: 'logo',
+            x: 0.02,
+            y: 0.18,
+            width: 0.96,
+            height: 0.10,
+          ),
+          'departures': const WidgetLayout(
+            widgetId: 'departures',
+            x: 0.02,
+            y: 0.30,
+            width: 0.96,
+            height: 0.68,
+          ),
+        },
+      );
 
   // Compact Header: Very small header, maximize departures space
   static DashboardLayout get _compactHeaderLandscape => DashboardLayout(
-    layouts: {
-      'clock': const WidgetLayout(
-        widgetId: 'clock',
-        x: 0.02,
-        y: 0.02,
-        width: 0.24,
-        height: 0.16,
-      ),
-      'logo': const WidgetLayout(
-        widgetId: 'logo',
-        x: 0.28,
-        y: 0.02,
-        width: 0.20,
-        height: 0.16,
-      ),
-      'weather': const WidgetLayout(
-        widgetId: 'weather',
-        x: 0.50,
-        y: 0.02,
-        width: 0.48,
-        height: 0.16,
-      ),
-      'departures': const WidgetLayout(
-        widgetId: 'departures',
-        x: 0.02,
-        y: 0.20,
-        width: 0.96,
-        height: 0.78,
-      ),
-    },
-  );
+        layouts: {
+          'clock': const WidgetLayout(
+            widgetId: 'clock',
+            x: 0.02,
+            y: 0.02,
+            width: 0.24,
+            height: 0.16,
+          ),
+          'logo': const WidgetLayout(
+            widgetId: 'logo',
+            x: 0.28,
+            y: 0.02,
+            width: 0.20,
+            height: 0.16,
+          ),
+          'weather': const WidgetLayout(
+            widgetId: 'weather',
+            x: 0.50,
+            y: 0.02,
+            width: 0.48,
+            height: 0.16,
+          ),
+          'departures': const WidgetLayout(
+            widgetId: 'departures',
+            x: 0.02,
+            y: 0.20,
+            width: 0.96,
+            height: 0.78,
+          ),
+        },
+      );
 
   static DashboardLayout get _compactHeaderPortrait => DashboardLayout(
-    layouts: {
-      'clock': const WidgetLayout(
-        widgetId: 'clock',
-        x: 0.02,
-        y: 0.02,
-        width: 0.48,
-        height: 0.08,
-      ),
-      'weather': const WidgetLayout(
-        widgetId: 'weather',
-        x: 0.52,
-        y: 0.02,
-        width: 0.46,
-        height: 0.08,
-      ),
-      'logo': const WidgetLayout(
-        widgetId: 'logo',
-        x: 0.02,
-        y: 0.12,
-        width: 0.96,
-        height: 0.06,
-      ),
-      'departures': const WidgetLayout(
-        widgetId: 'departures',
-        x: 0.02,
-        y: 0.20,
-        width: 0.96,
-        height: 0.78,
-      ),
-    },
-  );
+        layouts: {
+          'clock': const WidgetLayout(
+            widgetId: 'clock',
+            x: 0.02,
+            y: 0.02,
+            width: 0.48,
+            height: 0.08,
+          ),
+          'weather': const WidgetLayout(
+            widgetId: 'weather',
+            x: 0.52,
+            y: 0.02,
+            width: 0.46,
+            height: 0.08,
+          ),
+          'logo': const WidgetLayout(
+            widgetId: 'logo',
+            x: 0.02,
+            y: 0.12,
+            width: 0.96,
+            height: 0.06,
+          ),
+          'departures': const WidgetLayout(
+            widgetId: 'departures',
+            x: 0.02,
+            y: 0.20,
+            width: 0.96,
+            height: 0.78,
+          ),
+        },
+      );
 
   static DashboardLayout get defaultLandscapeLayout => DashboardLayout(
-    layouts: {
-      'clock': const WidgetLayout(
-        widgetId: 'clock',
-        x: 0.02,
-        y: 0.02,
-        width: 0.30,
-        height: 0.32,
-      ),
-      'logo': const WidgetLayout(
-        widgetId: 'logo',
-        x: 0.35,
-        y: 0.02,
-        width: 0.30,
-        height: 0.32,
-      ),
-      'weather': const WidgetLayout(
-        widgetId: 'weather',
-        x: 0.68,
-        y: 0.02,
-        width: 0.30,
-        height: 0.32,
-      ),
-      'departures': const WidgetLayout(
-        widgetId: 'departures',
-        x: 0.02,
-        y: 0.38,
-        width: 0.96,
-        height: 0.58,
-      ),
-    },
-  );
+        layouts: {
+          'clock': const WidgetLayout(
+            widgetId: 'clock',
+            x: 0.02,
+            y: 0.02,
+            width: 0.30,
+            height: 0.32,
+          ),
+          'logo': const WidgetLayout(
+            widgetId: 'logo',
+            x: 0.35,
+            y: 0.02,
+            width: 0.30,
+            height: 0.32,
+          ),
+          'weather': const WidgetLayout(
+            widgetId: 'weather',
+            x: 0.68,
+            y: 0.02,
+            width: 0.30,
+            height: 0.32,
+          ),
+          'departures': const WidgetLayout(
+            widgetId: 'departures',
+            x: 0.02,
+            y: 0.38,
+            width: 0.96,
+            height: 0.58,
+          ),
+        },
+      );
 
   static DashboardLayout get defaultPortraitLayout => DashboardLayout(
-    layouts: {
-      'clock': const WidgetLayout(
-        widgetId: 'clock',
-        x: 0.02,
-        y: 0.01,
-        width: 0.96,
-        height: 0.12,
-      ),
-      'logo': const WidgetLayout(
-        widgetId: 'logo',
-        x: 0.02,
-        y: 0.14,
-        width: 0.46,
-        height: 0.14,
-      ),
-      'weather': const WidgetLayout(
-        widgetId: 'weather',
-        x: 0.52,
-        y: 0.14,
-        width: 0.46,
-        height: 0.14,
-      ),
-      'departures': const WidgetLayout(
-        widgetId: 'departures',
-        x: 0.02,
-        y: 0.30,
-        width: 0.96,
-        height: 0.68,
-      ),
-    },
-  );
+        layouts: {
+          'clock': const WidgetLayout(
+            widgetId: 'clock',
+            x: 0.02,
+            y: 0.01,
+            width: 0.96,
+            height: 0.12,
+          ),
+          'logo': const WidgetLayout(
+            widgetId: 'logo',
+            x: 0.02,
+            y: 0.14,
+            width: 0.46,
+            height: 0.14,
+          ),
+          'weather': const WidgetLayout(
+            widgetId: 'weather',
+            x: 0.52,
+            y: 0.14,
+            width: 0.46,
+            height: 0.14,
+          ),
+          'departures': const WidgetLayout(
+            widgetId: 'departures',
+            x: 0.02,
+            y: 0.30,
+            width: 0.96,
+            height: 0.68,
+          ),
+        },
+      );
 
   DashboardLayout copyWith({Map<String, WidgetLayout>? layouts, int? version}) {
     return DashboardLayout(

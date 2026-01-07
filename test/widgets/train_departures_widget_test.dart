@@ -39,17 +39,15 @@ class MockHttpClientResponse implements HttpClientResponse {
     final mockData = {
       'departures': [
         {
-          'when': DateTime.now()
-              .add(const Duration(minutes: 10))
-              .toIso8601String(),
+          'when':
+              DateTime.now().add(const Duration(minutes: 10)).toIso8601String(),
           'line': {'name': 'RE1', 'productName': 'RE'},
           'direction': 'Berlin Hbf',
           'platform': '1',
         },
         {
-          'when': DateTime.now()
-              .add(const Duration(minutes: 20))
-              .toIso8601String(),
+          'when':
+              DateTime.now().add(const Duration(minutes: 20)).toIso8601String(),
           'line': {'name': 'RE2', 'productName': 'RE'},
           'direction': 'Potsdam',
           'platform': '2',

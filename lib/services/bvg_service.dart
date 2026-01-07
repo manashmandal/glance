@@ -23,9 +23,9 @@ class BvgService {
       print('Skip minutes: $skipMinutes');
       print('Timestamp: ${DateTime.now()}');
 
-      final response = await http
-          .get(Uri.parse(url), headers: {'Accept': 'application/json'})
-          .timeout(const Duration(seconds: 10));
+      final response = await http.get(Uri.parse(url), headers: {
+        'Accept': 'application/json'
+      }).timeout(const Duration(seconds: 10));
 
       print('Response Status Code: ${response.statusCode}');
       print('Response Body Length: ${response.body.length} bytes');
@@ -124,9 +124,9 @@ class BvgService {
       print('Skip minutes: $skipMinutes');
       print('Timestamp: ${DateTime.now()}');
 
-      final response = await http
-          .get(Uri.parse(url), headers: {'Accept': 'application/json'})
-          .timeout(const Duration(seconds: 10));
+      final response = await http.get(Uri.parse(url), headers: {
+        'Accept': 'application/json'
+      }).timeout(const Duration(seconds: 10));
 
       print('Response Status Code: ${response.statusCode}');
       print('Response Body Length: ${response.body.length} bytes');
@@ -152,11 +152,9 @@ class BvgService {
         final now = DateTime.now();
         final skipUntil = now.add(Duration(minutes: skipMinutes));
 
-        for (
-          var i = 0;
-          i < departures.length && trainDepartures.length < 5;
-          i++
-        ) {
+        for (var i = 0;
+            i < departures.length && trainDepartures.length < 5;
+            i++) {
           try {
             final dep = departures[i];
             final whenString = dep['when'] as String?;
@@ -230,9 +228,8 @@ class BvgService {
 
   static List<TrainDeparture> _getFallbackData() {
     final now = DateTime.now();
-    final hour12 = now.hour > 12
-        ? now.hour - 12
-        : (now.hour == 0 ? 12 : now.hour);
+    final hour12 =
+        now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
     final period = now.hour >= 12 ? 'PM' : 'AM';
     final currentTime =
         '${hour12}:${now.minute.toString().padLeft(2, '0')} $period';

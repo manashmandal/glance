@@ -103,8 +103,8 @@ class EditModeToolbar extends StatelessWidget {
             color: isPrimary
                 ? const Color(0xFF3B82F6)
                 : isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.05),
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.black.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
