@@ -7,8 +7,10 @@ class LayoutService {
   static const String _keyDashboardLayoutPortrait = 'dashboard_layout_portrait';
   static const String _keyDashboardLayout = 'dashboard_layout'; // Legacy key
 
-  static Future<void> saveLayout(DashboardLayout layout,
-      {bool isPortrait = false}) async {
+  static Future<void> saveLayout(
+    DashboardLayout layout, {
+    bool isPortrait = false,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final key =
         isPortrait ? _keyDashboardLayoutPortrait : _keyDashboardLayoutLandscape;

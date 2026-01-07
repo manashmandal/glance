@@ -48,16 +48,24 @@ class MockHttpClientResponse implements HttpClientResponse {
 
   @override
   Stream<S> transform<S>(StreamTransformer<List<int>, S> streamTransformer) {
-    return Stream.value(utf8.encode('{}'))
-        .cast<List<int>>()
-        .transform(streamTransformer);
+    return Stream.value(
+      utf8.encode('{}'),
+    ).cast<List<int>>().transform(streamTransformer);
   }
 
   @override
-  StreamSubscription<List<int>> listen(void Function(List<int> event)? onData,
-      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
-    return Stream.value(utf8.encode('{}')).listen(onData,
-        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+  StreamSubscription<List<int>> listen(
+    void Function(List<int> event)? onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) {
+    return Stream.value(utf8.encode('{}')).listen(
+      onData,
+      onError: onError,
+      onDone: onDone,
+      cancelOnError: cancelOnError,
+    );
   }
 
   @override
@@ -99,7 +107,8 @@ void main() {
     await tester.pumpWidget(const app.GlanceApp());
     await tester.pump(); // Start futures
     await tester.pump(
-        const Duration(milliseconds: 100)); // Wait for futures to complete
+      const Duration(milliseconds: 100),
+    ); // Wait for futures to complete
 
     // Verify that the dashboard screen is present.
     expect(find.byType(DashboardScreen), findsOneWidget);

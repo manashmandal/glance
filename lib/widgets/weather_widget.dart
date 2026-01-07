@@ -8,10 +8,7 @@ import '../services/theme_service.dart';
 class WeatherWidget extends StatefulWidget {
   final double scaleFactor;
 
-  const WeatherWidget({
-    super.key,
-    this.scaleFactor = 1.0,
-  });
+  const WeatherWidget({super.key, this.scaleFactor = 1.0});
 
   @override
   State<WeatherWidget> createState() => WeatherWidgetState();

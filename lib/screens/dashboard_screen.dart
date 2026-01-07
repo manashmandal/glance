@@ -17,6 +17,8 @@ import '../models/transport_type.dart';
 import '../models/widget_layout.dart';
 import '../main.dart';
 import '../services/theme_service.dart';
+import '../services/update_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -27,9 +29,18 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<WeatherWidgetState> _weatherKey = GlobalKey();
+  final GlobalKey<TrainDeparturesWidgetState> _regionalDeparturesKey =
+      GlobalKey();
+  final GlobalKey<TrainDeparturesWidgetState> _busDeparturesKey = GlobalKey();
   Timer? _refreshTimer;
   Timer? _saveDebounceTimer;
+  Timer? _updateCheckTimer;
   DateTime? _lastUpdated;
+
+  // Update checker
+  bool _updateAvailable = false;
+  String? _latestVersion;
+  String? _downloadUrl;
   bool _isFullScreen = false;
   bool _isEditMode = false;
 
@@ -56,6 +67,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadSettings();
     _loadVersion();
     _startRefreshTimer();
+    _checkForUpdates();
+    _startUpdateCheckTimer();
   }
 
   @override
@@ -112,9 +125,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _refreshAll() async {
-    await _weatherKey.currentState?.refresh();
+    await Future.wait([
+      _weatherKey.currentState?.refresh() ?? Future.value(),
+      _regionalDeparturesKey.currentState?.refresh() ?? Future.value(),
+      _busDeparturesKey.currentState?.refresh() ?? Future.value(),
+    ]);
     if (mounted) {
       setState(() => _lastUpdated = DateTime.now());
+    }
+  }
+
+  void _startUpdateCheckTimer() {
+    _updateCheckTimer = Timer.periodic(
+      const Duration(hours: 24),
+      (_) => _checkForUpdates(),
+    );
+  }
+
+  Future<void> _checkForUpdates() async {
+    final currentVersion = _version.startsWith('v')
+        ? _version.substring(1)
+        : _version.isEmpty
+            ? '0.0.0'
+            : _version;
+
+    final updateInfo = await UpdateService.checkForUpdate(currentVersion);
+
+    if (mounted && updateInfo != null) {
+      setState(() {
+        _updateAvailable = updateInfo.updateAvailable;
+        _latestVersion = updateInfo.latestVersion;
+        _downloadUrl = updateInfo.downloadUrl;
+      });
+    }
+  }
+
+  Future<void> _openDownloadUrl() async {
+    if (_downloadUrl != null) {
+      final uri = Uri.parse(_downloadUrl!);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
     }
   }
 
@@ -122,6 +173,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void dispose() {
     _refreshTimer?.cancel();
     _saveDebounceTimer?.cancel();
+    _updateCheckTimer?.cancel();
     super.dispose();
   }
 
@@ -181,8 +233,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         initialTransportType: _defaultTransportType ?? TransportType.regional,
         initialSkipMinutes: _skipMinutes,
         initialDurationMinutes: _durationMinutes,
-        onSave: (weatherScale, departureScale, stationId, type, skipMinutes,
-            durationMinutes) {
+        onSave: (
+          weatherScale,
+          departureScale,
+          stationId,
+          type,
+          skipMinutes,
+          durationMinutes,
+        ) {
           setState(() {
             _weatherScale = weatherScale;
             _departureScale = departureScale;
@@ -213,10 +271,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'logo':
         return _buildLogoWidget();
       case 'weather':
-        return WeatherWidget(
-          key: _weatherKey,
-          scaleFactor: _weatherScale,
-        );
+        return WeatherWidget(key: _weatherKey, scaleFactor: _weatherScale);
       case 'departures':
         return _buildDeparturesWidget();
       default:
@@ -235,12 +290,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Flexible(
-            child: Image.asset(
-              'assets/images/logo.png',
-              height: 80,
-            ),
-          ),
+          Flexible(child: Image.asset('assets/images/logo.png', height: 80)),
           const SizedBox(height: 8),
           Text(
             'Glance',
@@ -253,10 +303,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           Text(
             _version,
-            style: TextStyle(
-              fontSize: 12,
-              color: context.textTertiary,
-            ),
+            style: TextStyle(fontSize: 12, color: context.textTertiary),
           ),
         ],
       ),
@@ -287,7 +334,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
             child: _selectedTransportMode == 0
                 ? TrainDeparturesWidget(
-                    key: const ValueKey('regional'),
+                    key: _regionalDeparturesKey,
                     initialStation: _defaultStation,
                     initialTransportType:
                         _defaultTransportType ?? TransportType.regional,
@@ -297,7 +344,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     compactMode: useCompactMode,
                   )
                 : TrainDeparturesWidget(
-                    key: const ValueKey('bus'),
+                    key: _busDeparturesKey,
                     initialStation: _defaultStation,
                     initialTransportType: TransportType.bus,
                     scaleFactor: _departureScale,
@@ -371,11 +418,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isSelected ? color : unselectedColor,
-            ),
+            Icon(icon, size: 20, color: isSelected ? color : unselectedColor),
             const SizedBox(width: 8),
             Text(
               label,
@@ -424,7 +467,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               // Header with controls
               Padding(
                 padding: EdgeInsets.fromLTRB(
-                    padding, _isSmallScreen ? 8 : 16, padding, 8),
+                  padding,
+                  _isSmallScreen ? 8 : 16,
+                  padding,
+                  8,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -467,15 +514,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ? 'Switch to Light Mode'
                               : 'Switch to Dark Mode',
                         ),
+                        if (_updateAvailable)
+                          IconButton(
+                            icon: const Icon(
+                              Icons.system_update,
+                              color: Color(0xFF4CAF50),
+                            ),
+                            onPressed: _openDownloadUrl,
+                            tooltip:
+                                'Update available: v$_latestVersion - Click to download',
+                          ),
                       ],
                     ),
                     if (_lastUpdated != null && !_isSmallScreen)
                       Text(
                         'Last updated at: ${DateFormat('HH:mm').format(_lastUpdated!)}',
-                        style: TextStyle(
-                          color: mutedTextColor,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: mutedTextColor, fontSize: 12),
                       ),
                     IconButton(
                       icon: Icon(Icons.refresh, color: iconColor),
@@ -491,8 +545,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final containerSize =
-                          Size(constraints.maxWidth, constraints.maxHeight);
+                      final containerSize = Size(
+                        constraints.maxWidth,
+                        constraints.maxHeight,
+                      );
                       return Stack(
                         clipBehavior: Clip.none,
                         children: [

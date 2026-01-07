@@ -15,6 +15,7 @@ dependencies:
   shared_preferences: ^2.5.3
   window_manager: ^0.5.1
   package_info_plus: ^8.3.0
+  url_launcher: ^6.2.0
 
 dev_dependencies:
   flutter_test:

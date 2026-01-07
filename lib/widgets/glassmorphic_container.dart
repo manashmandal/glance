@@ -50,9 +50,7 @@ class GlassmorphicContainer extends StatelessWidget {
           child: Container(
             padding: padding,
             decoration: gradient != null
-                ? BoxDecoration(
-                    color: backgroundColor.withValues(alpha: 0.5),
-                  )
+                ? BoxDecoration(color: backgroundColor.withValues(alpha: 0.5))
                 : null,
             child: child,
           ),

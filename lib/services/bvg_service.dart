@@ -66,14 +66,16 @@ class BvgService {
             // Skip arrivals that are before the skip threshold
             if (arrivalTime.isBefore(skipUntil)) {
               print(
-                  '\nArrival #$i skipped (within skip window of $skipMinutes min)');
+                '\nArrival #$i skipped (within skip window of $skipMinutes min)',
+              );
               continue;
             }
 
             final lineName = arr['line']?['name'] as String? ?? '';
             if (!_matchesTransportType(lineName, transportType)) {
               print(
-                  '\nArrival #$i skipped (line $lineName not matching ${transportType.name})');
+                '\nArrival #$i skipped (line $lineName not matching ${transportType.name})',
+              );
               continue;
             }
 
@@ -169,7 +171,8 @@ class BvgService {
             // Skip departures that are before the skip threshold
             if (departureTime.isBefore(skipUntil)) {
               print(
-                  '\nDeparture #$i skipped (within skip window of $skipMinutes min)');
+                '\nDeparture #$i skipped (within skip window of $skipMinutes min)',
+              );
               continue;
             }
 
@@ -188,7 +191,8 @@ class BvgService {
             final lineName = dep['line']?['name'] as String? ?? '';
             if (!_matchesTransportType(lineName, transportType)) {
               print(
-                  '\nDeparture #$i skipped (line $lineName not matching ${transportType.name})');
+                '\nDeparture #$i skipped (line $lineName not matching ${transportType.name})',
+              );
               continue;
             }
 

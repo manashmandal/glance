@@ -43,7 +43,8 @@ class TrainDeparture {
         final hour12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
         time = '${hour12}:${minute.toString().padLeft(2, '0')} $period';
         print(
-            'Time conversion: $timeString -> ${parsedDateTime.toString()} -> $time');
+          'Time conversion: $timeString -> ${parsedDateTime.toString()} -> $time',
+        );
       } catch (e) {
         time = 'N/A';
       }
@@ -98,7 +99,8 @@ class TrainDeparture {
         final hour12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
         time = '${hour12}:${minute.toString().padLeft(2, '0')} $period';
         print(
-            'Arrival time conversion: $timeString -> ${parsedDateTime.toString()} -> $time');
+          'Arrival time conversion: $timeString -> ${parsedDateTime.toString()} -> $time',
+        );
       } catch (e) {
         time = 'N/A';
       }

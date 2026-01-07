@@ -78,16 +78,13 @@ class DashboardLayout {
   final Map<String, WidgetLayout> layouts;
   final int version;
 
-  const DashboardLayout({
-    required this.layouts,
-    this.version = 1,
-  });
+  const DashboardLayout({required this.layouts, this.version = 1});
 
   static const List<String> widgetIds = [
     'clock',
     'logo',
     'weather',
-    'departures'
+    'departures',
   ];
 
   static DashboardLayout get defaultLayout => defaultLandscapeLayout;
@@ -391,10 +388,7 @@ class DashboardLayout {
         },
       );
 
-  DashboardLayout copyWith({
-    Map<String, WidgetLayout>? layouts,
-    int? version,
-  }) {
+  DashboardLayout copyWith({Map<String, WidgetLayout>? layouts, int? version}) {
     return DashboardLayout(
       layouts: layouts ?? Map.from(this.layouts),
       version: version ?? this.version,
