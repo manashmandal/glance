@@ -8,10 +8,7 @@ import '../services/theme_service.dart';
 class WeatherWidget extends StatefulWidget {
   final double scaleFactor;
 
-  const WeatherWidget({
-    super.key,
-    this.scaleFactor = 1.0,
-  });
+  const WeatherWidget({super.key, this.scaleFactor = 1.0});
 
   @override
   State<WeatherWidget> createState() => WeatherWidgetState();
@@ -117,11 +114,13 @@ class WeatherWidgetState extends State<WeatherWidget> {
                 final iconSize = constraints.maxHeight > 250
                     ? 100.0
                     : constraints.maxHeight * 0.35;
-                final tempFontSize = (constraints.maxHeight > 250
+                final tempFontSize =
+                    (constraints.maxHeight > 250
                         ? 32.0
                         : constraints.maxHeight * 0.12) *
                     widget.scaleFactor;
-                final descFontSize = (constraints.maxHeight > 250
+                final descFontSize =
+                    (constraints.maxHeight > 250
                         ? 18.0
                         : constraints.maxHeight * 0.07) *
                     widget.scaleFactor;

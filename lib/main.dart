@@ -66,8 +66,9 @@ class _GlanceAppState extends State<GlanceApp> {
   }
 
   void toggleTheme() {
-    final newMode =
-        _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    final newMode = _themeMode == ThemeMode.dark
+        ? ThemeMode.light
+        : ThemeMode.dark;
     setState(() => _themeMode = newMode);
     ThemeService.setThemeMode(newMode);
   }
@@ -138,14 +139,8 @@ class _GlanceAppState extends State<GlanceApp> {
             fontWeight: FontWeight.w600,
             color: AppTheme.darkTextPrimary,
           ),
-          bodyLarge: TextStyle(
-            fontSize: 18,
-            color: AppTheme.darkTextSecondary,
-          ),
-          bodyMedium: TextStyle(
-            fontSize: 16,
-            color: AppTheme.darkTextTertiary,
-          ),
+          bodyLarge: TextStyle(fontSize: 18, color: AppTheme.darkTextSecondary),
+          bodyMedium: TextStyle(fontSize: 16, color: AppTheme.darkTextTertiary),
         ),
       ),
       home: const DashboardScreen(),

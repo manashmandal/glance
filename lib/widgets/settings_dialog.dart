@@ -94,10 +94,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
               ),
               Text(
                 preset.description,
-                style: const TextStyle(
-                  color: Colors.white54,
-                  fontSize: 10,
-                ),
+                style: const TextStyle(color: Colors.white54, fontSize: 10),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -135,7 +132,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   Widget _buildSkeletonWidget(
-      String widgetId, BoxConstraints parentConstraints) {
+    String widgetId,
+    BoxConstraints parentConstraints,
+  ) {
     return Container(
       margin: const EdgeInsets.all(1),
       decoration: BoxDecoration(
@@ -266,254 +265,266 @@ class _SettingsDialogState extends State<SettingsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-        backgroundColor: const Color(0xFF252931),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+      backgroundColor: const Color(0xFF252931),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Settings',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Weather Font Size',
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                Row(
+                  children: [
+                    const Text(
+                      'Normal',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                    Expanded(
+                      child: Slider(
+                        value: _weatherScale,
+                        min: 0.8,
+                        max: 2.0,
+                        divisions: 12,
+                        label: _weatherScale.toStringAsFixed(1),
+                        activeColor: const Color(0xFF3B82F6),
+                        onChanged: (value) {
+                          setState(() => _weatherScale = value);
+                        },
+                      ),
+                    ),
+                    const Text(
+                      'Large',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Departure Table Font Size',
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                Row(
+                  children: [
+                    const Text(
+                      'Normal',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                    Expanded(
+                      child: Slider(
+                        value: _departureScale,
+                        min: 0.8,
+                        max: 2.0,
+                        divisions: 12,
+                        label: _departureScale.toStringAsFixed(1),
+                        activeColor: const Color(0xFF3B82F6),
+                        onChanged: (value) {
+                          setState(() => _departureScale = value);
+                        },
+                      ),
+                    ),
+                    const Text(
+                      'Large',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Default Station',
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<String>(
+                    value: _selectedStationId,
+                    isExpanded: true,
+                    dropdownColor: const Color(0xFF252931),
+                    underline: const SizedBox(),
+                    style: const TextStyle(color: Colors.white),
+                    items: Station.popularStations.map((station) {
+                      return DropdownMenuItem(
+                        value: station.id,
+                        child: Text(station.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedStationId = value);
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Default Transport Type',
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<TransportType>(
+                    value: _selectedTransportType,
+                    isExpanded: true,
+                    dropdownColor: const Color(0xFF252931),
+                    underline: const SizedBox(),
+                    style: const TextStyle(color: Colors.white),
+                    items: TransportType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(type.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedTransportType = value);
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Skip departures within ($_skipMinutes min)',
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                Row(
+                  children: [
+                    const Text('0', style: TextStyle(color: Colors.white54)),
+                    Expanded(
+                      child: Slider(
+                        value: _skipMinutes.toDouble(),
+                        min: 0,
+                        max: 30,
+                        divisions: 30,
+                        label: '$_skipMinutes min',
+                        activeColor: const Color(0xFF3B82F6),
+                        onChanged: (value) {
+                          setState(() => _skipMinutes = value.round());
+                        },
+                      ),
+                    ),
+                    const Text('30', style: TextStyle(color: Colors.white54)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Show departures within ($_durationMinutes min)',
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                Row(
+                  children: [
+                    const Text('15', style: TextStyle(color: Colors.white54)),
+                    Expanded(
+                      child: Slider(
+                        value: _durationMinutes.toDouble(),
+                        min: 15,
+                        max: 180,
+                        divisions: 165,
+                        label: '$_durationMinutes min',
+                        activeColor: const Color(0xFF3B82F6),
+                        onChanged: (value) {
+                          setState(() => _durationMinutes = value.round());
+                        },
+                      ),
+                    ),
+                    const Text('180', style: TextStyle(color: Colors.white54)),
+                  ],
+                ),
+                if (widget.onPresetSelected != null) ...[
+                  const SizedBox(height: 24),
+                  const Divider(color: Colors.white24),
+                  const SizedBox(height: 16),
                   const Text(
-                    'Settings',
+                    'Layout Presets',
                     style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 4),
                   const Text(
-                    'Weather Font Size',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                    'Quick-apply a layout style',
+                    style: TextStyle(color: Colors.white54, fontSize: 12),
                   ),
-                  Row(
-                    children: [
-                      const Text('Normal',
-                          style: TextStyle(color: Colors.white54)),
-                      Expanded(
-                        child: Slider(
-                          value: _weatherScale,
-                          min: 0.8,
-                          max: 2.0,
-                          divisions: 12,
-                          label: _weatherScale.toStringAsFixed(1),
-                          activeColor: const Color(0xFF3B82F6),
-                          onChanged: (value) {
-                            setState(() => _weatherScale = value);
-                          },
-                        ),
-                      ),
-                      const Text('Large',
-                          style: TextStyle(color: Colors.white54)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Departure Table Font Size',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  Row(
-                    children: [
-                      const Text('Normal',
-                          style: TextStyle(color: Colors.white54)),
-                      Expanded(
-                        child: Slider(
-                          value: _departureScale,
-                          min: 0.8,
-                          max: 2.0,
-                          divisions: 12,
-                          label: _departureScale.toStringAsFixed(1),
-                          activeColor: const Color(0xFF3B82F6),
-                          onChanged: (value) {
-                            setState(() => _departureScale = value);
-                          },
-                        ),
-                      ),
-                      const Text('Large',
-                          style: TextStyle(color: Colors.white54)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Default Station',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: DropdownButton<String>(
-                      value: _selectedStationId,
-                      isExpanded: true,
-                      dropdownColor: const Color(0xFF252931),
-                      underline: const SizedBox(),
-                      style: const TextStyle(color: Colors.white),
-                      items: Station.popularStations.map((station) {
-                        return DropdownMenuItem(
-                          value: station.id,
-                          child: Text(station.name),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _selectedStationId = value);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Default Transport Type',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: DropdownButton<TransportType>(
-                      value: _selectedTransportType,
-                      isExpanded: true,
-                      dropdownColor: const Color(0xFF252931),
-                      underline: const SizedBox(),
-                      style: const TextStyle(color: Colors.white),
-                      items: TransportType.values.map((type) {
-                        return DropdownMenuItem(
-                          value: type,
-                          child: Text(type.name),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _selectedTransportType = value);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Skip departures within ($_skipMinutes min)',
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  Row(
-                    children: [
-                      const Text('0', style: TextStyle(color: Colors.white54)),
-                      Expanded(
-                        child: Slider(
-                          value: _skipMinutes.toDouble(),
-                          min: 0,
-                          max: 30,
-                          divisions: 30,
-                          label: '$_skipMinutes min',
-                          activeColor: const Color(0xFF3B82F6),
-                          onChanged: (value) {
-                            setState(() => _skipMinutes = value.round());
-                          },
-                        ),
-                      ),
-                      const Text('30', style: TextStyle(color: Colors.white54)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Show departures within ($_durationMinutes min)',
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  Row(
-                    children: [
-                      const Text('15', style: TextStyle(color: Colors.white54)),
-                      Expanded(
-                        child: Slider(
-                          value: _durationMinutes.toDouble(),
-                          min: 15,
-                          max: 180,
-                          divisions: 165,
-                          label: '$_durationMinutes min',
-                          activeColor: const Color(0xFF3B82F6),
-                          onChanged: (value) {
-                            setState(() => _durationMinutes = value.round());
-                          },
-                        ),
-                      ),
-                      const Text('180',
-                          style: TextStyle(color: Colors.white54)),
-                    ],
-                  ),
-                  if (widget.onPresetSelected != null) ...[
-                    const SizedBox(height: 24),
-                    const Divider(color: Colors.white24),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Layout Presets',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Quick-apply a layout style',
-                      style: TextStyle(color: Colors.white54, fontSize: 12),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildLayoutPresetsGrid(),
-                  ],
-                  const SizedBox(height: 32),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text(
-                          'Cancel',
-                          style: TextStyle(color: Colors.white54),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF3B82F6),
-                          foregroundColor: Colors.white,
-                        ),
-                        onPressed: () async {
-                          await SettingsService.saveWeatherScale(_weatherScale);
-                          await SettingsService.saveDepartureScale(
-                              _departureScale);
-                          await SettingsService.saveDefaultStationId(
-                              _selectedStationId);
-                          await SettingsService.saveDefaultTransportType(
-                              _selectedTransportType);
-                          await SettingsService.saveSkipMinutes(_skipMinutes);
-                          await SettingsService.saveDurationMinutes(
-                              _durationMinutes);
-                          widget.onSave(
-                            _weatherScale,
-                            _departureScale,
-                            _selectedStationId,
-                            _selectedTransportType,
-                            _skipMinutes,
-                            _durationMinutes,
-                          );
-                          if (context.mounted) Navigator.pop(context);
-                        },
-                        child: const Text('Save'),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(height: 12),
+                  _buildLayoutPresetsGrid(),
                 ],
-              ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3B82F6),
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () async {
+                        await SettingsService.saveWeatherScale(_weatherScale);
+                        await SettingsService.saveDepartureScale(
+                          _departureScale,
+                        );
+                        await SettingsService.saveDefaultStationId(
+                          _selectedStationId,
+                        );
+                        await SettingsService.saveDefaultTransportType(
+                          _selectedTransportType,
+                        );
+                        await SettingsService.saveSkipMinutes(_skipMinutes);
+                        await SettingsService.saveDurationMinutes(
+                          _durationMinutes,
+                        );
+                        widget.onSave(
+                          _weatherScale,
+                          _departureScale,
+                          _selectedStationId,
+                          _selectedTransportType,
+                          _skipMinutes,
+                          _durationMinutes,
+                        );
+                        if (context.mounted) Navigator.pop(context);
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

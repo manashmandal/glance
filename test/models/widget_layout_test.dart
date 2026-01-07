@@ -189,8 +189,10 @@ void main() {
         final defaultLayout = DashboardLayout.defaultLayout;
         final landscapeLayout = DashboardLayout.defaultLandscapeLayout;
 
-        expect(defaultLayout.layouts['clock']!.width,
-            equals(landscapeLayout.layouts['clock']!.width));
+        expect(
+          defaultLayout.layouts['clock']!.width,
+          equals(landscapeLayout.layouts['clock']!.width),
+        );
       });
     });
 
@@ -232,9 +234,13 @@ void main() {
 
         expect(restored.layouts.length, equals(original.layouts.length));
         expect(
-            restored.layouts['clock']!.x, equals(original.layouts['clock']!.x));
-        expect(restored.layouts['clock']!.width,
-            equals(original.layouts['clock']!.width));
+          restored.layouts['clock']!.x,
+          equals(original.layouts['clock']!.x),
+        );
+        expect(
+          restored.layouts['clock']!.width,
+          equals(original.layouts['clock']!.width),
+        );
         expect(restored.version, equals(original.version));
       });
 
@@ -287,16 +293,20 @@ void main() {
         final portrait = DashboardLayout.defaultPortraitLayout;
         final landscape = DashboardLayout.defaultLandscapeLayout;
 
-        expect(portrait.layouts['clock']!.width,
-            greaterThan(landscape.layouts['clock']!.width));
+        expect(
+          portrait.layouts['clock']!.width,
+          greaterThan(landscape.layouts['clock']!.width),
+        );
       });
 
       test('portrait departures takes more vertical space', () {
         final portrait = DashboardLayout.defaultPortraitLayout;
         final landscape = DashboardLayout.defaultLandscapeLayout;
 
-        expect(portrait.layouts['departures']!.height,
-            greaterThan(landscape.layouts['departures']!.height));
+        expect(
+          portrait.layouts['departures']!.height,
+          greaterThan(landscape.layouts['departures']!.height),
+        );
       });
 
       test('landscape has widgets in different positions than portrait', () {
@@ -305,8 +315,10 @@ void main() {
 
         // In landscape, logo and weather are side by side with clock
         // In portrait, clock is full width on top
-        expect(portrait.layouts['clock']!.y,
-            isNot(equals(landscape.layouts['clock']!.y)));
+        expect(
+          portrait.layouts['clock']!.y,
+          isNot(equals(landscape.layouts['clock']!.y)),
+        );
       });
     });
   });

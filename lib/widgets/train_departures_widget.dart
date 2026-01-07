@@ -285,7 +285,9 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     onTap: () => _onDirectionChanged(false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: !_isArrivalsMode
                             ? const Color(0xFF3B82F6)
@@ -307,7 +309,9 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     onTap: () => _onDirectionChanged(true),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: _isArrivalsMode
                             ? const Color(0xFF3B82F6)
@@ -352,11 +356,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
             underline: const SizedBox(),
             isDense: true,
             isExpanded: true,
-            icon: Icon(
-              Icons.keyboard_arrow_down,
-              color: textColor,
-              size: 18,
-            ),
+            icon: Icon(Icons.keyboard_arrow_down, color: textColor, size: 18),
             selectedItemBuilder: (BuildContext context) {
               return Station.popularStations.map((Station station) {
                 return Align(
@@ -378,10 +378,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                 value: station,
                 child: Text(
                   station.name,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: textColor, fontSize: 13),
                 ),
               );
             }).toList(),
@@ -460,10 +457,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     value: type,
                     child: Text(
                       type.name,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: textColor, fontSize: 14),
                     ),
                   );
                 }).toList(),
@@ -491,7 +485,9 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     onTap: () => _onDirectionChanged(false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: !_isArrivalsMode
                             ? const Color(0xFF3B82F6)
@@ -513,7 +509,9 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     onTap: () => _onDirectionChanged(true),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: _isArrivalsMode
                             ? const Color(0xFF3B82F6)
@@ -588,10 +586,7 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
                     value: station,
                     child: Text(
                       station.name,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 15,
-                      ),
+                      style: TextStyle(color: textColor, fontSize: 15),
                     ),
                   );
                 }).toList(),
@@ -871,9 +866,13 @@ class TrainRow extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Container(
                   constraints: BoxConstraints(
-                      minWidth: 60 * scaleFactor, maxWidth: 140 * scaleFactor),
+                    minWidth: 60 * scaleFactor,
+                    maxWidth: 140 * scaleFactor,
+                  ),
                   padding: EdgeInsets.symmetric(
-                      horizontal: 12 * scaleFactor, vertical: 6 * scaleFactor),
+                    horizontal: 12 * scaleFactor,
+                    vertical: 6 * scaleFactor,
+                  ),
                   decoration: BoxDecoration(
                     color: lineColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
@@ -1020,7 +1019,9 @@ class CompactTrainRow extends StatelessWidget {
             width: 70 * scaleFactor,
             child: Container(
               padding: EdgeInsets.symmetric(
-                  horizontal: 8 * scaleFactor, vertical: 4 * scaleFactor),
+                horizontal: 8 * scaleFactor,
+                vertical: 4 * scaleFactor,
+              ),
               decoration: BoxDecoration(
                 color: lineColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(6),

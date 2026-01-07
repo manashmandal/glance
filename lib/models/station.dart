@@ -2,10 +2,7 @@ class Station {
   final String id;
   final String name;
 
-  const Station({
-    required this.id,
-    required this.name,
-  });
+  const Station({required this.id, required this.name});
 
   static const List<Station> popularStations = [
     Station(id: '900100003', name: 'S+U Alexanderplatz'),

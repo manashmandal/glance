@@ -7,18 +7,22 @@ class LayoutService {
   static const String _keyDashboardLayoutPortrait = 'dashboard_layout_portrait';
   static const String _keyDashboardLayout = 'dashboard_layout'; // Legacy key
 
-  static Future<void> saveLayout(DashboardLayout layout,
-      {bool isPortrait = false}) async {
+  static Future<void> saveLayout(
+    DashboardLayout layout, {
+    bool isPortrait = false,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    final key =
-        isPortrait ? _keyDashboardLayoutPortrait : _keyDashboardLayoutLandscape;
+    final key = isPortrait
+        ? _keyDashboardLayoutPortrait
+        : _keyDashboardLayoutLandscape;
     await prefs.setString(key, layout.toJsonString());
   }
 
   static Future<DashboardLayout> getLayout({bool isPortrait = false}) async {
     final prefs = await SharedPreferences.getInstance();
-    final key =
-        isPortrait ? _keyDashboardLayoutPortrait : _keyDashboardLayoutLandscape;
+    final key = isPortrait
+        ? _keyDashboardLayoutPortrait
+        : _keyDashboardLayoutLandscape;
     var jsonString = prefs.getString(key);
 
     // Fallback to legacy key for landscape (migration support)
@@ -46,8 +50,9 @@ class LayoutService {
 
   static Future<void> resetToDefault({bool isPortrait = false}) async {
     final prefs = await SharedPreferences.getInstance();
-    final key =
-        isPortrait ? _keyDashboardLayoutPortrait : _keyDashboardLayoutLandscape;
+    final key = isPortrait
+        ? _keyDashboardLayoutPortrait
+        : _keyDashboardLayoutLandscape;
     await prefs.remove(key);
   }
 

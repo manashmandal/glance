@@ -188,20 +188,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
         initialTransportType: _defaultTransportType ?? TransportType.regional,
         initialSkipMinutes: _skipMinutes,
         initialDurationMinutes: _durationMinutes,
-        onSave: (weatherScale, departureScale, stationId, type, skipMinutes,
-            durationMinutes) {
-          setState(() {
-            _weatherScale = weatherScale;
-            _departureScale = departureScale;
-            _defaultStation = Station.popularStations.firstWhere(
-              (s) => s.id == stationId,
-              orElse: () => Station.defaultStation,
-            );
-            _defaultTransportType = type;
-            _skipMinutes = skipMinutes;
-            _durationMinutes = durationMinutes;
-          });
-        },
+        onSave:
+            (
+              weatherScale,
+              departureScale,
+              stationId,
+              type,
+              skipMinutes,
+              durationMinutes,
+            ) {
+              setState(() {
+                _weatherScale = weatherScale;
+                _departureScale = departureScale;
+                _defaultStation = Station.popularStations.firstWhere(
+                  (s) => s.id == stationId,
+                  orElse: () => Station.defaultStation,
+                );
+                _defaultTransportType = type;
+                _skipMinutes = skipMinutes;
+                _durationMinutes = durationMinutes;
+              });
+            },
         onPresetSelected: _applyLayoutPreset,
       ),
     );
@@ -220,10 +227,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'logo':
         return _buildLogoWidget();
       case 'weather':
-        return WeatherWidget(
-          key: _weatherKey,
-          scaleFactor: _weatherScale,
-        );
+        return WeatherWidget(key: _weatherKey, scaleFactor: _weatherScale);
       case 'departures':
         return _buildDeparturesWidget();
       default:
@@ -242,12 +246,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Flexible(
-            child: Image.asset(
-              'assets/images/logo.png',
-              height: 80,
-            ),
-          ),
+          Flexible(child: Image.asset('assets/images/logo.png', height: 80)),
           const SizedBox(height: 8),
           Text(
             'Glance',
@@ -260,10 +259,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           Text(
             _version,
-            style: TextStyle(
-              fontSize: 12,
-              color: context.textTertiary,
-            ),
+            style: TextStyle(fontSize: 12, color: context.textTertiary),
           ),
         ],
       ),
@@ -378,11 +374,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isSelected ? color : unselectedColor,
-            ),
+            Icon(icon, size: 20, color: isSelected ? color : unselectedColor),
             const SizedBox(width: 8),
             Text(
               label,
@@ -431,7 +423,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               // Header with controls
               Padding(
                 padding: EdgeInsets.fromLTRB(
-                    padding, _isSmallScreen ? 8 : 16, padding, 8),
+                  padding,
+                  _isSmallScreen ? 8 : 16,
+                  padding,
+                  8,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -479,10 +475,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     if (_lastUpdated != null && !_isSmallScreen)
                       Text(
                         'Last updated at: ${DateFormat('HH:mm').format(_lastUpdated!)}',
-                        style: TextStyle(
-                          color: mutedTextColor,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: mutedTextColor, fontSize: 12),
                       ),
                     IconButton(
                       icon: Icon(Icons.refresh, color: iconColor),
@@ -498,8 +491,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final containerSize =
-                          Size(constraints.maxWidth, constraints.maxHeight);
+                      final containerSize = Size(
+                        constraints.maxWidth,
+                        constraints.maxHeight,
+                      );
                       return Stack(
                         clipBehavior: Clip.none,
                         children: [

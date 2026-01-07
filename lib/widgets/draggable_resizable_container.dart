@@ -64,8 +64,8 @@ class _DraggableResizableContainerState
           child: MouseRegion(
             cursor: widget.isEditMode && !_isResizing
                 ? (_isDragging
-                    ? SystemMouseCursors.grabbing
-                    : SystemMouseCursors.grab)
+                      ? SystemMouseCursors.grabbing
+                      : SystemMouseCursors.grab)
                 : SystemMouseCursors.basic,
             child: GestureDetector(
               onPanStart: widget.isEditMode ? _onDragStart : null,
@@ -218,10 +218,14 @@ class _DraggableResizableContainerState
     final deltaXPercent = delta.dx / widget.containerSize.width;
     final deltaYPercent = delta.dy / widget.containerSize.height;
 
-    var newX = (_dragStartLayout!.x + deltaXPercent)
-        .clamp(0.0, 1.0 - widget.layout.width);
-    var newY = (_dragStartLayout!.y + deltaYPercent)
-        .clamp(0.0, 1.0 - widget.layout.height);
+    var newX = (_dragStartLayout!.x + deltaXPercent).clamp(
+      0.0,
+      1.0 - widget.layout.width,
+    );
+    var newY = (_dragStartLayout!.y + deltaYPercent).clamp(
+      0.0,
+      1.0 - widget.layout.height,
+    );
 
     // Snap to grid for snappy feel
     newX = _snapToGrid(newX).clamp(0.0, 1.0 - widget.layout.width);
@@ -264,50 +268,74 @@ class _DraggableResizableContainerState
 
     switch (_activeHandle!) {
       case ResizeHandle.topLeft:
-        newX = (_dragStartLayout!.x + deltaXPercent).clamp(0.0,
-            _dragStartLayout!.x + _dragStartLayout!.width - minWidthPercent);
-        newY = (_dragStartLayout!.y + deltaYPercent).clamp(0.0,
-            _dragStartLayout!.y + _dragStartLayout!.height - minHeightPercent);
+        newX = (_dragStartLayout!.x + deltaXPercent).clamp(
+          0.0,
+          _dragStartLayout!.x + _dragStartLayout!.width - minWidthPercent,
+        );
+        newY = (_dragStartLayout!.y + deltaYPercent).clamp(
+          0.0,
+          _dragStartLayout!.y + _dragStartLayout!.height - minHeightPercent,
+        );
         newWidth = _dragStartLayout!.width - (newX - _dragStartLayout!.x);
         newHeight = _dragStartLayout!.height - (newY - _dragStartLayout!.y);
         break;
       case ResizeHandle.topRight:
-        newY = (_dragStartLayout!.y + deltaYPercent).clamp(0.0,
-            _dragStartLayout!.y + _dragStartLayout!.height - minHeightPercent);
-        newWidth = (_dragStartLayout!.width + deltaXPercent)
-            .clamp(minWidthPercent, 1.0 - _dragStartLayout!.x);
+        newY = (_dragStartLayout!.y + deltaYPercent).clamp(
+          0.0,
+          _dragStartLayout!.y + _dragStartLayout!.height - minHeightPercent,
+        );
+        newWidth = (_dragStartLayout!.width + deltaXPercent).clamp(
+          minWidthPercent,
+          1.0 - _dragStartLayout!.x,
+        );
         newHeight = _dragStartLayout!.height - (newY - _dragStartLayout!.y);
         break;
       case ResizeHandle.bottomLeft:
-        newX = (_dragStartLayout!.x + deltaXPercent).clamp(0.0,
-            _dragStartLayout!.x + _dragStartLayout!.width - minWidthPercent);
+        newX = (_dragStartLayout!.x + deltaXPercent).clamp(
+          0.0,
+          _dragStartLayout!.x + _dragStartLayout!.width - minWidthPercent,
+        );
         newWidth = _dragStartLayout!.width - (newX - _dragStartLayout!.x);
-        newHeight = (_dragStartLayout!.height + deltaYPercent)
-            .clamp(minHeightPercent, 1.0 - _dragStartLayout!.y);
+        newHeight = (_dragStartLayout!.height + deltaYPercent).clamp(
+          minHeightPercent,
+          1.0 - _dragStartLayout!.y,
+        );
         break;
       case ResizeHandle.bottomRight:
-        newWidth = (_dragStartLayout!.width + deltaXPercent)
-            .clamp(minWidthPercent, 1.0 - _dragStartLayout!.x);
-        newHeight = (_dragStartLayout!.height + deltaYPercent)
-            .clamp(minHeightPercent, 1.0 - _dragStartLayout!.y);
+        newWidth = (_dragStartLayout!.width + deltaXPercent).clamp(
+          minWidthPercent,
+          1.0 - _dragStartLayout!.x,
+        );
+        newHeight = (_dragStartLayout!.height + deltaYPercent).clamp(
+          minHeightPercent,
+          1.0 - _dragStartLayout!.y,
+        );
         break;
       case ResizeHandle.top:
-        newY = (_dragStartLayout!.y + deltaYPercent).clamp(0.0,
-            _dragStartLayout!.y + _dragStartLayout!.height - minHeightPercent);
+        newY = (_dragStartLayout!.y + deltaYPercent).clamp(
+          0.0,
+          _dragStartLayout!.y + _dragStartLayout!.height - minHeightPercent,
+        );
         newHeight = _dragStartLayout!.height - (newY - _dragStartLayout!.y);
         break;
       case ResizeHandle.bottom:
-        newHeight = (_dragStartLayout!.height + deltaYPercent)
-            .clamp(minHeightPercent, 1.0 - _dragStartLayout!.y);
+        newHeight = (_dragStartLayout!.height + deltaYPercent).clamp(
+          minHeightPercent,
+          1.0 - _dragStartLayout!.y,
+        );
         break;
       case ResizeHandle.left:
-        newX = (_dragStartLayout!.x + deltaXPercent).clamp(0.0,
-            _dragStartLayout!.x + _dragStartLayout!.width - minWidthPercent);
+        newX = (_dragStartLayout!.x + deltaXPercent).clamp(
+          0.0,
+          _dragStartLayout!.x + _dragStartLayout!.width - minWidthPercent,
+        );
         newWidth = _dragStartLayout!.width - (newX - _dragStartLayout!.x);
         break;
       case ResizeHandle.right:
-        newWidth = (_dragStartLayout!.width + deltaXPercent)
-            .clamp(minWidthPercent, 1.0 - _dragStartLayout!.x);
+        newWidth = (_dragStartLayout!.width + deltaXPercent).clamp(
+          minWidthPercent,
+          1.0 - _dragStartLayout!.x,
+        );
         break;
     }
 
@@ -317,12 +345,14 @@ class _DraggableResizableContainerState
     newWidth = _snapToGrid(newWidth);
     newHeight = _snapToGrid(newHeight);
 
-    widget.onLayoutUpdate(widget.layout.copyWith(
-      x: newX,
-      y: newY,
-      width: newWidth,
-      height: newHeight,
-    ));
+    widget.onLayoutUpdate(
+      widget.layout.copyWith(
+        x: newX,
+        y: newY,
+        width: newWidth,
+        height: newHeight,
+      ),
+    );
   }
 
   void _onResizeEnd(DragEndDetails details) {

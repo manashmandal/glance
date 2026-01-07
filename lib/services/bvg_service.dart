@@ -23,9 +23,9 @@ class BvgService {
       print('Skip minutes: $skipMinutes');
       print('Timestamp: ${DateTime.now()}');
 
-      final response = await http.get(Uri.parse(url), headers: {
-        'Accept': 'application/json'
-      }).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(Uri.parse(url), headers: {'Accept': 'application/json'})
+          .timeout(const Duration(seconds: 10));
 
       print('Response Status Code: ${response.statusCode}');
       print('Response Body Length: ${response.body.length} bytes');
@@ -66,14 +66,16 @@ class BvgService {
             // Skip arrivals that are before the skip threshold
             if (arrivalTime.isBefore(skipUntil)) {
               print(
-                  '\nArrival #$i skipped (within skip window of $skipMinutes min)');
+                '\nArrival #$i skipped (within skip window of $skipMinutes min)',
+              );
               continue;
             }
 
             final lineName = arr['line']?['name'] as String? ?? '';
             if (!_matchesTransportType(lineName, transportType)) {
               print(
-                  '\nArrival #$i skipped (line $lineName not matching ${transportType.name})');
+                '\nArrival #$i skipped (line $lineName not matching ${transportType.name})',
+              );
               continue;
             }
 
@@ -122,9 +124,9 @@ class BvgService {
       print('Skip minutes: $skipMinutes');
       print('Timestamp: ${DateTime.now()}');
 
-      final response = await http.get(Uri.parse(url), headers: {
-        'Accept': 'application/json'
-      }).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(Uri.parse(url), headers: {'Accept': 'application/json'})
+          .timeout(const Duration(seconds: 10));
 
       print('Response Status Code: ${response.statusCode}');
       print('Response Body Length: ${response.body.length} bytes');
@@ -150,9 +152,11 @@ class BvgService {
         final now = DateTime.now();
         final skipUntil = now.add(Duration(minutes: skipMinutes));
 
-        for (var i = 0;
-            i < departures.length && trainDepartures.length < 5;
-            i++) {
+        for (
+          var i = 0;
+          i < departures.length && trainDepartures.length < 5;
+          i++
+        ) {
           try {
             final dep = departures[i];
             final whenString = dep['when'] as String?;
@@ -169,7 +173,8 @@ class BvgService {
             // Skip departures that are before the skip threshold
             if (departureTime.isBefore(skipUntil)) {
               print(
-                  '\nDeparture #$i skipped (within skip window of $skipMinutes min)');
+                '\nDeparture #$i skipped (within skip window of $skipMinutes min)',
+              );
               continue;
             }
 
@@ -188,7 +193,8 @@ class BvgService {
             final lineName = dep['line']?['name'] as String? ?? '';
             if (!_matchesTransportType(lineName, transportType)) {
               print(
-                  '\nDeparture #$i skipped (line $lineName not matching ${transportType.name})');
+                '\nDeparture #$i skipped (line $lineName not matching ${transportType.name})',
+              );
               continue;
             }
 
@@ -224,8 +230,9 @@ class BvgService {
 
   static List<TrainDeparture> _getFallbackData() {
     final now = DateTime.now();
-    final hour12 =
-        now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
+    final hour12 = now.hour > 12
+        ? now.hour - 12
+        : (now.hour == 0 ? 12 : now.hour);
     final period = now.hour >= 12 ? 'PM' : 'AM';
     final currentTime =
         '${hour12}:${now.minute.toString().padLeft(2, '0')} $period';
