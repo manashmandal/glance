@@ -17,6 +17,8 @@ import '../models/transport_type.dart';
 import '../models/widget_layout.dart';
 import '../main.dart';
 import '../services/theme_service.dart';
+import '../services/update_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -32,7 +34,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<TrainDeparturesWidgetState> _busDeparturesKey = GlobalKey();
   Timer? _refreshTimer;
   Timer? _saveDebounceTimer;
+  Timer? _updateCheckTimer;
   DateTime? _lastUpdated;
+
+  // Update checker
+  bool _updateAvailable = false;
+  String? _latestVersion;
+  String? _downloadUrl;
   bool _isFullScreen = false;
   bool _isEditMode = false;
 
@@ -59,6 +67,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadSettings();
     _loadVersion();
     _startRefreshTimer();
+    _checkForUpdates();
+    _startUpdateCheckTimer();
   }
 
   @override
@@ -125,10 +135,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  void _startUpdateCheckTimer() {
+    _updateCheckTimer = Timer.periodic(
+      const Duration(hours: 24),
+      (_) => _checkForUpdates(),
+    );
+  }
+
+  Future<void> _checkForUpdates() async {
+    final currentVersion = _version.startsWith('v')
+        ? _version.substring(1)
+        : _version.isEmpty
+            ? '0.0.0'
+            : _version;
+
+    final updateInfo = await UpdateService.checkForUpdate(currentVersion);
+
+    if (mounted && updateInfo != null) {
+      setState(() {
+        _updateAvailable = updateInfo.updateAvailable;
+        _latestVersion = updateInfo.latestVersion;
+        _downloadUrl = updateInfo.downloadUrl;
+      });
+    }
+  }
+
+  Future<void> _openDownloadUrl() async {
+    if (_downloadUrl != null) {
+      final uri = Uri.parse(_downloadUrl!);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    }
+  }
+
   @override
   void dispose() {
     _refreshTimer?.cancel();
     _saveDebounceTimer?.cancel();
+    _updateCheckTimer?.cancel();
     super.dispose();
   }
 
@@ -469,6 +514,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ? 'Switch to Light Mode'
                               : 'Switch to Dark Mode',
                         ),
+                        if (_updateAvailable)
+                          IconButton(
+                            icon: const Icon(
+                              Icons.system_update,
+                              color: Color(0xFF4CAF50),
+                            ),
+                            onPressed: _openDownloadUrl,
+                            tooltip:
+                                'Update available: v$_latestVersion - Click to download',
+                          ),
                       ],
                     ),
                     if (_lastUpdated != null && !_isSmallScreen)
