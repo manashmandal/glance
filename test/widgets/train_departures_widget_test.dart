@@ -39,24 +39,26 @@ class MockHttpClientResponse implements HttpClientResponse {
     final mockData = {
       'departures': [
         {
-          'when':
-              DateTime.now().add(const Duration(minutes: 10)).toIso8601String(),
+          'when': DateTime.now()
+              .add(const Duration(minutes: 10))
+              .toIso8601String(),
           'line': {'name': 'RE1', 'productName': 'RE'},
           'direction': 'Berlin Hbf',
           'platform': '1',
         },
         {
-          'when':
-              DateTime.now().add(const Duration(minutes: 20)).toIso8601String(),
+          'when': DateTime.now()
+              .add(const Duration(minutes: 20))
+              .toIso8601String(),
           'line': {'name': 'RE2', 'productName': 'RE'},
           'direction': 'Potsdam',
           'platform': '2',
         },
       ],
     };
-    return Stream.value(utf8.encode(jsonEncode(mockData)))
-        .cast<List<int>>()
-        .transform(streamTransformer);
+    return Stream.value(
+      utf8.encode(jsonEncode(mockData)),
+    ).cast<List<int>>().transform(streamTransformer);
   }
 
   @override
@@ -117,8 +119,9 @@ void main() {
 
   group('TrainDeparturesWidget', () {
     group('compactMode parameter', () {
-      testWidgets('renders in full mode by default',
-          (WidgetTester tester) async {
+      testWidgets('renders in full mode by default', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(1600, 900);
         tester.view.devicePixelRatio = 1.0;
 
@@ -133,8 +136,9 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('renders in compact mode when specified',
-          (WidgetTester tester) async {
+      testWidgets('renders in compact mode when specified', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -147,8 +151,9 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('compact mode shows transport type name in header',
-          (WidgetTester tester) async {
+      testWidgets('compact mode shows transport type name in header', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -162,8 +167,9 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('compact mode shows FROM/TO toggle',
-          (WidgetTester tester) async {
+      testWidgets('compact mode shows FROM/TO toggle', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -177,8 +183,9 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('full mode shows Departures or Arrivals label',
-          (WidgetTester tester) async {
+      testWidgets('full mode shows Departures or Arrivals label', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(1600, 900);
         tester.view.devicePixelRatio = 1.0;
 
@@ -190,16 +197,18 @@ void main() {
         final departures = find.text('Departures');
         final arrivals = find.text('Arrivals');
         expect(
-            departures.evaluate().isNotEmpty || arrivals.evaluate().isNotEmpty,
-            isTrue);
+          departures.evaluate().isNotEmpty || arrivals.evaluate().isNotEmpty,
+          isTrue,
+        );
 
         addTearDown(tester.view.resetPhysicalSize);
       });
     });
 
     group('table headers', () {
-      testWidgets('compact mode shows Min, Line, Destination, Status columns',
-          (WidgetTester tester) async {
+      testWidgets('compact mode shows Min, Line, Destination, Status columns', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -216,30 +225,32 @@ void main() {
       });
 
       testWidgets(
-          'full mode shows Time, Min, Destination, Line, Platform, Status columns',
-          (WidgetTester tester) async {
-        tester.view.physicalSize = const Size(1600, 900);
-        tester.view.devicePixelRatio = 1.0;
+        'full mode shows Time, Min, Destination, Line, Platform, Status columns',
+        (WidgetTester tester) async {
+          tester.view.physicalSize = const Size(1600, 900);
+          tester.view.devicePixelRatio = 1.0;
 
-        await tester.pumpWidget(createTestWidget(compactMode: false));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 100));
+          await tester.pumpWidget(createTestWidget(compactMode: false));
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 100));
 
-        // Use findsAtLeastNWidgets since text may appear in header and data rows
-        expect(find.text('Time'), findsAtLeastNWidgets(1));
-        expect(find.text('Min'), findsAtLeastNWidgets(1));
-        expect(find.text('Destination'), findsAtLeastNWidgets(1));
-        expect(find.text('Line'), findsAtLeastNWidgets(1));
-        expect(find.text('Platform'), findsAtLeastNWidgets(1));
-        expect(find.text('Status'), findsAtLeastNWidgets(1));
+          // Use findsAtLeastNWidgets since text may appear in header and data rows
+          expect(find.text('Time'), findsAtLeastNWidgets(1));
+          expect(find.text('Min'), findsAtLeastNWidgets(1));
+          expect(find.text('Destination'), findsAtLeastNWidgets(1));
+          expect(find.text('Line'), findsAtLeastNWidgets(1));
+          expect(find.text('Platform'), findsAtLeastNWidgets(1));
+          expect(find.text('Status'), findsAtLeastNWidgets(1));
 
-        addTearDown(tester.view.resetPhysicalSize);
-      });
+          addTearDown(tester.view.resetPhysicalSize);
+        },
+      );
     });
 
     group('station selector', () {
-      testWidgets('shows station dropdown in both modes',
-          (WidgetTester tester) async {
+      testWidgets('shows station dropdown in both modes', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -255,28 +266,31 @@ void main() {
     });
 
     group('transport type', () {
-      testWidgets('initializes with provided transport type',
-          (WidgetTester tester) async {
+      testWidgets('initializes with provided transport type', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData.dark(),
-          home: Scaffold(
-            body: SizedBox(
-              width: 400,
-              height: 600,
-              child: TrainDeparturesWidget(
-                initialStation: Station.defaultStation,
-                initialTransportType: TransportType.bus,
-                scaleFactor: 1.0,
-                skipMinutes: 0,
-                durationMinutes: 60,
-                compactMode: true,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.dark(),
+            home: Scaffold(
+              body: SizedBox(
+                width: 400,
+                height: 600,
+                child: TrainDeparturesWidget(
+                  initialStation: Station.defaultStation,
+                  initialTransportType: TransportType.bus,
+                  scaleFactor: 1.0,
+                  skipMinutes: 0,
+                  durationMinutes: 60,
+                  compactMode: true,
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
@@ -288,8 +302,9 @@ void main() {
     });
 
     group('responsive behavior', () {
-      testWidgets('compact mode uses smaller padding',
-          (WidgetTester tester) async {
+      testWidgets('compact mode uses smaller padding', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
@@ -319,31 +334,34 @@ void main() {
     });
 
     group('refresh functionality', () {
-      testWidgets('refresh() can be called via GlobalKey',
-          (WidgetTester tester) async {
+      testWidgets('refresh() can be called via GlobalKey', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
         final key = GlobalKey<TrainDeparturesWidgetState>();
 
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData.dark(),
-          home: Scaffold(
-            body: SizedBox(
-              width: 400,
-              height: 600,
-              child: TrainDeparturesWidget(
-                key: key,
-                initialStation: Station.defaultStation,
-                initialTransportType: TransportType.regional,
-                scaleFactor: 1.0,
-                skipMinutes: 0,
-                durationMinutes: 60,
-                compactMode: true,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.dark(),
+            home: Scaffold(
+              body: SizedBox(
+                width: 400,
+                height: 600,
+                child: TrainDeparturesWidget(
+                  key: key,
+                  initialStation: Station.defaultStation,
+                  initialTransportType: TransportType.regional,
+                  scaleFactor: 1.0,
+                  skipMinutes: 0,
+                  durationMinutes: 60,
+                  compactMode: true,
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
@@ -364,31 +382,34 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('refresh() fetches new data when called',
-          (WidgetTester tester) async {
+      testWidgets('refresh() fetches new data when called', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
         final key = GlobalKey<TrainDeparturesWidgetState>();
 
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData.dark(),
-          home: Scaffold(
-            body: SizedBox(
-              width: 400,
-              height: 600,
-              child: TrainDeparturesWidget(
-                key: key,
-                initialStation: Station.defaultStation,
-                initialTransportType: TransportType.regional,
-                scaleFactor: 1.0,
-                skipMinutes: 0,
-                durationMinutes: 60,
-                compactMode: true,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.dark(),
+            home: Scaffold(
+              body: SizedBox(
+                width: 400,
+                height: 600,
+                child: TrainDeparturesWidget(
+                  key: key,
+                  initialStation: Station.defaultStation,
+                  initialTransportType: TransportType.regional,
+                  scaleFactor: 1.0,
+                  skipMinutes: 0,
+                  durationMinutes: 60,
+                  compactMode: true,
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
@@ -408,36 +429,39 @@ void main() {
     });
 
     group('didUpdateWidget', () {
-      testWidgets('triggers refresh when skipMinutes changes',
-          (WidgetTester tester) async {
+      testWidgets('triggers refresh when skipMinutes changes', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
         int skipMinutes = 0;
 
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData.dark(),
-          home: StatefulBuilder(
-            builder: (context, setState) => Scaffold(
-              body: SizedBox(
-                width: 400,
-                height: 600,
-                child: TrainDeparturesWidget(
-                  initialStation: Station.defaultStation,
-                  initialTransportType: TransportType.regional,
-                  scaleFactor: 1.0,
-                  skipMinutes: skipMinutes,
-                  durationMinutes: 60,
-                  compactMode: true,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.dark(),
+            home: StatefulBuilder(
+              builder: (context, setState) => Scaffold(
+                body: SizedBox(
+                  width: 400,
+                  height: 600,
+                  child: TrainDeparturesWidget(
+                    initialStation: Station.defaultStation,
+                    initialTransportType: TransportType.regional,
+                    scaleFactor: 1.0,
+                    skipMinutes: skipMinutes,
+                    durationMinutes: 60,
+                    compactMode: true,
+                  ),
                 ),
-              ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () => setState(() => skipMinutes = 10),
-                child: const Icon(Icons.add),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () => setState(() => skipMinutes = 10),
+                  child: const Icon(Icons.add),
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
@@ -453,36 +477,39 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('triggers refresh when durationMinutes changes',
-          (WidgetTester tester) async {
+      testWidgets('triggers refresh when durationMinutes changes', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
         int durationMinutes = 60;
 
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData.dark(),
-          home: StatefulBuilder(
-            builder: (context, setState) => Scaffold(
-              body: SizedBox(
-                width: 400,
-                height: 600,
-                child: TrainDeparturesWidget(
-                  initialStation: Station.defaultStation,
-                  initialTransportType: TransportType.regional,
-                  scaleFactor: 1.0,
-                  skipMinutes: 0,
-                  durationMinutes: durationMinutes,
-                  compactMode: true,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.dark(),
+            home: StatefulBuilder(
+              builder: (context, setState) => Scaffold(
+                body: SizedBox(
+                  width: 400,
+                  height: 600,
+                  child: TrainDeparturesWidget(
+                    initialStation: Station.defaultStation,
+                    initialTransportType: TransportType.regional,
+                    scaleFactor: 1.0,
+                    skipMinutes: 0,
+                    durationMinutes: durationMinutes,
+                    compactMode: true,
+                  ),
                 ),
-              ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () => setState(() => durationMinutes = 120),
-                child: const Icon(Icons.add),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () => setState(() => durationMinutes = 120),
+                  child: const Icon(Icons.add),
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
@@ -498,41 +525,44 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('triggers refresh when initialStation changes',
-          (WidgetTester tester) async {
+      testWidgets('triggers refresh when initialStation changes', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
         Station station = Station.defaultStation;
 
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData.dark(),
-          home: StatefulBuilder(
-            builder: (context, setState) => Scaffold(
-              body: SizedBox(
-                width: 400,
-                height: 600,
-                child: TrainDeparturesWidget(
-                  initialStation: station,
-                  initialTransportType: TransportType.regional,
-                  scaleFactor: 1.0,
-                  skipMinutes: 0,
-                  durationMinutes: 60,
-                  compactMode: true,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.dark(),
+            home: StatefulBuilder(
+              builder: (context, setState) => Scaffold(
+                body: SizedBox(
+                  width: 400,
+                  height: 600,
+                  child: TrainDeparturesWidget(
+                    initialStation: station,
+                    initialTransportType: TransportType.regional,
+                    scaleFactor: 1.0,
+                    skipMinutes: 0,
+                    durationMinutes: 60,
+                    compactMode: true,
+                  ),
                 ),
-              ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () => setState(() {
-                  // Use a different station from the list
-                  station = Station.popularStations.length > 1
-                      ? Station.popularStations[1]
-                      : Station.defaultStation;
-                }),
-                child: const Icon(Icons.add),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () => setState(() {
+                    // Use a different station from the list
+                    station = Station.popularStations.length > 1
+                        ? Station.popularStations[1]
+                        : Station.defaultStation;
+                  }),
+                  child: const Icon(Icons.add),
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
@@ -548,36 +578,40 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('triggers refresh when initialTransportType changes',
-          (WidgetTester tester) async {
+      testWidgets('triggers refresh when initialTransportType changes', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
         TransportType transportType = TransportType.regional;
 
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData.dark(),
-          home: StatefulBuilder(
-            builder: (context, setState) => Scaffold(
-              body: SizedBox(
-                width: 400,
-                height: 600,
-                child: TrainDeparturesWidget(
-                  initialStation: Station.defaultStation,
-                  initialTransportType: transportType,
-                  scaleFactor: 1.0,
-                  skipMinutes: 0,
-                  durationMinutes: 60,
-                  compactMode: true,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.dark(),
+            home: StatefulBuilder(
+              builder: (context, setState) => Scaffold(
+                body: SizedBox(
+                  width: 400,
+                  height: 600,
+                  child: TrainDeparturesWidget(
+                    initialStation: Station.defaultStation,
+                    initialTransportType: transportType,
+                    scaleFactor: 1.0,
+                    skipMinutes: 0,
+                    durationMinutes: 60,
+                    compactMode: true,
+                  ),
                 ),
-              ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () => setState(() => transportType = TransportType.bus),
-                child: const Icon(Icons.add),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () =>
+                      setState(() => transportType = TransportType.bus),
+                  child: const Icon(Icons.add),
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
@@ -596,36 +630,39 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('does not trigger refresh when unrelated props change',
-          (WidgetTester tester) async {
+      testWidgets('does not trigger refresh when unrelated props change', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(400, 800);
         tester.view.devicePixelRatio = 1.0;
 
         double scaleFactor = 1.0;
 
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData.dark(),
-          home: StatefulBuilder(
-            builder: (context, setState) => Scaffold(
-              body: SizedBox(
-                width: 400,
-                height: 600,
-                child: TrainDeparturesWidget(
-                  initialStation: Station.defaultStation,
-                  initialTransportType: TransportType.regional,
-                  scaleFactor: scaleFactor,
-                  skipMinutes: 0,
-                  durationMinutes: 60,
-                  compactMode: true,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData.dark(),
+            home: StatefulBuilder(
+              builder: (context, setState) => Scaffold(
+                body: SizedBox(
+                  width: 400,
+                  height: 600,
+                  child: TrainDeparturesWidget(
+                    initialStation: Station.defaultStation,
+                    initialTransportType: TransportType.regional,
+                    scaleFactor: scaleFactor,
+                    skipMinutes: 0,
+                    durationMinutes: 60,
+                    compactMode: true,
+                  ),
                 ),
-              ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () => setState(() => scaleFactor = 1.5),
-                child: const Icon(Icons.add),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () => setState(() => scaleFactor = 1.5),
+                  child: const Icon(Icons.add),
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 

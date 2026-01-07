@@ -47,8 +47,9 @@ class MockHttpClientResponse implements HttpClientResponse {
       return {
         'departures': [
           {
-            'when':
-                DateTime.now().add(const Duration(minutes: 10)).toIso8601String(),
+            'when': DateTime.now()
+                .add(const Duration(minutes: 10))
+                .toIso8601String(),
             'line': {'name': 'RE1', 'productName': 'RE'},
             'direction': 'Berlin Hbf',
             'platform': '1',
@@ -58,10 +59,7 @@ class MockHttpClientResponse implements HttpClientResponse {
     }
     // Weather API mock
     return {
-      'current_weather': {
-        'temperature': 20.0,
-        'weathercode': 0,
-      },
+      'current_weather': {'temperature': 20.0, 'weathercode': 0},
       'daily': {
         'temperature_2m_max': [25.0],
         'temperature_2m_min': [15.0],
@@ -71,9 +69,9 @@ class MockHttpClientResponse implements HttpClientResponse {
 
   @override
   Stream<S> transform<S>(StreamTransformer<List<int>, S> streamTransformer) {
-    return Stream.value(utf8.encode(jsonEncode(_mockData)))
-        .cast<List<int>>()
-        .transform(streamTransformer);
+    return Stream.value(
+      utf8.encode(jsonEncode(_mockData)),
+    ).cast<List<int>>().transform(streamTransformer);
   }
 
   @override
@@ -121,15 +119,14 @@ void main() {
   });
 
   Widget createTestWidget() {
-    return const MaterialApp(
-      home: DashboardScreen(),
-    );
+    return const MaterialApp(home: DashboardScreen());
   }
 
   group('DashboardScreen', () {
     group('refresh functionality', () {
-      testWidgets('contains TrainDeparturesWidget with accessible state',
-          (WidgetTester tester) async {
+      testWidgets('contains TrainDeparturesWidget with accessible state', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(1920, 1080);
         tester.view.devicePixelRatio = 1.0;
 
@@ -143,8 +140,9 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('contains WeatherWidget with accessible state',
-          (WidgetTester tester) async {
+      testWidgets('contains WeatherWidget with accessible state', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(1920, 1080);
         tester.view.devicePixelRatio = 1.0;
 
@@ -158,8 +156,9 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('refresh button can be tapped without errors',
-          (WidgetTester tester) async {
+      testWidgets('refresh button can be tapped without errors', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(1920, 1080);
         tester.view.devicePixelRatio = 1.0;
 
@@ -183,8 +182,9 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('refresh button updates last updated timestamp',
-          (WidgetTester tester) async {
+      testWidgets('refresh button updates last updated timestamp', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(1920, 1080);
         tester.view.devicePixelRatio = 1.0;
 
@@ -214,8 +214,9 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
       });
 
-      testWidgets('both regional and bus modes work with refresh',
-          (WidgetTester tester) async {
+      testWidgets('both regional and bus modes work with refresh', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(1920, 1080);
         tester.view.devicePixelRatio = 1.0;
 
@@ -249,28 +250,30 @@ void main() {
 
     group('widget keys', () {
       testWidgets(
-          'TrainDeparturesWidget uses GlobalKey for external refresh access',
-          (WidgetTester tester) async {
-        tester.view.physicalSize = const Size(1920, 1080);
-        tester.view.devicePixelRatio = 1.0;
+        'TrainDeparturesWidget uses GlobalKey for external refresh access',
+        (WidgetTester tester) async {
+          tester.view.physicalSize = const Size(1920, 1080);
+          tester.view.devicePixelRatio = 1.0;
 
-        await tester.pumpWidget(createTestWidget());
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 500));
+          await tester.pumpWidget(createTestWidget());
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 500));
 
-        // Find TrainDeparturesWidget
-        final departuresWidget = tester.widget<TrainDeparturesWidget>(
-          find.byType(TrainDeparturesWidget).first,
-        );
+          // Find TrainDeparturesWidget
+          final departuresWidget = tester.widget<TrainDeparturesWidget>(
+            find.byType(TrainDeparturesWidget).first,
+          );
 
-        // Verify it has a GlobalKey (not a ValueKey)
-        expect(departuresWidget.key, isA<GlobalKey>());
+          // Verify it has a GlobalKey (not a ValueKey)
+          expect(departuresWidget.key, isA<GlobalKey>());
 
-        addTearDown(tester.view.resetPhysicalSize);
-      });
+          addTearDown(tester.view.resetPhysicalSize);
+        },
+      );
 
-      testWidgets('WeatherWidget uses GlobalKey for external refresh access',
-          (WidgetTester tester) async {
+      testWidgets('WeatherWidget uses GlobalKey for external refresh access', (
+        WidgetTester tester,
+      ) async {
         tester.view.physicalSize = const Size(1920, 1080);
         tester.view.devicePixelRatio = 1.0;
 
