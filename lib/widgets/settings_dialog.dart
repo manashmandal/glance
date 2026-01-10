@@ -11,7 +11,8 @@ class SettingsDialog extends StatefulWidget {
   final TransportType initialTransportType;
   final int initialSkipMinutes;
   final int initialDurationMinutes;
-  final Function(double, double, String, TransportType, int, int) onSave;
+  final bool initialShowWeatherActions;
+  final Function(double, double, String, TransportType, int, int, bool) onSave;
   final Function(LayoutPreset)? onPresetSelected;
 
   const SettingsDialog({
@@ -22,6 +23,7 @@ class SettingsDialog extends StatefulWidget {
     required this.initialTransportType,
     required this.initialSkipMinutes,
     required this.initialDurationMinutes,
+    required this.initialShowWeatherActions,
     required this.onSave,
     this.onPresetSelected,
   });
@@ -37,6 +39,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
   late TransportType _selectedTransportType;
   late int _skipMinutes;
   late int _durationMinutes;
+  late bool _showWeatherActions;
 
   @override
   void initState() {
@@ -47,6 +50,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
     _selectedTransportType = widget.initialTransportType;
     _skipMinutes = widget.initialSkipMinutes;
     _durationMinutes = widget.initialDurationMinutes;
+    _showWeatherActions = widget.initialShowWeatherActions;
   }
 
   Widget _buildLayoutPresetsGrid() {
@@ -454,6 +458,19 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     const Text('180', style: TextStyle(color: Colors.white54)),
                   ],
                 ),
+                const SizedBox(height: 16),
+                SwitchListTile(
+                  title: const Text('Show Weather Tips'),
+                  subtitle: const Text('Replace logo with AI weather recommendations'),
+                  value: _showWeatherActions,
+                  onChanged: (value) {
+                    setState(() {
+                      _showWeatherActions = value;
+                    });
+                  },
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: const Color(0xFF3B82F6),
+                ),
                 if (widget.onPresetSelected != null) ...[
                   const SizedBox(height: 24),
                   const Divider(color: Colors.white24),
@@ -506,6 +523,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         await SettingsService.saveDurationMinutes(
                           _durationMinutes,
                         );
+                        await SettingsService.saveShowWeatherActions(
+                          _showWeatherActions,
+                        );
                         widget.onSave(
                           _weatherScale,
                           _departureScale,
@@ -513,6 +533,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           _selectedTransportType,
                           _skipMinutes,
                           _durationMinutes,
+                          _showWeatherActions,
                         );
                         if (context.mounted) Navigator.pop(context);
                       },
