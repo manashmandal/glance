@@ -8,6 +8,7 @@ import '../widgets/clock_widget.dart';
 import '../widgets/weather_widget.dart';
 import '../widgets/train_departures_widget.dart';
 import '../widgets/settings_dialog.dart';
+import '../widgets/weather_action_widget.dart';
 import '../widgets/draggable_resizable_container.dart';
 import '../widgets/edit_mode_toolbar.dart';
 import '../services/settings_service.dart';
@@ -32,6 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<TrainDeparturesWidgetState> _regionalDeparturesKey =
       GlobalKey();
   final GlobalKey<TrainDeparturesWidgetState> _busDeparturesKey = GlobalKey();
+  final GlobalKey<WeatherActionWidgetState> _weatherActionKey = GlobalKey();
   Timer? _refreshTimer;
   Timer? _saveDebounceTimer;
   Timer? _updateCheckTimer;
@@ -58,6 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   TransportType? _defaultTransportType;
   int _skipMinutes = 0;
   int _durationMinutes = 60;
+  bool _showWeatherActions = false;
   bool _settingsLoaded = false;
   String _version = '';
 
@@ -107,7 +110,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _defaultTransportType = await SettingsService.getDefaultTransportType();
     _skipMinutes = await SettingsService.getSkipMinutes();
     _durationMinutes = await SettingsService.getDurationMinutes();
-    setState(() => _settingsLoaded = true);
+    final showWeatherActions = await SettingsService.getShowWeatherActions();
+    setState(() {
+      _showWeatherActions = showWeatherActions;
+      _settingsLoaded = true;
+    });
   }
 
   Future<void> _loadLayoutForOrientation() async {
@@ -132,6 +139,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ]);
     if (mounted) {
       setState(() => _lastUpdated = DateTime.now());
+    }
+    // Generate weather action if enabled and weather data is available
+    if (_showWeatherActions && _weatherActionKey.currentState != null) {
+      final weatherState = _weatherKey.currentState;
+      if (weatherState != null && weatherState.weatherData != null) {
+        _weatherActionKey.currentState!.generateAction(weatherState.weatherData!);
+      }
     }
   }
 
@@ -233,6 +247,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         initialTransportType: _defaultTransportType ?? TransportType.regional,
         initialSkipMinutes: _skipMinutes,
         initialDurationMinutes: _durationMinutes,
+        initialShowWeatherActions: _showWeatherActions,
         onSave: (
           weatherScale,
           departureScale,
@@ -240,6 +255,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           type,
           skipMinutes,
           durationMinutes,
+          showWeatherActions,
         ) {
           setState(() {
             _weatherScale = weatherScale;
@@ -251,6 +267,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _defaultTransportType = type;
             _skipMinutes = skipMinutes;
             _durationMinutes = durationMinutes;
+            _showWeatherActions = showWeatherActions;
           });
         },
         onPresetSelected: _applyLayoutPreset,
@@ -280,6 +297,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildLogoWidget() {
+    if (_showWeatherActions) {
+      return WeatherActionWidget(
+        key: _weatherActionKey,
+        scaleFactor: 1.0,
+      );
+    }
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
