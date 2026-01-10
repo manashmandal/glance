@@ -155,8 +155,8 @@ class WeatherActionWidgetState extends State<WeatherActionWidget> {
             height: 56 * widget.scaleFactor,
             decoration: BoxDecoration(
               color: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.05),
+                  ? Colors.white.withOpacity(0.1)
+                  : Colors.black.withOpacity(0.05),
               shape: BoxShape.circle,
             ),
             child: Icon(

@@ -73,13 +73,14 @@ class WeatherActionFallback {
   }
 
   static String? _getIconForAction(String action) {
-    if (action.contains('umbrella')) return 'umbrella';
-    if (action.contains('warm') || action.contains('jacket') || action.contains('freezing')) return 'cold';
-    if (action.contains('heat') || action.contains('hydrated')) return 'hot';
-    if (action.contains('snow')) return 'snow';
-    if (action.contains('thunder')) return 'storm';
-    if (action.contains('wind')) return 'wind';
-    if (action.contains('fog')) return 'fog';
+    final lowerAction = action.toLowerCase();
+    if (lowerAction.contains('umbrella')) return 'umbrella';
+    if (lowerAction.contains('warm') || lowerAction.contains('jacket') || lowerAction.contains('freezing')) return 'cold';
+    if (lowerAction.contains('heat') || lowerAction.contains('hydrated')) return 'hot';
+    if (lowerAction.contains('snow')) return 'snow';
+    if (lowerAction.contains('thunder')) return 'storm';
+    if (lowerAction.contains('wind')) return 'wind';
+    if (lowerAction.contains('fog')) return 'fog';
     return 'sun';
   }
 }
