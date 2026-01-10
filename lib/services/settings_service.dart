@@ -8,6 +8,7 @@ class SettingsService {
   static const String _keyDefaultTransportType = 'default_transport_type';
   static const String _keySkipMinutes = 'skip_minutes';
   static const String _keyDurationMinutes = 'duration_minutes';
+  static const String _keyShowWeatherActions = 'show_weather_actions';
 
   static Future<void> saveWeatherScale(double scale) async {
     final prefs = await SharedPreferences.getInstance();
@@ -71,5 +72,15 @@ class SettingsService {
   static Future<int> getDurationMinutes() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_keyDurationMinutes) ?? 60;
+  }
+
+  static Future<void> saveShowWeatherActions(bool show) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyShowWeatherActions, show);
+  }
+
+  static Future<bool> getShowWeatherActions() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyShowWeatherActions) ?? false;
   }
 }

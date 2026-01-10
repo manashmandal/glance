@@ -18,6 +18,9 @@ class WeatherWidgetState extends State<WeatherWidget> {
   WeatherData? _weather;
   bool _isLoading = true;
 
+  /// Public getter for weather data (used by parent widgets)
+  WeatherData? get weatherData => _weather;
+
   @override
   void initState() {
     super.initState();
