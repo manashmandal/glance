@@ -10,8 +10,14 @@ class WeatherService {
 
   static Future<WeatherData> getWeather() async {
     try {
-      final url =
-          '$_baseUrl?latitude=$_lat&longitude=$_lng&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto';
+      const url = '$_baseUrl'
+          '?latitude=$_lat'
+          '&longitude=$_lng'
+          '&current=temperature_2m,weather_code,precipitation_probability,wind_speed_10m,relative_humidity_2m'
+          '&hourly=temperature_2m,weather_code,precipitation_probability'
+          '&daily=temperature_2m_max,temperature_2m_min'
+          '&timezone=auto'
+          '&forecast_hours=12';
 
       final response = await http.get(Uri.parse(url));
 
