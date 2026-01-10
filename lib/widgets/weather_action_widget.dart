@@ -56,15 +56,24 @@ class WeatherActionWidgetState extends State<WeatherActionWidget> {
 
   IconData _getIconForAction(String? iconName) {
     switch (iconName) {
-      case 'umbrella': return Icons.umbrella;
-      case 'cold': return Icons.ac_unit;
-      case 'hot': return Icons.wb_sunny;
-      case 'snow': return Icons.snowing;
-      case 'storm': return Icons.thunderstorm;
-      case 'wind': return Icons.air;
-      case 'fog': return Icons.foggy;
-      case 'sun': return Icons.wb_sunny;
-      default: return Icons.tips_and_updates;
+      case 'umbrella':
+        return Icons.umbrella;
+      case 'cold':
+        return Icons.ac_unit;
+      case 'hot':
+        return Icons.wb_sunny;
+      case 'snow':
+        return Icons.snowing;
+      case 'storm':
+        return Icons.thunderstorm;
+      case 'wind':
+        return Icons.air;
+      case 'fog':
+        return Icons.foggy;
+      case 'sun':
+        return Icons.wb_sunny;
+      default:
+        return Icons.tips_and_updates;
     }
   }
 

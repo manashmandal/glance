@@ -38,7 +38,8 @@ void main() {
       });
 
       test('fallback with icon', () {
-        final action = WeatherAction.fallback('Bring umbrella', icon: 'umbrella');
+        final action =
+            WeatherAction.fallback('Bring umbrella', icon: 'umbrella');
 
         expect(action.action, equals('Bring umbrella'));
         expect(action.icon, equals('umbrella'));

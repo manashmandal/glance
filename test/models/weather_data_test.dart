@@ -121,7 +121,8 @@ void main() {
         expect(weather.hourlyForecast!.length, equals(3));
         expect(weather.hourlyForecast![0].temperature, equals(22.0));
         expect(weather.hourlyForecast![1].weatherCode, equals(1));
-        expect(weather.hourlyForecast![2].precipitationProbability, equals(30.0));
+        expect(
+            weather.hourlyForecast![2].precipitationProbability, equals(30.0));
       });
 
       test('limits hourly forecast to 12 entries', () {

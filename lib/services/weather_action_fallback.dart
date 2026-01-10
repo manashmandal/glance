@@ -17,19 +17,28 @@ class WeatherActionFallback {
 
     // Weather code-based recommendations
     switch (weather.weatherCode) {
-      case 51: case 53: case 55: // Drizzle
+      case 51:
+      case 53:
+      case 55: // Drizzle
         actions.add('Light rain expected - bring an umbrella');
         break;
-      case 61: case 63: case 65: // Rain
+      case 61:
+      case 63:
+      case 65: // Rain
         actions.add('Take an umbrella - rain expected');
         break;
-      case 71: case 73: case 75: // Snow
+      case 71:
+      case 73:
+      case 75: // Snow
         actions.add('Snow today - dress warmly and wear appropriate footwear');
         break;
-      case 95: case 96: case 99: // Thunderstorm
+      case 95:
+      case 96:
+      case 99: // Thunderstorm
         actions.add('Thunderstorms expected - stay indoors if possible');
         break;
-      case 45: case 48: // Fog
+      case 45:
+      case 48: // Fog
         actions.add('Foggy conditions - drive carefully');
         break;
     }
@@ -49,8 +58,8 @@ class WeatherActionFallback {
 
     // Check hourly forecast for changes
     if (weather.hourlyForecast != null && weather.hourlyForecast!.isNotEmpty) {
-      final hasRainLater = weather.hourlyForecast!.any((h) =>
-        [51, 53, 55, 61, 63, 65].contains(h.weatherCode));
+      final hasRainLater = weather.hourlyForecast!
+          .any((h) => [51, 53, 55, 61, 63, 65].contains(h.weatherCode));
       if (hasRainLater && !actions.any((a) => a.contains('umbrella'))) {
         actions.add('Rain expected later - take an umbrella');
       }
@@ -75,8 +84,11 @@ class WeatherActionFallback {
   static String? _getIconForAction(String action) {
     final lowerAction = action.toLowerCase();
     if (lowerAction.contains('umbrella')) return 'umbrella';
-    if (lowerAction.contains('warm') || lowerAction.contains('jacket') || lowerAction.contains('freezing')) return 'cold';
-    if (lowerAction.contains('heat') || lowerAction.contains('hydrated')) return 'hot';
+    if (lowerAction.contains('warm') ||
+        lowerAction.contains('jacket') ||
+        lowerAction.contains('freezing')) return 'cold';
+    if (lowerAction.contains('heat') || lowerAction.contains('hydrated'))
+      return 'hot';
     if (lowerAction.contains('snow')) return 'snow';
     if (lowerAction.contains('thunder')) return 'storm';
     if (lowerAction.contains('wind')) return 'wind';

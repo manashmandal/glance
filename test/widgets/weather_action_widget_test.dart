@@ -74,7 +74,8 @@ void main() {
         expect(find.text('Generating tip...'), findsOneWidget);
       });
 
-      testWidgets('uses ThemeColors extension for styling', (WidgetTester tester) async {
+      testWidgets('uses ThemeColors extension for styling',
+          (WidgetTester tester) async {
         final key = GlobalKey<WeatherActionWidgetState>();
         // Use larger size to accommodate loading state
         await tester.pumpWidget(createTestWidget(
@@ -248,13 +249,15 @@ void main() {
 
         // Should show appropriate icon for the source
         final hasAiIcon = find.byIcon(Icons.auto_awesome).evaluate().isNotEmpty;
-        final hasRuleIcon = find.byIcon(Icons.psychology_alt).evaluate().isNotEmpty;
+        final hasRuleIcon =
+            find.byIcon(Icons.psychology_alt).evaluate().isNotEmpty;
         expect(hasAiIcon || hasRuleIcon, isTrue);
       });
     });
 
     group('scaleFactor', () {
-      testWidgets('renders with default scale factor', (WidgetTester tester) async {
+      testWidgets('renders with default scale factor',
+          (WidgetTester tester) async {
         final key = GlobalKey<WeatherActionWidgetState>();
 
         await tester.pumpWidget(createTestWidget(key: key));
@@ -268,7 +271,8 @@ void main() {
         expect(tester.takeException(), isNull);
       });
 
-      testWidgets('renders with increased scale factor', (WidgetTester tester) async {
+      testWidgets('renders with increased scale factor',
+          (WidgetTester tester) async {
         final key = GlobalKey<WeatherActionWidgetState>();
 
         // Use larger container for scaled widget
@@ -318,7 +322,8 @@ void main() {
         await tester.pumpWidget(createTestWidget());
         await tester.pump();
 
-        final container = find.byType(Container).evaluate().first.widget as Container;
+        final container =
+            find.byType(Container).evaluate().first.widget as Container;
         final decoration = container.decoration as BoxDecoration;
 
         expect(decoration.borderRadius, equals(BorderRadius.circular(24)));
@@ -328,7 +333,8 @@ void main() {
         await tester.pumpWidget(createTestWidget(darkMode: true));
         await tester.pump();
 
-        final container = find.byType(Container).evaluate().first.widget as Container;
+        final container =
+            find.byType(Container).evaluate().first.widget as Container;
         final decoration = container.decoration as BoxDecoration;
 
         expect(decoration.border, isNull);
@@ -338,7 +344,8 @@ void main() {
         await tester.pumpWidget(createTestWidget(darkMode: false));
         await tester.pump();
 
-        final container = find.byType(Container).evaluate().first.widget as Container;
+        final container =
+            find.byType(Container).evaluate().first.widget as Container;
         final decoration = container.decoration as BoxDecoration;
 
         expect(decoration.border, isNotNull);
