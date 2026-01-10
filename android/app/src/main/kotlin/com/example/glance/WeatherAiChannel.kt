@@ -61,9 +61,7 @@ class WeatherAiChannel(
                 tempSummarizer.close()
 
                 result.success(mapOf(
-                    "available" to (status == FeatureStatus.AVAILABLE ||
-                                   status == FeatureStatus.DOWNLOADABLE ||
-                                   status == FeatureStatus.DOWNLOADING),
+                    "available" to (status == FeatureStatus.AVAILABLE),
                     "status" to when (status) {
                         FeatureStatus.AVAILABLE -> "available"
                         FeatureStatus.DOWNLOADABLE -> "downloadable"
@@ -106,8 +104,8 @@ class WeatherAiChannel(
                 // Check and download if needed
                 val status = summarizer!!.checkFeatureStatus().await()
 
-                if (status == FeatureStatus.DOWNLOADABLE) {
-                    // Wait for download
+                if (status == FeatureStatus.DOWNLOADABLE || status == FeatureStatus.DOWNLOADING) {
+                    // Wait for download (either start new or wait for existing)
                     suspendCancellableCoroutine { cont ->
                         summarizer!!.downloadFeature(object : DownloadCallback {
                             override fun onDownloadStarted(bytesToDownload: Long) {}
