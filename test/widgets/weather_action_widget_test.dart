@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:glance/models/weather_data.dart';
-import 'package:glance/models/weather_action.dart';
 import 'package:glance/widgets/weather_action_widget.dart';
 import 'package:glance/services/theme_service.dart';
 
