@@ -144,7 +144,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (_showWeatherActions && _weatherActionKey.currentState != null) {
       final weatherState = _weatherKey.currentState;
       if (weatherState != null && weatherState.weatherData != null) {
-        _weatherActionKey.currentState!.generateAction(weatherState.weatherData!);
+        _weatherActionKey.currentState!
+            .generateAction(weatherState.weatherData!);
       }
     }
   }

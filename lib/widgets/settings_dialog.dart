@@ -460,8 +460,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 ),
                 const SizedBox(height: 16),
                 SwitchListTile(
-                  title: const Text('Show Weather Tips', style: TextStyle(color: Colors.white70)),
-                  subtitle: const Text('Replace logo with AI weather recommendations', style: TextStyle(color: Colors.white54)),
+                  title: const Text('Show Weather Tips',
+                      style: TextStyle(color: Colors.white70)),
+                  subtitle: const Text(
+                      'Replace logo with AI weather recommendations',
+                      style: TextStyle(color: Colors.white54)),
                   value: _showWeatherActions,
                   onChanged: (value) {
                     setState(() {

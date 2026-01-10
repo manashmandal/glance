@@ -52,7 +52,8 @@ class WeatherData {
       weatherCode: current['weather_code']?.toInt() ?? 0,
       maxTemp: daily['temperature_2m_max']?[0]?.toDouble() ?? 0.0,
       minTemp: daily['temperature_2m_min']?[0]?.toDouble() ?? 0.0,
-      precipitationProbability: current['precipitation_probability']?.toDouble(),
+      precipitationProbability:
+          current['precipitation_probability']?.toDouble(),
       windSpeed: current['wind_speed_10m']?.toDouble(),
       humidity: current['relative_humidity_2m']?.toDouble(),
       hourlyForecast: hourlyList,
@@ -99,7 +100,8 @@ class WeatherData {
     buffer.writeln('- Condition: $weatherDescription');
     buffer.writeln('- High/Low: ${maxTemp.round()}°C / ${minTemp.round()}°C');
     if (precipitationProbability != null) {
-      buffer.writeln('- Precipitation chance: ${precipitationProbability!.round()}%');
+      buffer.writeln(
+          '- Precipitation chance: ${precipitationProbability!.round()}%');
     }
     if (windSpeed != null) {
       buffer.writeln('- Wind speed: ${windSpeed!.round()} km/h');
@@ -110,7 +112,8 @@ class WeatherData {
     if (hourlyForecast != null && hourlyForecast!.isNotEmpty) {
       buffer.writeln('Next few hours:');
       for (final hour in hourlyForecast!.take(6)) {
-        buffer.writeln('- ${hour.time.hour}:00: ${hour.temperature.round()}°C, ${hour.weatherCodeDescription}');
+        buffer.writeln(
+            '- ${hour.time.hour}:00: ${hour.temperature.round()}°C, ${hour.weatherCodeDescription}');
       }
     }
     return buffer.toString();
