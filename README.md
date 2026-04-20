@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/images/logo.png" width="120" alt="Glance Logo" />
+  <img src="assets/images/logo.png" width="50%" alt="Glance Logo" />
 </p>
 
 <h1 align="center">Glance</h1>
