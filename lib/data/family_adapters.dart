@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/journey.dart';
 import '../models/train_departure.dart';
 import '../models/weather_data.dart';
 import '../theme/family_palette.dart';
@@ -48,6 +49,42 @@ class FamilyAdapters {
     if (next?.departureTime == null) return null;
     final leaveAt = next!.departureTime!.subtract(Duration(minutes: walkMinutes));
     return _shortTime(leaveAt);
+  }
+
+  /// Build rail stops from a journey: the first leg's origin, then each
+  /// (non-walking) leg's destination, deduped by id. First = current,
+  /// last = destination. Returns null if nothing renderable.
+  static List<RouteStop>? routeStops(Journey? journey) {
+    if (journey == null) return null;
+    final transit = journey.legs.where((l) => !l.walking).toList(growable: false);
+    if (transit.isEmpty) return null;
+
+    final ids = <String>{};
+    final stops = <RouteStop>[];
+
+    void addStop(String id, String name) {
+      if (id.isEmpty || !ids.add(id)) return;
+      stops.add(RouteStop(name: _shortStationName(name)));
+    }
+
+    addStop(transit.first.originId, transit.first.originName);
+    for (final leg in transit) {
+      addStop(leg.destinationId, leg.destinationName);
+    }
+    if (stops.length < 2) return null;
+
+    return [
+      RouteStop(name: stops.first.name, isCurrent: true),
+      for (var i = 1; i < stops.length - 1; i++) stops[i],
+      RouteStop(name: stops.last.name, isDestination: true),
+    ];
+  }
+
+  static String _shortStationName(String raw) {
+    var name = raw.trim();
+    name = name.replaceAll(RegExp(r'\s*\(Berlin[^)]*\)\s*$'), '');
+    name = name.replaceAll(RegExp(r'\s+Bhf$'), '');
+    return name.trim();
   }
 
   /// Translate hourly forecast into compact strip points.

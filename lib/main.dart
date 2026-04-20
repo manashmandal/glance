@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
+import 'config/feature_flags.dart';
 import 'screens/splash_screen.dart';
 import 'services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await FeatureFlags.load();
 
   // Allow all orientations for mobile support
   await SystemChrome.setPreferredOrientations([

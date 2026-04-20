@@ -5,9 +5,12 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../data/api_diagnostics.dart';
 import '../data/family_adapters.dart';
 import '../data/family_placeholders.dart';
+import '../data/layout_preset.dart';
 import '../main.dart';
+import '../models/journey.dart';
 import '../models/station.dart';
 import '../models/train_departure.dart';
 import '../models/transport_type.dart';
@@ -26,7 +29,9 @@ import '../widgets/family/route_preview.dart';
 import '../widgets/family/station_label.dart';
 import '../widgets/family/up_next_block.dart';
 import '../widgets/family/upcoming_list.dart';
+import '../widgets/family/offline/bvg_status_card.dart';
 import '../widgets/family/weather_column.dart';
+import 'offline_screen.dart';
 import 'settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -43,13 +48,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Timer? _updateCheckTimer;
 
   Station _station = Station.defaultStation;
+  Station? _destinationStation;
   TransportType _transportType = TransportType.regional;
   int _skipMinutes = 0;
   int _durationMinutes = 60;
+  LayoutPreset _preset = LayoutPreset.editorial;
   bool _settingsLoaded = false;
 
   List<TrainDeparture> _departures = const [];
   WeatherData? _weather;
+  Journey? _journey;
 
   String _version = 'v0.0.0';
   String? _updateVersion;
@@ -89,9 +97,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _loadSettings() async {
     final stationId = await SettingsService.getDefaultStationId();
+    final destinationId = await SettingsService.getDestinationStationId();
     final transportType = await SettingsService.getDefaultTransportType();
     final skipMinutes = await SettingsService.getSkipMinutes();
     final durationMinutes = await SettingsService.getDurationMinutes();
+    final preset = await SettingsService.getLayoutPreset();
     if (!mounted) return;
     setState(() {
       if (stationId != null) {
@@ -100,15 +110,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
           orElse: () => Station.defaultStation,
         );
       }
+      _destinationStation = destinationId == null
+          ? null
+          : Station.popularStations.firstWhere(
+              (s) => s.id == destinationId,
+              orElse: () => Station(id: destinationId, name: destinationId),
+            );
       _transportType = transportType;
       _skipMinutes = skipMinutes;
       _durationMinutes = durationMinutes;
+      _preset = preset;
       _settingsLoaded = true;
     });
   }
 
   Future<void> _refreshAll() async {
-    await Future.wait([_refreshDepartures(), _refreshWeather()]);
+    await Future.wait([
+      _refreshDepartures(),
+      _refreshWeather(),
+      _refreshJourney(),
+    ]);
   }
 
   Future<void> _refreshDepartures() async {
@@ -133,6 +154,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() => _weather = data);
     } catch (_) {
       // Swallow – placeholders remain visible.
+    }
+  }
+
+  Future<void> _refreshJourney() async {
+    final destination = _destinationStation;
+    if (destination == null || destination.id == _station.id) {
+      if (_journey != null && mounted) setState(() => _journey = null);
+      return;
+    }
+    try {
+      final journey = await BvgService.getJourney(
+        fromStationId: _station.id,
+        toStationId: destination.id,
+      );
+      if (!mounted) return;
+      setState(() => _journey = journey);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _journey = null);
     }
   }
 
@@ -289,6 +329,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         FamilyPlaceholders.nextPlatform;
     final lineCode = next?.line ?? FamilyPlaceholders.nextLineCode;
 
+    if (ApiDiagnostics.bvgDegraded) {
+      return OfflineScreen(
+        city: 'Berlin',
+        stationName: _station.name,
+        now: DateTime.now(),
+        silentFor: _silentFor(),
+        lastSeenAt: ApiDiagnostics.lastBvgSuccess,
+        countdownMinutes: countdown,
+        destination: destination,
+        lineCode: lineCode,
+        attempts: ApiDiagnostics.recent.take(4).toList(),
+        status: _currentBvgStatus(),
+        uptime: ApiDiagnostics.bvgUptimeWindow(),
+        onRetry: _refreshAll,
+      );
+    }
+
     final upcomingRows = _departures.length > 1
         ? FamilyAdapters.departureItems(
             _departures.sublist(1),
@@ -302,7 +359,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ? '${_weather!.temperature.round()}'
         : FamilyPlaceholders.currentTemp;
 
-    return Scaffold(
+    final routeStops = FamilyAdapters.routeStops(_journey);
+    final config = LayoutPresetConfig.of(_preset);
+
+    final body = Scaffold(
       backgroundColor: FamilyPalette.background,
       body: KeyboardListener(
         focusNode: FocusNode()..requestFocus(),
@@ -327,22 +387,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: IntrinsicHeight(
                     child: Column(
                       children: [
-                        _topStrip(),
+                        _topStrip(config),
+                        if (config.heroOnly)
+                          const Expanded(child: SizedBox.shrink()),
                         _middleSection(
                           countdown: countdown,
                           leaveBy: leaveBy,
                           lineCode: lineCode,
                           platform: platform,
                           destination: destination,
+                          routeStops: routeStops,
+                          config: config,
                         ),
-                        Expanded(
-                          child: _bottomRow(
-                            upcomingRows: upcomingRows,
-                            forecast: forecast,
-                            condition: condition,
-                            currentTemp: currentTemp,
+                        if (config.heroOnly)
+                          const Expanded(child: SizedBox.shrink())
+                        else
+                          Expanded(
+                            child: _bottomRow(
+                              upcomingRows: upcomingRows,
+                              forecast: forecast,
+                              condition: condition,
+                              currentTemp: currentTemp,
+                              config: config,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -353,11 +421,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+
+    if (config.densityScale == 1.0) return body;
+    final base = MediaQuery.textScalerOf(context);
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        textScaler: base.clamp(
+          minScaleFactor: config.densityScale,
+          maxScaleFactor: config.densityScale,
+        ),
+      ),
+      child: body,
+    );
   }
 
-  Widget _topStrip() {
+  Widget _topStrip(LayoutPresetConfig config) {
+    final hpad = _hpad(config);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 24, 40, 0),
+      padding: EdgeInsets.fromLTRB(hpad, 24, hpad, 0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -384,29 +465,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  double _hpad(LayoutPresetConfig config) => 40 * config.densityScale;
+
   Widget _middleSection({
     required int countdown,
     required String leaveBy,
     required String lineCode,
     required String platform,
     required String destination,
+    required List<RouteStop>? routeStops,
+    required LayoutPresetConfig config,
   }) {
+    final hpad = _hpad(config);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 8, 40, 4),
+      padding: EdgeInsets.fromLTRB(hpad, 8, hpad, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Row(
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: RoutePreview(
-                  hint: FamilyPlaceholders.routeHint,
-                  stops: FamilyPlaceholders.routeStops,
-                ),
+                child: routeStops == null
+                    ? const SizedBox.shrink()
+                    : RoutePreview(stops: routeStops),
               ),
-              SizedBox(width: 40),
-              UpNextBlock(event: FamilyPlaceholders.upNext),
+              const SizedBox(width: 40),
+              const UpNextBlock(event: FamilyPlaceholders.upNext),
             ],
           ),
           const SizedBox(height: 6),
@@ -438,14 +523,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required List<ForecastPoint> forecast,
     required String condition,
     required String currentTemp,
+    required LayoutPresetConfig config,
   }) {
+    final hpad = _hpad(config);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 16, 40, 24),
+      padding: EdgeInsets.fromLTRB(hpad, 16, hpad, 24),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            flex: 6,
+            flex: config.upcomingFlex,
             child: UpcomingList(
               departures: upcomingRows,
               activeKind: _activeKind,
@@ -454,7 +541,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(width: 56),
           Expanded(
-            flex: 4,
+            flex: config.weatherFlex,
             child: WeatherColumn(
               location: FamilyPlaceholders.weatherLocation,
               currentTemp: currentTemp,
@@ -471,5 +558,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? _cleanPlatform(String? raw) {
     if (raw == null) return null;
     return raw.replaceFirst('Pl. ', '').replaceFirst('Pl.', '').trim();
+  }
+
+  Duration _silentFor() {
+    final lastOk = ApiDiagnostics.lastBvgSuccess;
+    if (lastOk == null) return const Duration(minutes: 4);
+    return DateTime.now().difference(lastOk);
+  }
+
+  BvgStatus _currentBvgStatus() {
+    final silent = _silentFor();
+    if (silent > const Duration(minutes: 15)) return BvgStatus.outage;
+    if (silent > const Duration(minutes: 4)) return BvgStatus.degraded;
+    return BvgStatus.operational;
   }
 }

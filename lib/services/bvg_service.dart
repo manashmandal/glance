@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../data/api_diagnostics.dart';
+import '../models/journey.dart';
 import '../models/train_departure.dart';
 import '../models/transport_type.dart';
 
@@ -114,6 +117,9 @@ class BvgService {
     TransportType transportType = TransportType.regional,
     int skipMinutes = 0,
   }) async {
+    final sw = Stopwatch()..start();
+    final endpoint =
+        'v6.bvg.transport.rest/stops/$stationId/departures';
     try {
       final filters = _getTransportFilters(transportType);
       final url =
@@ -215,15 +221,110 @@ class BvgService {
           }
         }
 
+        sw.stop();
+        _recordBvg(endpoint, sw, success: true, code: response.statusCode);
         return trainDepartures.isNotEmpty
             ? trainDepartures
             : _getFallbackData();
       } else {
+        sw.stop();
+        _recordBvg(endpoint, sw, success: false, code: response.statusCode);
         return _getFallbackData();
       }
     } catch (e) {
+      sw.stop();
+      _recordBvg(endpoint, sw, success: false, error: e);
       return _getFallbackData();
     }
+  }
+
+  static Future<Journey?> getJourney({
+    required String fromStationId,
+    required String toStationId,
+  }) async {
+    final sw = Stopwatch()..start();
+    final endpoint = 'v6.bvg.transport.rest/journeys';
+    try {
+      final url =
+          '$baseUrl/journeys?from=$fromStationId&to=$toStationId&results=3&stopovers=false';
+      print('\n========== BVG API CALL (JOURNEYS) ==========');
+      print('URL: $url');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Accept': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode != 200) {
+        sw.stop();
+        _recordBvg(endpoint, sw, success: false, code: response.statusCode);
+        print('❌ Journeys API returned ${response.statusCode}');
+        return null;
+      }
+
+      final data = json.decode(response.body);
+      final journeys = data['journeys'] as List?;
+      if (journeys == null || journeys.isEmpty) {
+        sw.stop();
+        _recordBvg(endpoint, sw, success: true, code: 200);
+        return null;
+      }
+
+      final now = DateTime.now();
+      Map<String, dynamic>? picked;
+      for (final j in journeys.whereType<Map<String, dynamic>>()) {
+        final legs = j['legs'] as List?;
+        if (legs == null || legs.isEmpty) continue;
+        final first = legs.first as Map<String, dynamic>;
+        final dep = first['departure'] as String? ??
+            first['plannedDeparture'] as String?;
+        if (dep == null) continue;
+        final depTime = DateTime.tryParse(dep)?.toLocal();
+        if (depTime == null) continue;
+        if (depTime.isBefore(now)) continue;
+        picked = j;
+        break;
+      }
+      picked ??= journeys.first as Map<String, dynamic>;
+      sw.stop();
+      _recordBvg(endpoint, sw, success: true, code: 200);
+      return Journey.fromJson(picked);
+    } catch (e) {
+      sw.stop();
+      _recordBvg(endpoint, sw, success: false, error: e);
+      print('❌ Journeys API error: $e');
+      return null;
+    }
+  }
+
+  static void _recordBvg(
+    String endpoint,
+    Stopwatch sw, {
+    required bool success,
+    int? code,
+    Object? error,
+  }) {
+    final duration = sw.elapsed;
+    String label;
+    if (error != null) {
+      if (error is TimeoutException) {
+        label = 'timeout · ${duration.inSeconds}s';
+      } else {
+        label = 'error · ${error.runtimeType}';
+      }
+    } else if (code == 200) {
+      final ms = duration.inMilliseconds;
+      label = ms >= 1000 ? '200 · ${(ms / 1000).toStringAsFixed(1)}s' : '200 · ${ms}ms';
+    } else {
+      label = '${code ?? 'fail'} · ${duration.inSeconds}s';
+    }
+    ApiDiagnostics.record(ApiAttempt(
+      endpoint: endpoint,
+      statusLabel: label,
+      success: success,
+      at: DateTime.now(),
+      source: ApiSource.bvg,
+    ));
   }
 
   static List<TrainDeparture> _getFallbackData() {

@@ -15,6 +15,7 @@ class Station {
     Station(id: '900029101', name: 'S Berlin-Spandau'),
     Station(id: '900058101', name: 'S Südkreuz'),
     Station(id: '900160004', name: 'S Lichtenberg'),
+    Station(id: '900073281', name: 'Flughafen BER'),
   ];
 
   static Station get defaultStation => popularStations[0];

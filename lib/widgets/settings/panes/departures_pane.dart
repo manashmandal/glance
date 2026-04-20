@@ -22,6 +22,7 @@ class DeparturesPane extends StatefulWidget {
 
 class _DeparturesPaneState extends State<DeparturesPane> {
   Station _station = Station.defaultStation;
+  Station? _destination;
   TransportType _transport = TransportType.regional;
   int _skipMinutes = 5;
   int _durationMinutes = 60;
@@ -36,6 +37,7 @@ class _DeparturesPaneState extends State<DeparturesPane> {
 
   Future<void> _load() async {
     final stationId = await SettingsService.getDefaultStationId();
+    final destinationId = await SettingsService.getDestinationStationId();
     final transport = await SettingsService.getDefaultTransportType();
     final skip = await SettingsService.getSkipMinutes();
     final duration = await SettingsService.getDurationMinutes();
@@ -48,6 +50,12 @@ class _DeparturesPaneState extends State<DeparturesPane> {
           orElse: () => Station.defaultStation,
         );
       }
+      _destination = destinationId == null
+          ? null
+          : Station.popularStations.firstWhere(
+              (s) => s.id == destinationId,
+              orElse: () => Station(id: destinationId, name: destinationId),
+            );
       _transport = transport;
       _skipMinutes = skip;
       _durationMinutes = duration;
@@ -72,6 +80,15 @@ class _DeparturesPaneState extends State<DeparturesPane> {
           title: 'Default station',
           description: 'Where Glance starts each morning. Tap to switch.',
           control: _StationChip(station: _station, onTap: _pickStation),
+        ),
+        SettingsRow(
+          title: 'Destination',
+          description:
+              'Where you usually head. Powers the route rail on the dashboard.',
+          control: _DestinationChip(
+            station: _destination,
+            onTap: _pickDestination,
+          ),
         ),
         SettingsRow(
           title: 'Transport mode',
@@ -163,6 +180,46 @@ class _DeparturesPaneState extends State<DeparturesPane> {
       await SettingsService.saveDefaultStationId(picked.id);
     }
   }
+
+  Future<void> _pickDestination() async {
+    const clearSentinel = Station(id: '', name: '__clear__');
+    final picked = await showModalBottomSheet<Station>(
+      context: context,
+      backgroundColor: FamilyPalette.panel,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text(
+                'None',
+                style: TextStyle(color: FamilyPalette.textSecondary),
+              ),
+              onTap: () => Navigator.of(ctx).pop(clearSentinel),
+            ),
+            for (final station in Station.popularStations)
+              ListTile(
+                title: Text(
+                  station.name,
+                  style: const TextStyle(color: FamilyPalette.textPrimary),
+                ),
+                onTap: () => Navigator.of(ctx).pop(station),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (picked == null) return;
+    if (picked == clearSentinel) {
+      setState(() => _destination = null);
+      await SettingsService.saveDestinationStationId(null);
+      return;
+    }
+    if (picked.id != _destination?.id) {
+      setState(() => _destination = picked);
+      await SettingsService.saveDestinationStationId(picked.id);
+    }
+  }
 }
 
 class _LivePreviewTag extends StatelessWidget {
@@ -247,6 +304,69 @@ class _StationChip extends StatelessWidget {
                     station.name,
                     style: GoogleFonts.interTight(
                       color: FamilyPalette.textPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 14),
+              const Icon(
+                Icons.chevron_right,
+                color: FamilyPalette.textSecondary,
+                size: 18,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DestinationChip extends StatelessWidget {
+  final Station? station;
+  final VoidCallback onTap;
+
+  const _DestinationChip({required this.station, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasStation = station != null;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
+          decoration: BoxDecoration(
+            color: FamilyPalette.panel,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: FamilyPalette.divider, width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'TO',
+                    style: GoogleFonts.inter(
+                      color: FamilyPalette.textTertiary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.18 * 10,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    hasStation ? station!.name : 'Not set',
+                    style: GoogleFonts.interTight(
+                      color: hasStation
+                          ? FamilyPalette.textPrimary
+                          : FamilyPalette.textSecondary,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../config/feature_flags.dart';
+import '../../../data/layout_preset.dart';
+import '../../../services/settings_service.dart';
 import '../../../theme/family_palette.dart';
 import '../../../theme/family_typography.dart';
 import '../common/pane_header.dart';
@@ -9,8 +12,6 @@ import '../common/settings_toggle.dart';
 
 enum _EditMode { longPress, alwaysOn }
 
-enum _Preset { editorial, heroOnly, split, dense }
-
 class LayoutPane extends StatefulWidget {
   const LayoutPane({super.key});
 
@@ -19,62 +20,97 @@ class LayoutPane extends StatefulWidget {
 }
 
 class _LayoutPaneState extends State<LayoutPane> {
-  _Preset _preset = _Preset.editorial;
+  LayoutPreset _preset = LayoutPreset.editorial;
   _EditMode _editMode = _EditMode.longPress;
   bool _snapToGrid = true;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final preset = await SettingsService.getLayoutPreset();
+    if (!mounted) return;
+    setState(() {
+      _preset = preset;
+      _loaded = true;
+    });
+  }
+
+  Future<void> _select(LayoutPreset preset) async {
+    if (preset == _preset) return;
+    setState(() => _preset = preset);
+    await SettingsService.saveLayoutPreset(preset);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final showEditMode = FeatureFlags.isEnabled(FeatureFlags.layoutEditMode);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         PaneHeader(
           eyebrow: 'Layout',
           title: "How it's arranged",
-          subtitle: 'Pick a starting point. Then bend it to fit your wall.',
-          trailing: _EnterEditButton(),
+          subtitle: 'Pick a starting point for your dashboard.',
+          trailing: showEditMode ? _EnterEditButton() : const SizedBox.shrink(),
         ),
         const SizedBox(height: 30),
         Text('Presets', style: FamilyType.sectionTitle()),
         const SizedBox(height: 6),
         Text(
-          'Tap to apply. Edit mode lets you fine-tune from there.',
+          _loaded ? _subtitleFor(_preset) : 'Loading…',
           style: FamilyType.sectionDescription(),
         ),
         const SizedBox(height: 16),
-        _PresetRow(
-          selected: _preset,
-          onChanged: (v) => setState(() => _preset = v),
-        ),
+        _PresetRow(selected: _preset, onChanged: _select),
         const SizedBox(height: 20),
-        SettingsRow(
-          title: 'Edit mode behavior',
-          description: 'Long-press to enter, or always show drag handles.',
-          control: SettingsChipGroup<_EditMode>(
-            value: _editMode,
-            onSelected: (v) => setState(() => _editMode = v),
-            items: const [
-              SettingsChip(label: 'Long-press', value: _EditMode.longPress),
-              SettingsChip(label: 'Always on', value: _EditMode.alwaysOn),
-            ],
+        if (showEditMode) ...[
+          SettingsRow(
+            title: 'Edit mode behavior',
+            description:
+                'Long-press to enter, or always show drag handles.',
+            control: SettingsChipGroup<_EditMode>(
+              value: _editMode,
+              onSelected: (v) => setState(() => _editMode = v),
+              items: const [
+                SettingsChip(label: 'Long-press', value: _EditMode.longPress),
+                SettingsChip(label: 'Always on', value: _EditMode.alwaysOn),
+              ],
+            ),
           ),
-        ),
-        SettingsRow(
-          title: 'Snap to grid',
-          description: 'Widgets align to a 12-column rhythm. Off for free placement.',
-          control: SettingsToggle(
-            value: _snapToGrid,
-            onChanged: (v) => setState(() => _snapToGrid = v),
+          SettingsRow(
+            title: 'Snap to grid',
+            description:
+                'Widgets align to a 12-column rhythm. Off for free placement.',
+            control: SettingsToggle(
+              value: _snapToGrid,
+              onChanged: (v) => setState(() => _snapToGrid = v),
+            ),
           ),
-        ),
+        ],
         SettingsRow(
-          title: 'Reset to defaults',
-          description: 'Restores the Editorial preset and clears your custom layout.',
-          control: _ResetButton(onTap: () => setState(() => _preset = _Preset.editorial)),
+          title: 'Reset to Editorial',
+          description: 'The original magazine-style layout.',
+          control: _ResetButton(onTap: () => _select(LayoutPreset.editorial)),
         ),
       ],
     );
   }
+
+  String _subtitleFor(LayoutPreset preset) => switch (preset) {
+        LayoutPreset.editorial =>
+          'Editorial — hero countdown, route rail, upcoming, and weather together.',
+        LayoutPreset.heroOnly =>
+          'Hero only — just the countdown and destination. Ideal for a glance.',
+        LayoutPreset.split =>
+          'Split — equal weight between upcoming trains and weather.',
+        LayoutPreset.dense =>
+          'Dense — tighter spacing, more information per square inch.',
+      };
 }
 
 class _EnterEditButton extends StatelessWidget {
@@ -111,8 +147,8 @@ class _EnterEditButton extends StatelessWidget {
 }
 
 class _PresetRow extends StatelessWidget {
-  final _Preset selected;
-  final ValueChanged<_Preset> onChanged;
+  final LayoutPreset selected;
+  final ValueChanged<LayoutPreset> onChanged;
 
   const _PresetRow({required this.selected, required this.onChanged});
 
@@ -120,25 +156,25 @@ class _PresetRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final presets = <_PresetCard>[
       const _PresetCard(
-        value: _Preset.editorial,
+        value: LayoutPreset.editorial,
         label: 'Editorial',
         footer: 'Default',
         kind: _PresetKind.editorial,
       ),
       const _PresetCard(
-        value: _Preset.heroOnly,
+        value: LayoutPreset.heroOnly,
         label: 'Hero only',
         footer: 'Glanceable',
         kind: _PresetKind.hero,
       ),
       const _PresetCard(
-        value: _Preset.split,
+        value: LayoutPreset.split,
         label: 'Split',
         footer: 'Trains · Weather',
         kind: _PresetKind.split,
       ),
       const _PresetCard(
-        value: _Preset.dense,
+        value: LayoutPreset.dense,
         label: 'Dense',
         footer: 'Power user',
         kind: _PresetKind.dense,
@@ -164,7 +200,7 @@ class _PresetRow extends StatelessWidget {
 enum _PresetKind { editorial, hero, split, dense }
 
 class _PresetCard {
-  final _Preset value;
+  final LayoutPreset value;
   final String label;
   final String footer;
   final _PresetKind kind;

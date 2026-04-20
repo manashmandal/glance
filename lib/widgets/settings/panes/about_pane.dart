@@ -17,8 +17,10 @@ class AboutPane extends StatefulWidget {
 class _AboutPaneState extends State<AboutPane> {
   String _version = '0.0.0';
   int _buildNumber = 0;
-  String? _updateVersion;
-  String? _downloadUrl;
+  UpdateInfo? _update;
+  List<ReleaseEntry> _releases = const [];
+  DateTime? _lastCheck;
+  bool _checking = true;
 
   @override
   void initState() {
@@ -28,21 +30,30 @@ class _AboutPaneState extends State<AboutPane> {
 
   Future<void> _load() async {
     final info = await PackageInfo.fromPlatform();
-    final update = await UpdateService.checkForUpdate(info.version);
+    final results = await Future.wait([
+      UpdateService.checkForUpdate(info.version),
+      UpdateService.fetchRecentReleases(count: 4),
+    ]);
     if (!mounted) return;
     setState(() {
       _version = info.version;
       _buildNumber = int.tryParse(info.buildNumber) ?? 0;
-      if (update != null && update.updateAvailable) {
-        _updateVersion = update.latestVersion;
-        _downloadUrl = update.downloadUrl;
-      }
+      _update = results[0] as UpdateInfo?;
+      _releases = results[1] as List<ReleaseEntry>;
+      _lastCheck = DateTime.now();
+      _checking = false;
     });
   }
 
   Future<void> _install() async {
-    if (_downloadUrl == null) return;
-    final uri = Uri.parse(_downloadUrl!);
+    final url = _update?.downloadUrl;
+    if (url == null) return;
+    await _open(url);
+  }
+
+  Future<void> _open(String url) async {
+    if (url.isEmpty) return;
+    final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
@@ -61,13 +72,20 @@ class _AboutPaneState extends State<AboutPane> {
         ),
         const SizedBox(height: 32),
         _UpdateBanner(
-          version: _updateVersion ?? '0.2.0 · Live timeline ribbon',
-          notes: _updateVersion != null
-              ? 'Install to get the latest fixes and features.'
-              : 'Adds the new editorial dashboard, dark "Twilight" theme, and S+U fuzzy search.',
+          update: _update,
+          currentVersion: _version,
+          lastCheck: _lastCheck,
+          checking: _checking,
           onInstall: _install,
-          dimmed: _updateVersion == null,
+          onRecheck: _load,
         ),
+        if (_releases.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          _ChangelogList(
+            releases: _releases,
+            onOpen: (url) => _open(url),
+          ),
+        ],
         const SizedBox(height: 28),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,26 +158,48 @@ class _BigWordmark extends StatelessWidget {
 }
 
 class _UpdateBanner extends StatelessWidget {
-  final String version;
-  final String notes;
+  final UpdateInfo? update;
+  final String currentVersion;
+  final DateTime? lastCheck;
+  final bool checking;
   final VoidCallback onInstall;
-  final bool dimmed;
+  final VoidCallback onRecheck;
 
   const _UpdateBanner({
-    required this.version,
-    required this.notes,
+    required this.update,
+    required this.currentVersion,
+    required this.lastCheck,
+    required this.checking,
     required this.onInstall,
-    this.dimmed = false,
+    required this.onRecheck,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hasUpdate = update?.updateAvailable == true;
+    final color = hasUpdate ? FamilyPalette.crimson : FamilyPalette.sage;
+    final bg = hasUpdate ? FamilyPalette.crimsonTint : FamilyPalette.panel;
+    final eyebrow = checking
+        ? 'CHECKING…'
+        : hasUpdate
+            ? 'UPDATE AVAILABLE'
+            : 'UP TO DATE';
+
+    final title = hasUpdate
+        ? 'v${update!.latestVersion} · ${update!.releaseName}'
+        : 'v$currentVersion';
+    final subtitle = checking
+        ? 'Reaching GitHub for the latest release…'
+        : hasUpdate
+            ? _shortNotes(update!.releaseNotes)
+            : 'You\'re on the latest. Last checked ${_agoLabel(lastCheck)}.';
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: FamilyPalette.crimsonTint,
+        color: bg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: FamilyPalette.crimson, width: 1.5),
+        border: Border.all(color: color, width: hasUpdate ? 1.5 : 1),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -173,16 +213,16 @@ class _UpdateBanner extends StatelessWidget {
                     Container(
                       width: 7,
                       height: 7,
-                      decoration: const BoxDecoration(
-                        color: FamilyPalette.crimson,
+                      decoration: BoxDecoration(
+                        color: color,
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'UPDATE AVAILABLE',
+                      eyebrow,
                       style: GoogleFonts.inter(
-                        color: FamilyPalette.crimson,
+                        color: color,
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.2 * 11,
@@ -191,36 +231,200 @@ class _UpdateBanner extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  dimmed ? 'v $version' : 'v $version',
-                  style: FamilyType.sectionTitle().copyWith(
-                    color: dimmed
-                        ? FamilyPalette.textPrimary.withValues(alpha: 0.9)
-                        : FamilyPalette.textPrimary,
-                  ),
-                ),
+                Text(title, style: FamilyType.sectionTitle()),
                 const SizedBox(height: 6),
-                Text(notes, style: FamilyType.sectionDescription()),
+                Text(subtitle, style: FamilyType.sectionDescription()),
               ],
             ),
           ),
           const SizedBox(width: 20),
-          Material(
-            color: FamilyPalette.crimson,
-            borderRadius: BorderRadius.circular(10),
-            child: InkWell(
+          if (hasUpdate)
+            _BannerButton(
+              label: 'Install',
+              filled: true,
               onTap: onInstall,
-              borderRadius: BorderRadius.circular(10),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-                child: Text(
-                  'Install',
-                  style: GoogleFonts.interTight(
-                    color: FamilyPalette.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+            )
+          else
+            _BannerButton(
+              label: 'Check again',
+              filled: false,
+              onTap: checking ? null : onRecheck,
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _shortNotes(String raw) {
+    if (raw.isEmpty) return 'Install to get the latest fixes and features.';
+    final lines = raw
+        .split('\n')
+        .map((l) => l.trim())
+        .where((l) =>
+            l.isNotEmpty &&
+            !l.startsWith('#') &&
+            !l.startsWith('---') &&
+            !l.startsWith('**Full Changelog'))
+        .take(3)
+        .map(_stripBullet)
+        .toList();
+    if (lines.isEmpty) return 'Install to get the latest fixes and features.';
+    return lines.join(' · ');
+  }
+
+  String _stripBullet(String line) {
+    final cleaned = line.replaceFirst(RegExp(r'^[-*]\s+'), '');
+    return cleaned;
+  }
+
+  String _agoLabel(DateTime? when) {
+    if (when == null) return 'just now';
+    final diff = DateTime.now().difference(when);
+    if (diff.inSeconds < 45) return 'just now';
+    if (diff.inMinutes < 1) return '${diff.inSeconds}s ago';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${diff.inDays}d ago';
+  }
+}
+
+class _BannerButton extends StatelessWidget {
+  final String label;
+  final bool filled;
+  final VoidCallback? onTap;
+
+  const _BannerButton({
+    required this.label,
+    required this.filled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onTap != null;
+    return Opacity(
+      opacity: enabled ? 1 : 0.5,
+      child: Material(
+        color: filled ? FamilyPalette.crimson : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+            decoration: filled
+                ? null
+                : BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border:
+                        Border.all(color: FamilyPalette.divider, width: 1),
                   ),
+            child: Text(
+              label,
+              style: GoogleFonts.interTight(
+                color: FamilyPalette.textPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChangelogList extends StatelessWidget {
+  final List<ReleaseEntry> releases;
+  final ValueChanged<String> onOpen;
+
+  const _ChangelogList({required this.releases, required this.onOpen});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'CHANGELOG',
+          style: GoogleFonts.inter(
+            color: FamilyPalette.textTertiary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.2 * 11,
+          ),
+        ),
+        const SizedBox(height: 12),
+        for (final release in releases)
+          _ChangelogRow(
+            release: release,
+            onOpen: () => onOpen(release.htmlUrl),
+          ),
+      ],
+    );
+  }
+}
+
+class _ChangelogRow extends StatelessWidget {
+  final ReleaseEntry release;
+  final VoidCallback onOpen;
+
+  const _ChangelogRow({required this.release, required this.onOpen});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 92,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'v${release.version}',
+                  style: GoogleFonts.geistMono(
+                    color: FamilyPalette.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _dateLabel(release.publishedAt),
+                  style: GoogleFonts.geistMono(
+                    color: FamilyPalette.textTertiary,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              _changelogPreview(release.notes),
+              style: FamilyType.sectionDescription().copyWith(
+                color: FamilyPalette.textSecondary,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 12),
+          InkWell(
+            onTap: onOpen,
+            borderRadius: BorderRadius.circular(6),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Text(
+                'Open',
+                style: GoogleFonts.interTight(
+                  color: FamilyPalette.crimson,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -228,6 +432,33 @@ class _UpdateBanner extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _dateLabel(DateTime? when) {
+    if (when == null) return '—';
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${months[when.month - 1]} ${when.day}, ${when.year}';
+  }
+
+  String _changelogPreview(String raw) {
+    if (raw.isEmpty) return 'No notes.';
+    final lines = raw
+        .split('\n')
+        .map((l) => l.trim())
+        .where((l) =>
+            l.isNotEmpty &&
+            !l.startsWith('#') &&
+            !l.startsWith('---') &&
+            !l.startsWith('**Full Changelog') &&
+            !l.startsWith('**Version:'))
+        .map((l) => l.replaceFirst(RegExp(r'^[-*]\s+'), ''))
+        .take(4)
+        .toList();
+    if (lines.isEmpty) return 'No notes.';
+    return lines.join(' · ');
   }
 }
 

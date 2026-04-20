@@ -1,14 +1,17 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import '../data/layout_preset.dart';
 import '../models/transport_type.dart';
 
 class SettingsService {
   static const String _keyWeatherScale = 'weather_scale';
   static const String _keyDepartureScale = 'departure_scale';
   static const String _keyDefaultStationId = 'default_station_id';
+  static const String _keyDestinationStationId = 'destination_station_id';
   static const String _keyDefaultTransportType = 'default_transport_type';
   static const String _keySkipMinutes = 'skip_minutes';
   static const String _keyDurationMinutes = 'duration_minutes';
   static const String _keyShowWeatherActions = 'show_weather_actions';
+  static const String _keyLayoutPreset = 'layout_preset';
 
   static Future<void> saveWeatherScale(double scale) async {
     final prefs = await SharedPreferences.getInstance();
@@ -38,6 +41,20 @@ class SettingsService {
   static Future<String?> getDefaultStationId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keyDefaultStationId);
+  }
+
+  static Future<void> saveDestinationStationId(String? stationId) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (stationId == null) {
+      await prefs.remove(_keyDestinationStationId);
+    } else {
+      await prefs.setString(_keyDestinationStationId, stationId);
+    }
+  }
+
+  static Future<String?> getDestinationStationId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyDestinationStationId);
   }
 
   static Future<void> saveDefaultTransportType(TransportType type) async {
@@ -82,5 +99,17 @@ class SettingsService {
   static Future<bool> getShowWeatherActions() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_keyShowWeatherActions) ?? false;
+  }
+
+  static Future<void> saveLayoutPreset(LayoutPreset preset) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyLayoutPreset, preset.name);
+  }
+
+  static Future<LayoutPreset> getLayoutPreset() async {
+    final prefs = await SharedPreferences.getInstance();
+    return LayoutPresetSerialization.fromStorageKey(
+      prefs.getString(_keyLayoutPreset),
+    );
   }
 }

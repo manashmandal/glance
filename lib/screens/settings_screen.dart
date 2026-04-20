@@ -1,11 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../config/feature_flags.dart';
 import '../theme/family_palette.dart';
 import '../theme/family_typography.dart';
 import '../widgets/family/common/brand_mark.dart';
 import '../widgets/settings/common/settings_nav_list.dart';
 import '../widgets/settings/panes/about_pane.dart';
 import '../widgets/settings/panes/departures_pane.dart';
+import '../widgets/settings/panes/dev_pane.dart';
 import '../widgets/settings/panes/display_pane.dart';
 import '../widgets/settings/panes/layout_pane.dart';
 import '../widgets/settings/panes/weather_pane.dart';
@@ -24,7 +27,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late String _activeId = widget.initialPaneId;
 
-  static const _entries = <SettingsNavEntry>[
+  static const _allEntries = <SettingsNavEntry>[
     SettingsNavEntry(
       id: 'display',
       title: 'Display',
@@ -50,7 +53,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: 'About',
       subtitle: 'Version · Updates · Credits',
     ),
+    SettingsNavEntry(
+      id: 'dev',
+      title: 'Dev',
+      subtitle: 'Feature flags · Debug tools',
+    ),
   ];
+
+  static List<SettingsNavEntry> get _entries => _allEntries.where((e) {
+        if (e.id == 'layout' && !FeatureFlags.isEnabled(FeatureFlags.layoutPane)) {
+          return false;
+        }
+        if (e.id == 'dev' && !kDebugMode) return false;
+        return true;
+      }).toList(growable: false);
 
   Widget _pane() {
     switch (_activeId) {
@@ -59,9 +75,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case 'weather':
         return const WeatherPane();
       case 'layout':
-        return const LayoutPane();
+        return FeatureFlags.isEnabled(FeatureFlags.layoutPane)
+            ? const LayoutPane()
+            : const DisplayPane();
       case 'about':
         return const AboutPane();
+      case 'dev':
+        return kDebugMode
+            ? DevPane(onChanged: () => setState(() {}))
+            : const DisplayPane();
       case 'display':
       default:
         return const DisplayPane();

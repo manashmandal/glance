@@ -69,20 +69,6 @@ class PartnerEvent {
   });
 }
 
-class RouteHint {
-  final String departureTime;
-  final String personName;
-  final String destinationArea;
-  final String leaveBy;
-
-  const RouteHint({
-    required this.departureTime,
-    required this.personName,
-    required this.destinationArea,
-    required this.leaveBy,
-  });
-}
-
 class FamilyPlaceholders {
   const FamilyPlaceholders._();
 
@@ -103,20 +89,6 @@ class FamilyPlaceholders {
     timeRange: '3:00 – 4:30',
     accent: FamilyPalette.crimsonWarm,
   );
-
-  static const RouteHint routeHint = RouteHint(
-    departureTime: '3:00 PM',
-    personName: 'Anna',
-    destinationArea: 'Mitte',
-    leaveBy: 'leave by 2:45',
-  );
-
-  static const List<RouteStop> routeStops = [
-    RouteStop(name: 'S+U Alexanderplatz', isCurrent: true),
-    RouteStop(name: 'Ostkreuz'),
-    RouteStop(name: 'Schönefeld'),
-    RouteStop(name: 'Flughafen BER', isDestination: true),
-  ];
 
   static const String nextLineCode = 'RE8';
   static const String nextLineCategory = 'Regional';
