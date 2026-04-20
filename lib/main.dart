@@ -1,11 +1,18 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
-import 'screens/dashboard_screen.dart';
+import 'config/feature_flags.dart';
+import 'screens/splash_screen.dart';
 import 'services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  _installGlobalErrorHandlers();
+
+  await FeatureFlags.load();
 
   // Allow all orientations for mobile support
   await SystemChrome.setPreferredOrientations([
@@ -18,7 +25,7 @@ void main() async {
   // Initialize window manager for desktop
   try {
     await windowManager.ensureInitialized();
-    WindowOptions windowOptions = const WindowOptions(
+    const windowOptions = WindowOptions(
       size: Size(1280, 720),
       minimumSize: Size(800, 600),
       center: true,
@@ -31,11 +38,24 @@ void main() async {
       await windowManager.focus();
     });
   } catch (e) {
-    // Ignore errors on non-desktop platforms
-    print('Window Manager init failed (expected on mobile/web): $e');
+    if (kDebugMode) {
+      debugPrint('Window Manager init failed (expected on mobile/web): $e');
+    }
   }
 
   runApp(const GlanceApp());
+}
+
+void _installGlobalErrorHandlers() {
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint(
+        'Flutter error: ${details.exceptionAsString()}\n${details.stack}');
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('Platform error: $error\n$stack');
+    return true;
+  };
 }
 
 class GlanceApp extends StatefulWidget {
@@ -142,7 +162,7 @@ class _GlanceAppState extends State<GlanceApp> {
           bodyMedium: TextStyle(fontSize: 16, color: AppTheme.darkTextTertiary),
         ),
       ),
-      home: const DashboardScreen(),
+      home: const SplashScreen(),
     );
   }
 }

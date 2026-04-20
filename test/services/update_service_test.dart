@@ -31,6 +31,8 @@ class MockHttpClient implements HttpClient {
 class MockHttpClientRequest implements HttpClientRequest {
   final Map<String, dynamic>? responseBody;
   final int statusCode;
+  @override
+  final HttpHeaders headers = _NoopHttpHeaders();
 
   MockHttpClientRequest(this.responseBody, this.statusCode);
 
@@ -38,6 +40,14 @@ class MockHttpClientRequest implements HttpClientRequest {
   Future<HttpClientResponse> close() async {
     return MockHttpClientResponse(responseBody, statusCode);
   }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+class _NoopHttpHeaders implements HttpHeaders {
+  @override
+  void set(String name, Object value, {bool preserveHeaderCase = false}) {}
 
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
@@ -103,16 +113,14 @@ void main() {
         final result = await UpdateService.checkForUpdate('0.0.8');
 
         expect(result, isNotNull);
-        expect(result!.updateAvailable, isTrue);
-        expect(result.latestVersion, equals('0.0.9'));
+        expect(result!.latestVersion, equals('0.0.9'));
         expect(
           result.downloadUrl,
           equals('https://github.com/manashmandal/glance/releases/tag/v0.0.9'),
         );
       });
 
-      test('returns UpdateInfo with updateAvailable=false when on latest',
-          () async {
+      test('returns null when already on the latest version', () async {
         final mockClient = MockHttpClient(
           responseBody: {
             'tag_name': 'v0.0.8',
@@ -124,14 +132,10 @@ void main() {
 
         final result = await UpdateService.checkForUpdate('0.0.8');
 
-        expect(result, isNotNull);
-        expect(result!.updateAvailable, isFalse);
-        expect(result.latestVersion, equals('0.0.8'));
+        expect(result, isNull);
       });
 
-      test(
-          'returns UpdateInfo with updateAvailable=false when ahead of release',
-          () async {
+      test('returns null when ahead of the latest release', () async {
         final mockClient = MockHttpClient(
           responseBody: {
             'tag_name': 'v0.0.7',
@@ -143,8 +147,7 @@ void main() {
 
         final result = await UpdateService.checkForUpdate('0.0.8');
 
-        expect(result, isNotNull);
-        expect(result!.updateAvailable, isFalse);
+        expect(result, isNull);
       });
 
       test('handles tag_name without v prefix', () async {
@@ -160,8 +163,7 @@ void main() {
         final result = await UpdateService.checkForUpdate('0.0.8');
 
         expect(result, isNotNull);
-        expect(result!.updateAvailable, isTrue);
-        expect(result.latestVersion, equals('0.0.9'));
+        expect(result!.latestVersion, equals('0.0.9'));
       });
 
       test('returns null on network error', () async {

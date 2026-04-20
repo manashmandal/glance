@@ -75,14 +75,14 @@ class TrainDeparturesWidgetState extends State<TrainDeparturesWidget> {
     try {
       final List<TrainDeparture> results;
       if (_isArrivalsMode) {
-        results = await BvgService.getArrivals(
+        results = await BvgService.fetchArrivals(
           stationId: _selectedStation.id,
           transportType: _selectedTransportType,
           duration: widget.durationMinutes,
           skipMinutes: widget.skipMinutes,
         );
       } else {
-        results = await BvgService.getDepartures(
+        results = await BvgService.fetchDepartures(
           stationId: _selectedStation.id,
           transportType: _selectedTransportType,
           duration: widget.durationMinutes,
