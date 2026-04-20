@@ -56,13 +56,15 @@ dart format --set-exit-if-changed .
 
 ## Screenshots
 
+![Dashboard](assets/images/dashboard.jpg)
+
+![Offline screen — what we tried + degraded status](assets/images/offline.jpg)
+
 <p align="center">
-  <img src="assets/images/splash.png" width="640" alt="Splash" />
+  <img src="assets/images/splash.jpg" width="640" alt="Splash" />
+  &nbsp;
+  <img src="assets/images/settings-layout.jpg" width="640" alt="Settings · Layout presets" />
 </p>
-
-![Dashboard](assets/images/screenshot.png)
-
-> *Dashboard screenshot above is from the previous design; offline-screen and layout-preset renders are pending.*
 
 ## License
 
