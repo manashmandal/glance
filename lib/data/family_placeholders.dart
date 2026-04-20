@@ -41,18 +41,6 @@ class ForecastPoint {
   });
 }
 
-class RouteStop {
-  final String name;
-  final bool isCurrent;
-  final bool isDestination;
-
-  const RouteStop({
-    required this.name,
-    this.isCurrent = false,
-    this.isDestination = false,
-  });
-}
-
 class PartnerEvent {
   final String person;
   final String label;

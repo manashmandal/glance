@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../data/family_placeholders.dart';
+import '../../models/route_stop.dart';
 import '../../theme/family_palette.dart';
 import '../../theme/family_typography.dart';
 import 'common/station_dot.dart';
 
-/// Horizontal rail of stations connected by dividers. The first stop is
-/// marked as current (sage dot), the last as destination (crimson dot).
+/// Horizontal rail of stations connected by dividers. Stops flagged
+/// `current` render with a sage dot, `destination` with a crimson dot;
+/// intermediate stops use an outlined neutral dot. The connector before
+/// the destination is tinted crimson.
 class RoutePreview extends StatelessWidget {
   final List<RouteStop> stops;
 

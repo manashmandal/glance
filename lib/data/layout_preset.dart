@@ -21,18 +21,15 @@ class LayoutPresetConfig {
     this.densityScale = 1.0,
   });
 
-  static const Map<LayoutPreset, LayoutPresetConfig> _configs = {
-    LayoutPreset.editorial: LayoutPresetConfig(),
-    LayoutPreset.heroOnly: LayoutPresetConfig(heroOnly: true),
-    LayoutPreset.split: LayoutPresetConfig(upcomingFlex: 5, weatherFlex: 5),
-    LayoutPreset.dense: LayoutPresetConfig(
-      densityScale: 0.85,
-      upcomingFlex: 6,
-      weatherFlex: 4,
-    ),
-  };
-
-  static LayoutPresetConfig of(LayoutPreset preset) => _configs[preset]!;
+  /// Switch expression so a newly added [LayoutPreset] becomes a compile
+  /// error instead of a runtime null-from-map crash.
+  static LayoutPresetConfig of(LayoutPreset preset) => switch (preset) {
+        LayoutPreset.editorial => const LayoutPresetConfig(),
+        LayoutPreset.heroOnly => const LayoutPresetConfig(heroOnly: true),
+        LayoutPreset.split =>
+          const LayoutPresetConfig(upcomingFlex: 5, weatherFlex: 5),
+        LayoutPreset.dense => const LayoutPresetConfig(densityScale: 0.85),
+      };
 }
 
 extension LayoutPresetSerialization on LayoutPreset {

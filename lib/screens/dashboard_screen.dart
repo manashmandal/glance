@@ -11,6 +11,7 @@ import '../data/family_placeholders.dart';
 import '../data/layout_preset.dart';
 import '../main.dart';
 import '../models/journey.dart';
+import '../models/route_stop.dart';
 import '../models/station.dart';
 import '../models/train_departure.dart';
 import '../models/transport_type.dart';
@@ -186,7 +187,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final info = await UpdateService.checkForUpdate(current);
     if (!mounted || info == null) return;
     setState(() {
-      _updateVersion = info.updateAvailable ? 'v${info.latestVersion}' : null;
+      _updateVersion = 'v${info.latestVersion}';
       _updateUrl = info.downloadUrl;
     });
   }

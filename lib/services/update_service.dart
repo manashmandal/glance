@@ -39,10 +39,13 @@ class ReleaseEntry {
   String get version => tag.startsWith('v') ? tag.substring(1) : tag;
 }
 
+/// Describes an available update. [UpdateService.checkForUpdate] returns
+/// `null` when the app is already on the latest version or when the
+/// lookup failed — so an instance of this class always means "there is
+/// a newer version than the one currently running."
 class UpdateInfo {
   final String latestVersion;
   final String downloadUrl;
-  final bool updateAvailable;
   final String releaseName;
   final String releaseNotes;
   final DateTime? publishedAt;
@@ -50,7 +53,6 @@ class UpdateInfo {
   const UpdateInfo({
     required this.latestVersion,
     required this.downloadUrl,
-    required this.updateAvailable,
     required this.releaseName,
     required this.releaseNotes,
     required this.publishedAt,
@@ -62,6 +64,9 @@ class UpdateService {
   static const _latestUrl = 'https://api.github.com/repos/$_repo/releases/latest';
   static const _releasesUrl = 'https://api.github.com/repos/$_repo/releases';
 
+  /// Returns an [UpdateInfo] if GitHub reports a newer version than the
+  /// running one, or `null` when we're already on the latest release,
+  /// when the response is malformed, or when the lookup fails.
   static Future<UpdateInfo?> checkForUpdate(String currentVersion) async {
     final body = await _getJson(_latestUrl);
     if (body is! Map<String, dynamic>) return null;
@@ -71,12 +76,13 @@ class UpdateService {
     if (tag == null || htmlUrl == null) return null;
 
     final latestVersion = tag.startsWith('v') ? tag.substring(1) : tag;
+    if (!isNewerVersion(latestVersion, currentVersion)) return null;
+
     final publishedRaw = body['published_at'] as String?;
     final name = (body['name'] as String?)?.trim();
     return UpdateInfo(
       latestVersion: latestVersion,
       downloadUrl: htmlUrl,
-      updateAvailable: isNewerVersion(latestVersion, currentVersion),
       releaseName: (name != null && name.isNotEmpty) ? name : tag,
       releaseNotes: (body['body'] as String? ?? '').trim(),
       publishedAt:

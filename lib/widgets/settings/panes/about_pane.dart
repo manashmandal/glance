@@ -176,7 +176,7 @@ class _UpdateBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasUpdate = update?.updateAvailable == true;
+    final hasUpdate = update != null;
     final color = hasUpdate ? FamilyPalette.crimson : FamilyPalette.sage;
     final bg = hasUpdate ? FamilyPalette.crimsonTint : FamilyPalette.panel;
     final eyebrow = checking

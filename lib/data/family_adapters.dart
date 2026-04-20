@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/journey.dart';
+import '../models/route_stop.dart';
 import '../models/train_departure.dart';
 import '../models/weather_data.dart';
 import '../theme/family_palette.dart';
@@ -51,32 +52,35 @@ class FamilyAdapters {
     return _shortTime(leaveAt);
   }
 
-  /// Build rail stops from a journey: the first leg's origin, then each
-  /// (non-walking) leg's destination, deduped by id. First = current,
-  /// last = destination. Returns null if nothing renderable.
-  static List<RouteStop>? routeStops(Journey? journey) {
-    if (journey == null) return null;
-    final transit = journey.legs.where((l) => !l.walking).toList(growable: false);
-    if (transit.isEmpty) return null;
+  /// Builds rail stops from a journey: origin of the first transit leg,
+  /// then each non-walking leg's destination, deduped by id. The first
+  /// stop is marked current; the last, destination. Returns `const []`
+  /// if the journey is null, has no transit legs, or collapses to fewer
+  /// than two unique stops.
+  static List<RouteStop> routeStops(Journey? journey) {
+    if (journey == null) return const [];
+    final transit =
+        journey.legs.where((l) => !l.walking).toList(growable: false);
+    if (transit.isEmpty) return const [];
 
     final ids = <String>{};
-    final stops = <RouteStop>[];
+    final names = <String>[];
 
     void addStop(String id, String name) {
       if (id.isEmpty || !ids.add(id)) return;
-      stops.add(RouteStop(name: _shortStationName(name)));
+      names.add(_shortStationName(name));
     }
 
     addStop(transit.first.originId, transit.first.originName);
     for (final leg in transit) {
       addStop(leg.destinationId, leg.destinationName);
     }
-    if (stops.length < 2) return null;
+    if (names.length < 2) return const [];
 
     return [
-      RouteStop(name: stops.first.name, isCurrent: true),
-      for (var i = 1; i < stops.length - 1; i++) stops[i],
-      RouteStop(name: stops.last.name, isDestination: true),
+      RouteStop(name: names.first, role: RouteStopRole.current),
+      for (var i = 1; i < names.length - 1; i++) RouteStop(name: names[i]),
+      RouteStop(name: names.last, role: RouteStopRole.destination),
     ];
   }
 
