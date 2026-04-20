@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
-import 'screens/dashboard_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/theme_service.dart';
 
 void main() async {
@@ -142,7 +142,7 @@ class _GlanceAppState extends State<GlanceApp> {
           bodyMedium: TextStyle(fontSize: 16, color: AppTheme.darkTextTertiary),
         ),
       ),
-      home: const DashboardScreen(),
+      home: const SplashScreen(),
     );
   }
 }
