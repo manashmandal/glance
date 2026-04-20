@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/family_palette.dart';
 
-/// Slim "Berlin · S+U Alexanderplatz | 14:32 | Thu, Apr 19" strip used on
-/// the offline screen. Mirrors the Paper design's top row.
+/// Slim header strip ("Berlin · S+U Alexanderplatz   14:32   THU, APR 19")
+/// used on the offline screen. Mirrors the Paper design's top row.
 class OfflineTopStrip extends StatelessWidget {
   final String city;
   final String stationName;

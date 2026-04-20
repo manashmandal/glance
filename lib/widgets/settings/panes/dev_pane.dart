@@ -7,9 +7,11 @@ import '../common/pane_header.dart';
 import '../common/settings_row.dart';
 import '../common/settings_toggle.dart';
 
-/// Debug-only pane that lists every [FeatureFlag] with a live toggle.
-/// Overrides are persisted in `SharedPreferences`; flipping a flag
-/// updates the UI immediately without a rebuild.
+/// Pane that lists every [FeatureFlag] with a live toggle. Overrides
+/// are persisted via `SharedPreferences` in debug builds only — release
+/// builds ignore stored overrides. The settings screen also hides this
+/// pane in release builds. Flipping a flag rebuilds the pane in place
+/// so the new state is visible without a hot reload.
 class DevPane extends StatefulWidget {
   final VoidCallback? onChanged;
 

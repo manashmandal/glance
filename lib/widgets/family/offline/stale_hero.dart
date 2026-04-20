@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/family_palette.dart';
 
-/// Dimmed, last-known-good countdown with a strike-through to signal that
-/// the number is no longer trustworthy. Renders the destination name
-/// below in muted text.
+/// Dimmed last-known-good hero: a "last seen" meta row, a struck-
+/// through countdown to signal staleness, a line-code pill, and the
+/// destination name in muted text.
 class StaleHero extends StatelessWidget {
   final DateTime? lastSeenAt;
   final int countdownMinutes;

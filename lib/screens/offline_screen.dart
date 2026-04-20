@@ -7,10 +7,9 @@ import '../widgets/family/offline/offline_banner.dart';
 import '../widgets/family/offline/offline_top_strip.dart';
 import '../widgets/family/offline/stale_hero.dart';
 
-/// Landscape replacement for the dashboard shown when BVG is degraded.
-/// Surfaces the last-known-good hero (dimmed), what we've tried lately,
-/// and a simplified status read. All inputs are already-computed by the
-/// caller — the screen itself is pure.
+/// Dashboard replacement shown when BVG is degraded. Surfaces the
+/// last-known-good hero (dimmed), recent API attempts, and a simplified
+/// status read. Pure — all inputs are computed by the caller.
 class OfflineScreen extends StatelessWidget {
   final String city;
   final String stationName;

@@ -147,8 +147,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
       if (!mounted) return;
       setState(() => _departures = list);
-    } catch (_) {
-      // Keep prior state on failure; fallback is handled inside BvgService.
+    } catch (e, st) {
+      // Keep prior state on failure; service-level fallback already ran.
+      debugPrint('refreshDepartures failed: $e\n$st');
     }
   }
 
@@ -157,8 +158,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final data = await WeatherService.fetchWeather();
       if (!mounted) return;
       setState(() => _weather = data);
-    } catch (_) {
-      // Swallow – placeholders remain visible.
+    } catch (e, st) {
+      // Placeholders remain visible.
+      debugPrint('refreshWeather failed: $e\n$st');
     }
   }
 
@@ -175,7 +177,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
       if (!mounted) return;
       setState(() => _journey = journey);
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('refreshJourney failed: $e\n$st');
       if (!mounted) return;
       setState(() => _journey = null);
     }
@@ -192,10 +195,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _handleUpdateTap() async {
-    if (_updateUrl == null) return;
-    final uri = Uri.parse(_updateUrl!);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final url = _updateUrl;
+    if (url == null) return;
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      debugPrint('handleUpdateTap launch failed for $url: $e');
     }
   }
 
