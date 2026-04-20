@@ -348,8 +348,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final leaveBy = FamilyAdapters.leaveByTime(next, _walkMinutes) ??
         FamilyPlaceholders.leaveByTime;
     final destination = next?.destination ?? FamilyPlaceholders.destinationName;
-    final platform = FamilyAdapters.displayPlatform(next) ??
-        FamilyPlaceholders.nextPlatform;
+    final platform =
+        FamilyAdapters.displayPlatform(next) ?? FamilyPlaceholders.nextPlatform;
     final lineCode = next?.line ?? FamilyPlaceholders.nextLineCode;
 
     if (ApiDiagnostics.bvgDegraded) {
@@ -577,5 +577,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
 }

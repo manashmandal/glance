@@ -137,7 +137,8 @@ class _DeparturesPaneState extends State<DeparturesPane> {
         ),
         SettingsRow(
           title: 'Refresh cadence',
-          description: 'How often Glance reaches out to BVG. Faster uses more battery.',
+          description:
+              'How often Glance reaches out to BVG. Faster uses more battery.',
           control: SettingsChipGroup<_RefreshCadence>(
             value: _cadence,
             onSelected: (v) => setState(() => _cadence = v),

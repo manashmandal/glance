@@ -364,8 +364,7 @@ class FamilyType {
 
   /// Settings: nav list item title.
   static TextStyle navTitle({required bool active}) => GoogleFonts.interTight(
-        color:
-            active ? FamilyPalette.textPrimary : FamilyPalette.textSecondary,
+        color: active ? FamilyPalette.textPrimary : FamilyPalette.textSecondary,
         fontSize: 22,
         fontWeight: active ? FontWeight.w600 : FontWeight.w500,
         letterSpacing: -0.015 * 22,
@@ -399,9 +398,7 @@ class FamilyType {
 
   /// Button-style text inside chips (e.g. "Landscape").
   static TextStyle chipText({required bool active}) => GoogleFonts.inter(
-        color: active
-            ? FamilyPalette.textPrimary
-            : FamilyPalette.textSecondary,
+        color: active ? FamilyPalette.textPrimary : FamilyPalette.textSecondary,
         fontSize: 14,
         fontWeight: FontWeight.w500,
         height: 18 / 14,

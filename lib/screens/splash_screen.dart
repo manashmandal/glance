@@ -8,7 +8,8 @@ import 'dashboard_screen.dart';
 /// services, then hands off to the dashboard.
 class SplashScreen extends StatefulWidget {
   final Duration minDuration;
-  const SplashScreen({super.key, this.minDuration = const Duration(seconds: 2)});
+  const SplashScreen(
+      {super.key, this.minDuration = const Duration(seconds: 2)});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();

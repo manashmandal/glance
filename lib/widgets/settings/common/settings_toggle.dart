@@ -7,7 +7,8 @@ class SettingsToggle extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  const SettingsToggle({super.key, required this.value, required this.onChanged});
+  const SettingsToggle(
+      {super.key, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +20,7 @@ class SettingsToggle extends StatelessWidget {
         height: 32,
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: value
-              ? FamilyPalette.crimson
-              : FamilyPalette.divider,
+          color: value ? FamilyPalette.crimson : FamilyPalette.divider,
           borderRadius: BorderRadius.circular(999),
         ),
         child: AnimatedAlign(

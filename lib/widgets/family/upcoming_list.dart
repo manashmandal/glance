@@ -103,9 +103,8 @@ class _SwitcherEntry extends StatelessWidget {
           children: [
             if (showDot || active) ...[
               StationDot(
-                color: active
-                    ? FamilyPalette.crimson
-                    : FamilyPalette.textTertiary,
+                color:
+                    active ? FamilyPalette.crimson : FamilyPalette.textTertiary,
                 size: 6,
               ),
               const SizedBox(width: 6),

@@ -21,8 +21,7 @@ class FamilyAdapters {
   }) {
     return source.map((d) {
       final isDelayed = (d.delay ?? 0) > 0;
-      final isHighlighted =
-          highlightLine != null && d.line == highlightLine;
+      final isHighlighted = highlightLine != null && d.line == highlightLine;
       return DepartureItem(
         time: _shortTime(d.departureTime) ?? d.time,
         destination: d.destination,
@@ -32,7 +31,8 @@ class FamilyAdapters {
             : FamilyPalette.textPrimary.withValues(
                 alpha: isDelayed ? 0.55 : 0.85,
               ),
-        statusText: isDelayed ? "+${((d.delay ?? 0) / 60).round()}'" : 'On time',
+        statusText:
+            isDelayed ? "+${((d.delay ?? 0) / 60).round()}'" : 'On time',
         isDelayed: isDelayed,
       );
     }).toList(growable: false);
@@ -48,7 +48,8 @@ class FamilyAdapters {
   /// "Leave by" time = departure time − walk duration.
   static String? leaveByTime(TrainDeparture? next, int walkMinutes) {
     if (next?.departureTime == null) return null;
-    final leaveAt = next!.departureTime!.subtract(Duration(minutes: walkMinutes));
+    final leaveAt =
+        next!.departureTime!.subtract(Duration(minutes: walkMinutes));
     return _shortTime(leaveAt);
   }
 
@@ -58,8 +59,7 @@ class FamilyAdapters {
   static String? displayPlatform(TrainDeparture? next) {
     final raw = next?.platform;
     if (raw == null) return null;
-    final cleaned =
-        raw.replaceFirst('Pl. ', '').replaceFirst('Pl.', '').trim();
+    final cleaned = raw.replaceFirst('Pl. ', '').replaceFirst('Pl.', '').trim();
     return cleaned.isEmpty ? null : cleaned;
   }
 
@@ -146,16 +146,14 @@ class FamilyAdapters {
   /// Short time format "h:mm" (no AM/PM).
   static String? _shortTime(DateTime? time) {
     if (time == null) return null;
-    final hour = time.hour > 12
-        ? time.hour - 12
-        : (time.hour == 0 ? 12 : time.hour);
+    final hour =
+        time.hour > 12 ? time.hour - 12 : (time.hour == 0 ? 12 : time.hour);
     return '$hour:${time.minute.toString().padLeft(2, '0')}';
   }
 
   static String _hourLabel(DateTime time) {
-    final hour = time.hour > 12
-        ? time.hour - 12
-        : (time.hour == 0 ? 12 : time.hour);
+    final hour =
+        time.hour > 12 ? time.hour - 12 : (time.hour == 0 ? 12 : time.hour);
     final suffix = time.hour >= 12 ? 'PM' : 'AM';
     return '$hour $suffix';
   }

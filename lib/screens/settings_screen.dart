@@ -61,7 +61,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ];
 
   static List<SettingsNavEntry> get _entries => _allEntries.where((e) {
-        if (e.id == 'layout' && !FeatureFlags.isEnabled(FeatureFlags.layoutPane)) {
+        if (e.id == 'layout' &&
+            !FeatureFlags.isEnabled(FeatureFlags.layoutPane)) {
           return false;
         }
         if (e.id == 'dev' && !kDebugMode) return false;

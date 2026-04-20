@@ -49,7 +49,8 @@ void main() async {
 void _installGlobalErrorHandlers() {
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
-    debugPrint('Flutter error: ${details.exceptionAsString()}\n${details.stack}');
+    debugPrint(
+        'Flutter error: ${details.exceptionAsString()}\n${details.stack}');
   };
   PlatformDispatcher.instance.onError = (error, stack) {
     debugPrint('Platform error: $error\n$stack');

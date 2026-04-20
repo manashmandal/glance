@@ -61,7 +61,8 @@ class UpdateInfo {
 
 class UpdateService {
   static const _repo = 'manashmandal/glance';
-  static const _latestUrl = 'https://api.github.com/repos/$_repo/releases/latest';
+  static const _latestUrl =
+      'https://api.github.com/repos/$_repo/releases/latest';
   static const _releasesUrl = 'https://api.github.com/repos/$_repo/releases';
 
   /// Returns an [UpdateInfo] if GitHub reports a newer version than the
@@ -106,9 +107,7 @@ class UpdateService {
     final sw = Stopwatch()..start();
     final client = HttpClient();
     try {
-      final request = await client
-          .getUrl(Uri.parse(url))
-          .timeout(_timeout);
+      final request = await client.getUrl(Uri.parse(url)).timeout(_timeout);
       request.headers.set('Accept', 'application/vnd.github+json');
       request.headers.set('User-Agent', 'glance-app');
       final response = await request.close().timeout(_timeout);

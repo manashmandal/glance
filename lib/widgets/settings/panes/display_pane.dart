@@ -70,7 +70,8 @@ class _DisplayPaneState extends State<DisplayPane> {
         ),
         SettingsRow(
           title: 'Always-on display',
-          description: 'Keeps the next departure visible even when the screen sleeps.',
+          description:
+              'Keeps the next departure visible even when the screen sleeps.',
           control: SettingsToggle(
             value: _alwaysOn,
             onChanged: (v) => setState(() => _alwaysOn = v),

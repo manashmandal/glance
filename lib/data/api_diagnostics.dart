@@ -98,10 +98,8 @@ class ApiDiagnostics {
   /// Rolling status (success/fail) for the last N BVG attempts, oldest first.
   /// Returns an all-true window when we haven't collected enough attempts yet.
   static List<bool> bvgUptimeWindow({int length = 7}) {
-    final bvg = _attempts
-        .where((a) => a.source == ApiSource.bvg)
-        .take(length)
-        .toList();
+    final bvg =
+        _attempts.where((a) => a.source == ApiSource.bvg).take(length).toList();
     final window = bvg.reversed.map((a) => a.success).toList(growable: true);
     while (window.length < length) {
       window.insert(0, true);

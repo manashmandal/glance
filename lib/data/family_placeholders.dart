@@ -116,8 +116,7 @@ class FamilyPlaceholders {
 
   static const String weatherLocation = 'Berlin · Mitte';
   static const String currentTemp = '4';
-  static const String weatherCondition =
-      'Partly cloudy · light rain at 6 PM';
+  static const String weatherCondition = 'Partly cloudy · light rain at 6 PM';
   static const String weatherTip =
       'Light jacket. Bring an umbrella for the 6 PM shower.';
 

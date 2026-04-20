@@ -323,8 +323,7 @@ class _BannerButton extends StatelessWidget {
                 ? null
                 : BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    border:
-                        Border.all(color: FamilyPalette.divider, width: 1),
+                    border: Border.all(color: FamilyPalette.divider, width: 1),
                   ),
             child: Text(
               label,
@@ -444,8 +443,18 @@ class _ChangelogRow extends StatelessWidget {
   String _dateLabel(DateTime? when) {
     if (when == null) return '—';
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[when.month - 1]} ${when.day}, ${when.year}';
   }

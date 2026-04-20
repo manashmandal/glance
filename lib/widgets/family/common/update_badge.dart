@@ -35,8 +35,7 @@ class UpdateBadge extends StatelessWidget {
               const SizedBox(width: 5),
               Text(
                 version,
-                style:
-                    FamilyType.metaMono(color: FamilyPalette.amberBright),
+                style: FamilyType.metaMono(color: FamilyPalette.amberBright),
               ),
             ],
           ),

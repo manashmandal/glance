@@ -118,8 +118,7 @@ class BvgService {
     int skipMinutes = 0,
   }) async {
     final sw = Stopwatch()..start();
-    final endpoint =
-        'v6.bvg.transport.rest/stops/$stationId/departures';
+    final endpoint = 'v6.bvg.transport.rest/stops/$stationId/departures';
     try {
       final filters = _transportFilters(transportType);
       final url =

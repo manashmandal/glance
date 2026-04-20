@@ -86,7 +86,8 @@ class _NavItem extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(entry.title, style: FamilyType.navTitle(active: active)),
+                    Text(entry.title,
+                        style: FamilyType.navTitle(active: active)),
                     const SizedBox(height: 4),
                     Text(entry.subtitle, style: FamilyType.navSubtitle()),
                   ],

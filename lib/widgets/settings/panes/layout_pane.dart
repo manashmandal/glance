@@ -56,9 +56,8 @@ class _LayoutPaneState extends State<LayoutPane> {
           eyebrow: 'Layout',
           title: "How it's arranged",
           subtitle: 'Pick a starting point for your dashboard.',
-          trailing: showEditMode
-              ? const _EnterEditButton()
-              : const SizedBox.shrink(),
+          trailing:
+              showEditMode ? const _EnterEditButton() : const SizedBox.shrink(),
         ),
         const SizedBox(height: 30),
         Text('Presets', style: FamilyType.sectionTitle()),
@@ -73,8 +72,7 @@ class _LayoutPaneState extends State<LayoutPane> {
         if (showEditMode) ...[
           SettingsRow(
             title: 'Edit mode behavior',
-            description:
-                'Long-press to enter, or always show drag handles.',
+            description: 'Long-press to enter, or always show drag handles.',
             control: SettingsChipGroup<_EditMode>(
               value: _editMode,
               onSelected: (v) => setState(() => _editMode = v),

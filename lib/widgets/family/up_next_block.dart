@@ -43,11 +43,12 @@ class UpNextBlock extends StatelessWidget {
                         const SizedBox(width: 7),
                         Text(
                           '· ${event.label}'.toUpperCase(),
-                          style:
-                              FamilyType.eyebrow(color: FamilyPalette.textMuted),
+                          style: FamilyType.eyebrow(
+                              color: FamilyPalette.textMuted),
                         ),
                         const Spacer(),
-                        Text(event.timeRange, style: FamilyType.eventTimeRange()),
+                        Text(event.timeRange,
+                            style: FamilyType.eventTimeRange()),
                       ],
                     ),
                     const SizedBox(height: 6),

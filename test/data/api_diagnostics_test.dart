@@ -69,7 +69,8 @@ void main() {
     });
 
     test('only counts BVG attempts', () {
-      ApiDiagnostics.record(_attempt(success: false, source: ApiSource.weather));
+      ApiDiagnostics.record(
+          _attempt(success: false, source: ApiSource.weather));
       ApiDiagnostics.record(_attempt(success: true));
 
       final window = ApiDiagnostics.bvgUptimeWindow(length: 2);
