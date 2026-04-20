@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import 'package:flutter/foundation.dart';
+
 enum ApiSource { bvg, weather, update, other }
 
 class ApiAttempt {
@@ -42,6 +44,12 @@ class ApiDiagnostics {
   static List<ApiAttempt> get recent => List.unmodifiable(_attempts);
 
   static DateTime? get lastBvgSuccess => _lastBvgSuccess;
+
+  @visibleForTesting
+  static void reset() {
+    _attempts.clear();
+    _lastBvgSuccess = null;
+  }
 
   /// True when the last BVG success was more than [_staleThreshold] ago AND
   /// the most recent BVG attempt failed. Used to decide whether to show the

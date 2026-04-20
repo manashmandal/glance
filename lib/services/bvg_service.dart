@@ -150,6 +150,9 @@ class BvgService {
           print(
             'First 500 chars of response: ${response.body.substring(0, response.body.length > 500 ? 500 : response.body.length)}',
           );
+          sw.stop();
+          _recordBvg(endpoint, sw,
+              success: false, code: response.statusCode, label: '200 · empty');
           return _getFallbackData();
         }
 
@@ -222,10 +225,15 @@ class BvgService {
         }
 
         sw.stop();
+        if (trainDepartures.isEmpty) {
+          _recordBvg(endpoint, sw,
+              success: false,
+              code: response.statusCode,
+              label: '200 · 0 items');
+          return _getFallbackData();
+        }
         _recordBvg(endpoint, sw, success: true, code: response.statusCode);
-        return trainDepartures.isNotEmpty
-            ? trainDepartures
-            : _getFallbackData();
+        return trainDepartures;
       } else {
         sw.stop();
         _recordBvg(endpoint, sw, success: false, code: response.statusCode);
@@ -234,6 +242,7 @@ class BvgService {
     } catch (e) {
       sw.stop();
       _recordBvg(endpoint, sw, success: false, error: e);
+      print('❌ BVG outer catch (departures): $e');
       return _getFallbackData();
     }
   }
@@ -266,7 +275,8 @@ class BvgService {
       final journeys = data['journeys'] as List?;
       if (journeys == null || journeys.isEmpty) {
         sw.stop();
-        _recordBvg(endpoint, sw, success: true, code: 200);
+        _recordBvg(endpoint, sw,
+            success: false, code: 200, label: '200 · empty');
         return null;
       }
 
@@ -303,24 +313,29 @@ class BvgService {
     required bool success,
     int? code,
     Object? error,
+    String? label,
   }) {
     final duration = sw.elapsed;
-    String label;
-    if (error != null) {
+    String resolved;
+    if (label != null) {
+      resolved = label;
+    } else if (error != null) {
       if (error is TimeoutException) {
-        label = 'timeout · ${duration.inSeconds}s';
+        resolved = 'timeout · ${duration.inSeconds}s';
       } else {
-        label = 'error · ${error.runtimeType}';
+        resolved = 'error · ${error.runtimeType}';
       }
     } else if (code == 200) {
       final ms = duration.inMilliseconds;
-      label = ms >= 1000 ? '200 · ${(ms / 1000).toStringAsFixed(1)}s' : '200 · ${ms}ms';
+      resolved = ms >= 1000
+          ? '200 · ${(ms / 1000).toStringAsFixed(1)}s'
+          : '200 · ${ms}ms';
     } else {
-      label = '${code ?? 'fail'} · ${duration.inSeconds}s';
+      resolved = '${code ?? 'fail'} · ${duration.inSeconds}s';
     }
     ApiDiagnostics.record(ApiAttempt(
       endpoint: endpoint,
-      statusLabel: label,
+      statusLabel: resolved,
       success: success,
       at: DateTime.now(),
       source: ApiSource.bvg,

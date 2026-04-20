@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
@@ -7,6 +10,7 @@ import 'services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  _installGlobalErrorHandlers();
 
   await FeatureFlags.load();
 
@@ -21,7 +25,7 @@ void main() async {
   // Initialize window manager for desktop
   try {
     await windowManager.ensureInitialized();
-    WindowOptions windowOptions = const WindowOptions(
+    const windowOptions = WindowOptions(
       size: Size(1280, 720),
       minimumSize: Size(800, 600),
       center: true,
@@ -34,11 +38,23 @@ void main() async {
       await windowManager.focus();
     });
   } catch (e) {
-    // Ignore errors on non-desktop platforms
-    print('Window Manager init failed (expected on mobile/web): $e');
+    if (kDebugMode) {
+      debugPrint('Window Manager init failed (expected on mobile/web): $e');
+    }
   }
 
   runApp(const GlanceApp());
+}
+
+void _installGlobalErrorHandlers() {
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint('Flutter error: ${details.exceptionAsString()}');
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('Platform error: $error\n$stack');
+    return true;
+  };
 }
 
 class GlanceApp extends StatefulWidget {

@@ -1,5 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+
+import '../data/api_diagnostics.dart';
 
 class ReleaseEntry {
   final String tag;
@@ -89,19 +94,73 @@ class UpdateService {
         .toList(growable: false);
   }
 
+  static const Duration _timeout = Duration(seconds: 10);
+
   static Future<Object?> _getJson(String url) async {
+    final sw = Stopwatch()..start();
+    final client = HttpClient();
     try {
-      final client = HttpClient();
-      final request = await client.getUrl(Uri.parse(url));
+      final request = await client
+          .getUrl(Uri.parse(url))
+          .timeout(_timeout);
       request.headers.set('Accept', 'application/vnd.github+json');
       request.headers.set('User-Agent', 'glance-app');
-      final response = await request.close();
-      if (response.statusCode != 200) return null;
-      final body = await response.transform(utf8.decoder).join();
+      final response = await request.close().timeout(_timeout);
+      if (response.statusCode != 200) {
+        sw.stop();
+        _record(url, sw, success: false, code: response.statusCode);
+        debugPrint('UpdateService GET $url -> ${response.statusCode}');
+        return null;
+      }
+      final body =
+          await response.transform(utf8.decoder).join().timeout(_timeout);
+      sw.stop();
+      _record(url, sw, success: true, code: 200);
       return jsonDecode(body);
-    } catch (_) {
+    } catch (e) {
+      sw.stop();
+      _record(url, sw, success: false, error: e);
+      debugPrint('UpdateService GET $url failed: $e');
       return null;
+    } finally {
+      client.close(force: false);
     }
+  }
+
+  static void _record(
+    String url,
+    Stopwatch sw, {
+    required bool success,
+    int? code,
+    Object? error,
+  }) {
+    final d = sw.elapsed;
+    String label;
+    if (error != null) {
+      label = error is TimeoutException
+          ? 'timeout · ${d.inSeconds}s'
+          : 'error · ${error.runtimeType}';
+    } else if (code == 200) {
+      final ms = d.inMilliseconds;
+      label = ms >= 1000
+          ? '200 · ${(ms / 1000).toStringAsFixed(1)}s'
+          : '200 · ${ms}ms';
+    } else {
+      label = '${code ?? 'fail'} · ${d.inSeconds}s';
+    }
+    ApiDiagnostics.record(ApiAttempt(
+      endpoint: _shortUrl(url),
+      statusLabel: label,
+      success: success,
+      at: DateTime.now(),
+      source: ApiSource.update,
+    ));
+  }
+
+  static String _shortUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return url;
+    return '${uri.host}${uri.path}';
   }
 
   static bool isNewerVersion(String latest, String current) {

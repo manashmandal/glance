@@ -46,6 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Timer? _refreshTimer;
   Timer? _updateCheckTimer;
+  final FocusNode _keyFocus = FocusNode();
 
   Station _station = Station.defaultStation;
   Station? _destinationStation;
@@ -69,12 +70,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _bootstrap();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _keyFocus.requestFocus();
+    });
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
     _updateCheckTimer?.cancel();
+    _keyFocus.dispose();
     super.dispose();
   }
 
@@ -215,13 +220,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       };
 
   Future<void> _toggleFullScreen() async {
+    final target = !_isFullScreen;
     try {
-      await windowManager.setFullScreen(!_isFullScreen);
-      setState(() => _isFullScreen = !_isFullScreen);
-    } catch (_) {}
+      await windowManager.setFullScreen(target);
+    } catch (e) {
+      debugPrint('setFullScreen failed: $e');
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _isFullScreen = target);
   }
 
   void _showMenu() {
+    final app = GlanceApp.of(context);
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: FamilyPalette.panel,
@@ -256,7 +267,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
-                  GlanceApp.of(context)?.toggleTheme();
+                  app?.toggleTheme();
                 },
               ),
               ListTile(
@@ -365,7 +376,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final body = Scaffold(
       backgroundColor: FamilyPalette.background,
       body: KeyboardListener(
-        focusNode: FocusNode()..requestFocus(),
+        focusNode: _keyFocus,
         onKeyEvent: (event) {
           if (event is KeyDownEvent &&
               event.logicalKey == LogicalKeyboardKey.escape &&
