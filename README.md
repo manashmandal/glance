@@ -36,7 +36,7 @@ When BVG goes silent for more than four minutes, the dashboard switches to an **
 - **Transit:** BVG via [`v6.bvg.transport.rest`](https://v6.bvg.transport.rest).
 - **Weather:** [Open-Meteo](https://open-meteo.com).
 - **Updates:** GitHub Releases.
-- **AI suggestions:** Claude Haiku 4.5 (Android only, via ML Kit GenAI).
+- **AI suggestions:** on-device, Android-only, via Google's [ML Kit GenAI Summarization](https://developers.google.com/ml-kit/genai/summarization) (Gemini Nano).
 
 ## Running it
 

@@ -115,7 +115,7 @@ class _AboutPaneState extends State<AboutPane> {
                 rows: const [
                   _InfoPair('Transit', 'BVG v6 API', dotted: true),
                   _InfoPair('Weather', 'Open-Meteo', dotted: true),
-                  _InfoPair('AI', 'Claude Haiku 4.5', dotted: true),
+                  _InfoPair('AI', 'ML Kit · Gemini Nano', dotted: true),
                   _InfoPair('License', 'MIT'),
                 ],
               ),
