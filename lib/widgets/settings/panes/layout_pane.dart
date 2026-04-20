@@ -32,7 +32,7 @@ class _LayoutPaneState extends State<LayoutPane> {
   }
 
   Future<void> _load() async {
-    final preset = await SettingsService.getLayoutPreset();
+    final preset = await SettingsService.readLayoutPreset();
     if (!mounted) return;
     setState(() {
       _preset = preset;

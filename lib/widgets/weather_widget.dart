@@ -35,7 +35,7 @@ class WeatherWidgetState extends State<WeatherWidget> {
     }
 
     try {
-      final weather = await WeatherService.getWeather();
+      final weather = await WeatherService.fetchWeather();
       if (mounted) {
         setState(() {
           _weather = weather;

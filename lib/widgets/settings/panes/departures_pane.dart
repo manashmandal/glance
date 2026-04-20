@@ -36,12 +36,12 @@ class _DeparturesPaneState extends State<DeparturesPane> {
   }
 
   Future<void> _load() async {
-    final stationId = await SettingsService.getDefaultStationId();
-    final destinationId = await SettingsService.getDestinationStationId();
-    final transport = await SettingsService.getDefaultTransportType();
-    final skip = await SettingsService.getSkipMinutes();
-    final duration = await SettingsService.getDurationMinutes();
-    final suggestions = await SettingsService.getShowWeatherActions();
+    final stationId = await SettingsService.readDefaultStationId();
+    final destinationId = await SettingsService.readDestinationStationId();
+    final transport = await SettingsService.readDefaultTransportType();
+    final skip = await SettingsService.readSkipMinutes();
+    final duration = await SettingsService.readDurationMinutes();
+    final suggestions = await SettingsService.readShowWeatherActions();
     if (!mounted) return;
     setState(() {
       if (stationId != null) {

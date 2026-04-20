@@ -102,12 +102,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadSettings() async {
-    final stationId = await SettingsService.getDefaultStationId();
-    final destinationId = await SettingsService.getDestinationStationId();
-    final transportType = await SettingsService.getDefaultTransportType();
-    final skipMinutes = await SettingsService.getSkipMinutes();
-    final durationMinutes = await SettingsService.getDurationMinutes();
-    final preset = await SettingsService.getLayoutPreset();
+    final stationId = await SettingsService.readDefaultStationId();
+    final destinationId = await SettingsService.readDestinationStationId();
+    final transportType = await SettingsService.readDefaultTransportType();
+    final skipMinutes = await SettingsService.readSkipMinutes();
+    final durationMinutes = await SettingsService.readDurationMinutes();
+    final preset = await SettingsService.readLayoutPreset();
     if (!mounted) return;
     setState(() {
       if (stationId != null) {
@@ -140,7 +140,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _refreshDepartures() async {
     try {
-      final list = await BvgService.getDepartures(
+      final list = await BvgService.fetchDepartures(
         stationId: _station.id,
         duration: _durationMinutes,
         transportType: _transportType,
@@ -155,7 +155,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _refreshWeather() async {
     try {
-      final data = await WeatherService.getWeather();
+      final data = await WeatherService.fetchWeather();
       if (!mounted) return;
       setState(() => _weather = data);
     } catch (_) {
@@ -170,7 +170,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return;
     }
     try {
-      final journey = await BvgService.getJourney(
+      final journey = await BvgService.fetchJourney(
         fromStationId: _station.id,
         toStationId: destination.id,
       );

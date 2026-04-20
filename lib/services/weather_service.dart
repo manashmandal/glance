@@ -12,7 +12,7 @@ class WeatherService {
   static const String _endpointLabel = 'api.open-meteo.com/v1/forecast';
   static const Duration _timeout = Duration(seconds: 10);
 
-  static Future<WeatherData> getWeather() async {
+  static Future<WeatherData> fetchWeather() async {
     final sw = Stopwatch()..start();
     try {
       const url = '$_baseUrl'

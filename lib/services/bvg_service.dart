@@ -10,14 +10,14 @@ import '../models/transport_type.dart';
 class BvgService {
   static const String baseUrl = 'https://v6.bvg.transport.rest';
 
-  static Future<List<TrainDeparture>> getArrivals({
+  static Future<List<TrainDeparture>> fetchArrivals({
     required String stationId,
     int duration = 60,
     TransportType transportType = TransportType.regional,
     int skipMinutes = 0,
   }) async {
     try {
-      final filters = _getTransportFilters(transportType);
+      final filters = _transportFilters(transportType);
       final url =
           '$baseUrl/stops/$stationId/arrivals?duration=$duration&results=20$filters';
       print('\n========== BVG API CALL (ARRIVALS) ==========');
@@ -46,7 +46,7 @@ class BvgService {
           print(
             'First 500 chars of response: ${response.body.substring(0, response.body.length > 500 ? 500 : response.body.length)}',
           );
-          return _getFallbackData();
+          return _fallbackData();
         }
 
         print('\n--- Processing Arrivals ---');
@@ -102,16 +102,16 @@ class BvgService {
           }
         }
 
-        return trainArrivals.isNotEmpty ? trainArrivals : _getFallbackData();
+        return trainArrivals.isNotEmpty ? trainArrivals : _fallbackData();
       } else {
-        return _getFallbackData();
+        return _fallbackData();
       }
     } catch (e) {
-      return _getFallbackData();
+      return _fallbackData();
     }
   }
 
-  static Future<List<TrainDeparture>> getDepartures({
+  static Future<List<TrainDeparture>> fetchDepartures({
     required String stationId,
     int duration = 60,
     TransportType transportType = TransportType.regional,
@@ -121,7 +121,7 @@ class BvgService {
     final endpoint =
         'v6.bvg.transport.rest/stops/$stationId/departures';
     try {
-      final filters = _getTransportFilters(transportType);
+      final filters = _transportFilters(transportType);
       final url =
           '$baseUrl/stops/$stationId/departures?duration=$duration&results=20$filters';
       print('\n========== BVG API CALL ==========');
@@ -153,7 +153,7 @@ class BvgService {
           sw.stop();
           _recordBvg(endpoint, sw,
               success: false, code: response.statusCode, label: '200 · empty');
-          return _getFallbackData();
+          return _fallbackData();
         }
 
         print('\n--- Processing Departures ---');
@@ -230,24 +230,24 @@ class BvgService {
               success: false,
               code: response.statusCode,
               label: '200 · 0 items');
-          return _getFallbackData();
+          return _fallbackData();
         }
         _recordBvg(endpoint, sw, success: true, code: response.statusCode);
         return trainDepartures;
       } else {
         sw.stop();
         _recordBvg(endpoint, sw, success: false, code: response.statusCode);
-        return _getFallbackData();
+        return _fallbackData();
       }
     } catch (e) {
       sw.stop();
       _recordBvg(endpoint, sw, success: false, error: e);
       print('❌ BVG outer catch (departures): $e');
-      return _getFallbackData();
+      return _fallbackData();
     }
   }
 
-  static Future<Journey?> getJourney({
+  static Future<Journey?> fetchJourney({
     required String fromStationId,
     required String toStationId,
   }) async {
@@ -342,7 +342,7 @@ class BvgService {
     ));
   }
 
-  static List<TrainDeparture> _getFallbackData() {
+  static List<TrainDeparture> _fallbackData() {
     final now = DateTime.now();
     final hour12 =
         now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
@@ -363,7 +363,7 @@ class BvgService {
     ];
   }
 
-  static String _getTransportFilters(TransportType type) {
+  static String _transportFilters(TransportType type) {
     switch (type) {
       case TransportType.regional:
         return '&regional=true&express=true&suburban=false&subway=false&bus=false&tram=false&ferry=false';

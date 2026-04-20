@@ -68,7 +68,7 @@ class UpdateService {
   /// running one, or `null` when we're already on the latest release,
   /// when the response is malformed, or when the lookup fails.
   static Future<UpdateInfo?> checkForUpdate(String currentVersion) async {
-    final body = await _getJson(_latestUrl);
+    final body = await _fetchJson(_latestUrl);
     if (body is! Map<String, dynamic>) return null;
 
     final tag = body['tag_name'] as String?;
@@ -91,7 +91,7 @@ class UpdateService {
   }
 
   static Future<List<ReleaseEntry>> fetchRecentReleases({int count = 5}) async {
-    final body = await _getJson('$_releasesUrl?per_page=$count');
+    final body = await _fetchJson('$_releasesUrl?per_page=$count');
     if (body is! List) return const [];
     return body
         .whereType<Map<String, dynamic>>()
@@ -102,7 +102,7 @@ class UpdateService {
 
   static const Duration _timeout = Duration(seconds: 10);
 
-  static Future<Object?> _getJson(String url) async {
+  static Future<Object?> _fetchJson(String url) async {
     final sw = Stopwatch()..start();
     final client = HttpClient();
     try {

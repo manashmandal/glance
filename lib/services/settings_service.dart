@@ -18,7 +18,7 @@ class SettingsService {
     await prefs.setDouble(_keyWeatherScale, scale);
   }
 
-  static Future<double> getWeatherScale() async {
+  static Future<double> readWeatherScale() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getDouble(_keyWeatherScale) ?? 1.0;
   }
@@ -28,7 +28,7 @@ class SettingsService {
     await prefs.setDouble(_keyDepartureScale, scale);
   }
 
-  static Future<double> getDepartureScale() async {
+  static Future<double> readDepartureScale() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getDouble(_keyDepartureScale) ?? 1.0;
   }
@@ -38,7 +38,7 @@ class SettingsService {
     await prefs.setString(_keyDefaultStationId, stationId);
   }
 
-  static Future<String?> getDefaultStationId() async {
+  static Future<String?> readDefaultStationId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keyDefaultStationId);
   }
@@ -52,7 +52,7 @@ class SettingsService {
     }
   }
 
-  static Future<String?> getDestinationStationId() async {
+  static Future<String?> readDestinationStationId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keyDestinationStationId);
   }
@@ -62,7 +62,7 @@ class SettingsService {
     await prefs.setInt(_keyDefaultTransportType, type.index);
   }
 
-  static Future<TransportType> getDefaultTransportType() async {
+  static Future<TransportType> readDefaultTransportType() async {
     final prefs = await SharedPreferences.getInstance();
     final index = prefs.getInt(_keyDefaultTransportType) ?? 0;
     if (index >= 0 && index < TransportType.values.length) {
@@ -76,7 +76,7 @@ class SettingsService {
     await prefs.setInt(_keySkipMinutes, minutes);
   }
 
-  static Future<int> getSkipMinutes() async {
+  static Future<int> readSkipMinutes() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_keySkipMinutes) ?? 0;
   }
@@ -86,7 +86,7 @@ class SettingsService {
     await prefs.setInt(_keyDurationMinutes, minutes);
   }
 
-  static Future<int> getDurationMinutes() async {
+  static Future<int> readDurationMinutes() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_keyDurationMinutes) ?? 60;
   }
@@ -96,7 +96,7 @@ class SettingsService {
     await prefs.setBool(_keyShowWeatherActions, show);
   }
 
-  static Future<bool> getShowWeatherActions() async {
+  static Future<bool> readShowWeatherActions() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_keyShowWeatherActions) ?? false;
   }
@@ -106,7 +106,7 @@ class SettingsService {
     await prefs.setString(_keyLayoutPreset, preset.name);
   }
 
-  static Future<LayoutPreset> getLayoutPreset() async {
+  static Future<LayoutPreset> readLayoutPreset() async {
     final prefs = await SharedPreferences.getInstance();
     return LayoutPresetSerialization.fromStorageKey(
       prefs.getString(_keyLayoutPreset),
