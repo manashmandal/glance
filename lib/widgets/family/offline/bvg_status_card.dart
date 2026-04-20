@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../data/api_diagnostics.dart';
 import '../../../theme/family_palette.dart';
-
-enum BvgStatus { operational, degraded, outage }
 
 /// Card summarizing the BVG feed's recent health. Headline phrase + a
 /// short editorial sentence + a simplified uptime bar seeded from the

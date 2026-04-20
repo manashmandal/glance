@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -51,7 +52,7 @@ class WeatherService {
     final d = sw.elapsed;
     String label;
     if (error != null) {
-      label = error.toString().contains('TimeoutException')
+      label = error is TimeoutException
           ? 'timeout · ${d.inSeconds}s'
           : 'error · ${error.runtimeType}';
     } else if (code == 200) {

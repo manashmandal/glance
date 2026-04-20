@@ -52,6 +52,17 @@ class FamilyAdapters {
     return _shortTime(leaveAt);
   }
 
+  /// Normalize the BVG "Pl. 3" platform string into just the platform
+  /// number (or null if absent). Kept in the adapter so the dashboard
+  /// stays a pure renderer.
+  static String? displayPlatform(TrainDeparture? next) {
+    final raw = next?.platform;
+    if (raw == null) return null;
+    final cleaned =
+        raw.replaceFirst('Pl. ', '').replaceFirst('Pl.', '').trim();
+    return cleaned.isEmpty ? null : cleaned;
+  }
+
   /// Builds rail stops from a journey: origin of the first transit leg,
   /// then each non-walking leg's destination, deduped by id. The first
   /// stop is marked current; the last, destination. Returns `const []`

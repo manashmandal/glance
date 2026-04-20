@@ -1,9 +1,38 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:glance/data/family_adapters.dart';
 import 'package:glance/models/journey.dart';
 import 'package:glance/models/route_stop.dart';
+import 'package:glance/models/train_departure.dart';
 
 void main() {
+  group('FamilyAdapters.displayPlatform', () {
+    test('returns null when next is null', () {
+      expect(FamilyAdapters.displayPlatform(null), isNull);
+    });
+
+    test('returns null when the platform is missing', () {
+      expect(
+        FamilyAdapters.displayPlatform(_deparature(platform: '-')),
+        equals('-'),
+      );
+    });
+
+    test('strips the BVG "Pl. " prefix', () {
+      expect(
+        FamilyAdapters.displayPlatform(_deparature(platform: 'Pl. 3')),
+        equals('3'),
+      );
+    });
+
+    test('returns null for an empty string after stripping', () {
+      expect(
+        FamilyAdapters.displayPlatform(_deparature(platform: 'Pl.')),
+        isNull,
+      );
+    });
+  });
+
   group('FamilyAdapters.routeStops', () {
     test('returns empty list when journey is null', () {
       expect(FamilyAdapters.routeStops(null), isEmpty);
@@ -132,6 +161,18 @@ void main() {
       expect(stops.last.name, equals('Ostkreuz'));
     });
   });
+}
+
+TrainDeparture _deparature({required String platform}) {
+  return TrainDeparture(
+    time: '12:00',
+    destination: 'Somewhere',
+    line: 'RE8',
+    lineColor: const Color(0xFFEF4444),
+    platform: platform,
+    status: 'On Time',
+    statusColor: const Color(0xFF10B981),
+  );
 }
 
 JourneyLeg _leg({

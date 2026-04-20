@@ -4,6 +4,14 @@ import 'package:flutter/foundation.dart';
 
 enum ApiSource { bvg, weather, update, other }
 
+/// BVG feed health grades derived from [ApiDiagnostics].
+///
+/// - [operational] — last BVG success is within the freshness window.
+/// - [degraded] — we haven't seen a success in a few minutes but the
+///   app is still trying.
+/// - [outage] — prolonged silence; unlikely to self-recover soon.
+enum BvgStatus { operational, degraded, outage }
+
 class ApiAttempt {
   final String endpoint;
   final String statusLabel;
@@ -27,6 +35,7 @@ class ApiDiagnostics {
 
   static const int _maxAttempts = 12;
   static const Duration _staleThreshold = Duration(minutes: 4);
+  static const Duration _outageThreshold = Duration(minutes: 15);
 
   static final Queue<ApiAttempt> _attempts = Queue<ApiAttempt>();
   static DateTime? _lastBvgSuccess;
@@ -62,6 +71,29 @@ class ApiDiagnostics {
     if (lastOk == null) return true;
     return DateTime.now().difference(lastOk) > _staleThreshold;
   }
+
+  /// Duration since the most recent successful BVG call. Defaults to the
+  /// stale threshold when we've never observed a success — callers can
+  /// read "unknown" as "we should probably act like it's stale."
+  static Duration get bvgSilentFor {
+    final lastOk = _lastBvgSuccess;
+    if (lastOk == null) return _staleThreshold;
+    return DateTime.now().difference(lastOk);
+  }
+
+  /// Coarse health grade based on [bvgSilentFor] and the thresholds.
+  static BvgStatus get bvgStatus {
+    final silent = bvgSilentFor;
+    if (silent > _outageThreshold) return BvgStatus.outage;
+    if (silent > _staleThreshold) return BvgStatus.degraded;
+    return BvgStatus.operational;
+  }
+
+  /// Most recent BVG-source attempts, newest first, capped at [length].
+  static List<ApiAttempt> recentBvg({int length = 4}) => _attempts
+      .where((a) => a.source == ApiSource.bvg)
+      .take(length)
+      .toList(growable: false);
 
   /// Rolling status (success/fail) for the last N BVG attempts, oldest first.
   /// Returns an all-true window when we haven't collected enough attempts yet.

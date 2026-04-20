@@ -20,7 +20,7 @@ class RoutePreview extends StatelessWidget {
       children.add(_RailStop(stop: stops[i]));
       if (i < stops.length - 1) {
         final isLastLeg = i == stops.length - 2;
-        children.add(Expanded(child: _RailConnector(accent: isLastLeg)));
+        children.add(Expanded(child: _RailConnector(isAccented: isLastLeg)));
       }
     }
     return Row(
@@ -71,8 +71,8 @@ class _RailStop extends StatelessWidget {
 }
 
 class _RailConnector extends StatelessWidget {
-  final bool accent;
-  const _RailConnector({required this.accent});
+  final bool isAccented;
+  const _RailConnector({required this.isAccented});
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +80,7 @@ class _RailConnector extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
         height: 1,
-        color: accent
+        color: isAccented
             ? FamilyPalette.crimson.withValues(alpha: 0.4)
             : FamilyPalette.divider,
       ),

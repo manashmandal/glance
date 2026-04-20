@@ -71,16 +71,20 @@ class FeatureFlags {
     }
   }
 
+  /// Apply an override. Debug builds persist the change; release builds
+  /// ignore the call entirely so a stray call path can't silently flip a
+  /// shipped default.
   static Future<void> setOverride(FeatureFlag flag, bool value) async {
-    _overrides[flag.key] = value;
     if (!kDebugMode) return;
+    _overrides[flag.key] = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(flag.key, value);
   }
 
+  /// Remove a previously-applied override. No-op in release builds.
   static Future<void> clearOverride(FeatureFlag flag) async {
-    _overrides.remove(flag.key);
     if (!kDebugMode) return;
+    _overrides.remove(flag.key);
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(flag.key);
   }

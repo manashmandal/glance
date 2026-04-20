@@ -30,16 +30,18 @@ class _AboutPaneState extends State<AboutPane> {
 
   Future<void> _load() async {
     final info = await PackageInfo.fromPlatform();
-    final results = await Future.wait([
-      UpdateService.checkForUpdate(info.version),
-      UpdateService.fetchRecentReleases(count: 4),
-    ]);
+    // Fire both futures, then await — keeps parallelism without the
+    // Object-typed List from Future.wait() forcing downcasts.
+    final updateFuture = UpdateService.checkForUpdate(info.version);
+    final releasesFuture = UpdateService.fetchRecentReleases(count: 4);
+    final update = await updateFuture;
+    final releases = await releasesFuture;
     if (!mounted) return;
     setState(() {
       _version = info.version;
       _buildNumber = int.tryParse(info.buildNumber) ?? 0;
-      _update = results[0] as UpdateInfo?;
-      _releases = results[1] as List<ReleaseEntry>;
+      _update = update;
+      _releases = releases;
       _lastCheck = DateTime.now();
       _checking = false;
     });
@@ -116,16 +118,16 @@ class _AboutPaneState extends State<AboutPane> {
           ],
         ),
         const SizedBox(height: 40),
-        _Footer(),
+        const _Footer(),
       ],
     );
   }
 
   String _now() {
-    final now = DateTime.now();
-    final hh = now.hour.toString().padLeft(2, '0');
-    final mm = now.minute.toString().padLeft(2, '0');
-    return '$hh:$mm · 6s ago';
+    final check = _lastCheck ?? DateTime.now();
+    final hh = check.hour.toString().padLeft(2, '0');
+    final mm = check.minute.toString().padLeft(2, '0');
+    return '$hh:$mm';
   }
 }
 
@@ -531,6 +533,8 @@ class _InfoPair {
 }
 
 class _Footer extends StatelessWidget {
+  const _Footer();
+
   @override
   Widget build(BuildContext context) {
     return Padding(

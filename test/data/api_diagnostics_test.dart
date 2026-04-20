@@ -99,6 +99,65 @@ void main() {
     });
   });
 
+  group('ApiDiagnostics.bvgSilentFor', () {
+    test('defaults to the stale threshold when there is no history', () {
+      // 4 minutes is the documented stale threshold; the exact value
+      // matters less than the shape (non-negative, >= threshold).
+      expect(
+        ApiDiagnostics.bvgSilentFor,
+        greaterThanOrEqualTo(const Duration(minutes: 4)),
+      );
+    });
+
+    test('is near zero right after a BVG success', () {
+      ApiDiagnostics.record(_attempt(success: true));
+      expect(ApiDiagnostics.bvgSilentFor, lessThan(const Duration(seconds: 5)));
+    });
+  });
+
+  group('ApiDiagnostics.bvgStatus', () {
+    test('operational with a fresh success', () {
+      ApiDiagnostics.record(_attempt(success: true));
+      expect(ApiDiagnostics.bvgStatus, equals(BvgStatus.operational));
+    });
+
+    test('degraded once the silent duration crosses 4 minutes', () {
+      ApiDiagnostics.record(_attempt(
+        success: true,
+        at: DateTime.now().subtract(const Duration(minutes: 8)),
+      ));
+      expect(ApiDiagnostics.bvgStatus, equals(BvgStatus.degraded));
+    });
+
+    test('outage once the silent duration crosses 15 minutes', () {
+      ApiDiagnostics.record(_attempt(
+        success: true,
+        at: DateTime.now().subtract(const Duration(minutes: 20)),
+      ));
+      expect(ApiDiagnostics.bvgStatus, equals(BvgStatus.outage));
+    });
+  });
+
+  group('ApiDiagnostics.recentBvg', () {
+    test('only returns BVG-source attempts, newest first', () {
+      ApiDiagnostics.record(_attempt(success: true, endpoint: 'bvg-1'));
+      ApiDiagnostics.record(
+        _attempt(success: true, source: ApiSource.weather, endpoint: 'wx-1'),
+      );
+      ApiDiagnostics.record(_attempt(success: false, endpoint: 'bvg-2'));
+
+      final list = ApiDiagnostics.recentBvg();
+      expect(list.map((a) => a.endpoint).toList(), equals(['bvg-2', 'bvg-1']));
+    });
+
+    test('honors the length cap', () {
+      for (var i = 0; i < 10; i++) {
+        ApiDiagnostics.record(_attempt(success: true, endpoint: 'bvg-$i'));
+      }
+      expect(ApiDiagnostics.recentBvg(length: 3).length, equals(3));
+    });
+  });
+
   group('ApiDiagnostics.lastBvgSuccess', () {
     test('is null until a BVG success is recorded', () {
       ApiDiagnostics.record(_attempt(success: false));

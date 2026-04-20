@@ -30,7 +30,6 @@ import '../widgets/family/route_preview.dart';
 import '../widgets/family/station_label.dart';
 import '../widgets/family/up_next_block.dart';
 import '../widgets/family/upcoming_list.dart';
-import '../widgets/family/offline/bvg_status_card.dart';
 import '../widgets/family/weather_column.dart';
 import 'offline_screen.dart';
 import 'settings_screen.dart';
@@ -316,7 +315,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
     if (!mounted) return;
+    // The KeyboardListener lost focus while Settings was on top; restore it
+    // so the Escape-to-exit-fullscreen shortcut keeps working.
+    if (!_keyFocus.hasFocus) _keyFocus.requestFocus();
     await _loadSettings();
+    if (!mounted) return;
     await _refreshAll();
   }
 
@@ -337,7 +340,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final leaveBy = FamilyAdapters.leaveByTime(next, _walkMinutes) ??
         FamilyPlaceholders.leaveByTime;
     final destination = next?.destination ?? FamilyPlaceholders.destinationName;
-    final platform = _cleanPlatform(next?.platform) ??
+    final platform = FamilyAdapters.displayPlatform(next) ??
         FamilyPlaceholders.nextPlatform;
     final lineCode = next?.line ?? FamilyPlaceholders.nextLineCode;
 
@@ -346,13 +349,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         city: 'Berlin',
         stationName: _station.name,
         now: DateTime.now(),
-        silentFor: _silentFor(),
+        silentFor: ApiDiagnostics.bvgSilentFor,
         lastSeenAt: ApiDiagnostics.lastBvgSuccess,
         countdownMinutes: countdown,
         destination: destination,
         lineCode: lineCode,
-        attempts: ApiDiagnostics.recent.take(4).toList(),
-        status: _currentBvgStatus(),
+        attempts: ApiDiagnostics.recentBvg(),
+        status: ApiDiagnostics.bvgStatus,
         uptime: ApiDiagnostics.bvgUptimeWindow(),
         onRetry: _refreshAll,
       );
@@ -567,21 +570,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  String? _cleanPlatform(String? raw) {
-    if (raw == null) return null;
-    return raw.replaceFirst('Pl. ', '').replaceFirst('Pl.', '').trim();
-  }
-
-  Duration _silentFor() {
-    final lastOk = ApiDiagnostics.lastBvgSuccess;
-    if (lastOk == null) return const Duration(minutes: 4);
-    return DateTime.now().difference(lastOk);
-  }
-
-  BvgStatus _currentBvgStatus() {
-    final silent = _silentFor();
-    if (silent > const Duration(minutes: 15)) return BvgStatus.outage;
-    if (silent > const Duration(minutes: 4)) return BvgStatus.degraded;
-    return BvgStatus.operational;
-  }
 }

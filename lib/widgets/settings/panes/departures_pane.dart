@@ -72,7 +72,7 @@ class _DeparturesPaneState extends State<DeparturesPane> {
           eyebrow: 'Departures',
           title: "What you'll see",
           subtitle: 'Tune the trains and times that anchor your dashboard.',
-          trailing: _LivePreviewTag(),
+          trailing: const _LivePreviewTag(),
         ),
         const SizedBox(height: 36),
         SettingsRow(

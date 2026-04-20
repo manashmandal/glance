@@ -242,7 +242,7 @@ class BvgService {
     } catch (e) {
       sw.stop();
       _recordBvg(endpoint, sw, success: false, error: e);
-      print('❌ BVG outer catch (departures): $e');
+      debugPrint('❌ BVG outer catch (departures): $e');
       return _fallbackData();
     }
   }

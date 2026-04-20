@@ -56,7 +56,9 @@ class _LayoutPaneState extends State<LayoutPane> {
           eyebrow: 'Layout',
           title: "How it's arranged",
           subtitle: 'Pick a starting point for your dashboard.',
-          trailing: showEditMode ? _EnterEditButton() : const SizedBox.shrink(),
+          trailing: showEditMode
+              ? const _EnterEditButton()
+              : const SizedBox.shrink(),
         ),
         const SizedBox(height: 30),
         Text('Presets', style: FamilyType.sectionTitle()),
@@ -114,6 +116,8 @@ class _LayoutPaneState extends State<LayoutPane> {
 }
 
 class _EnterEditButton extends StatelessWidget {
+  const _EnterEditButton();
+
   @override
   Widget build(BuildContext context) {
     return Container(
