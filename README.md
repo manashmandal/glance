@@ -1,116 +1,69 @@
 <p align="center">
   <img src="assets/images/logo.png" width="120" alt="Glance Logo" />
-  <h1 align="center">Glance Dashboard</h1>
 </p>
 
-A modern, minimalist Flutter tablet dashboard application featuring a beautiful dark mode UI with glassmorphism effects.
+<h1 align="center">Glance</h1>
 
-## Features
+<p align="center">
+  A landscape-first transit + weather dashboard for the morning rush.<br />
+  Built in Flutter, designed for an always-on tablet or kitchen monitor.
+</p>
 
-- 🕐 **Live Digital Clock** - Real-time clock display with date
-- 🌤️ **Weather Widget** - Beautiful weather card with gradient effects
-- 🚆 **Train Departures Board** - Regional train information with status indicators
-- 📱 **Tablet Optimized** - Designed for landscape orientation on tablets
-- 🎨 **Modern UI** - Material Design 3 with glassmorphism and bento box layout
-- 🌙 **Dark Mode** - Beautiful dark theme optimized for readability
+---
 
-## Design Features
+## What it shows
 
-- Deep charcoal background (#1A1D23)
-- Frosted glassmorphism effects with backdrop blur
-- Bento box grid layout with rounded corners
-- High contrast typography for distance readability
-- Soft drop shadows for depth
-- Gradient glows on weather widget
-- Color-coded train line badges
+A single screen, glanceable from across the room:
 
-## Getting Started
+- **Hero countdown** — minutes until the next train, plus line, platform, destination.
+- **Route rail** — your multi-leg journey to a saved destination (current → interchanges → end), powered by BVG `/journeys`.
+- **Up next** — upcoming departures with delays and on-time status.
+- **Weather column** — current temperature, the next 8 hours, and a one-line condition summary.
 
-### Prerequisites
+When BVG goes silent for more than four minutes, the dashboard switches to an **offline screen** that shows the last-known countdown (dimmed and struck through), a "what we tried" diagnostics list, and a degraded/operational/outage status card.
 
-- Flutter SDK (3.0.0 or higher)
-- Dart SDK
-- An IDE (VS Code, Android Studio, or IntelliJ)
+## Settings
 
-### Installation
+- **Display** — theme, scale, fullscreen.
+- **Departures** — default station, destination station (powers the route rail), transport mode, time window, AI weather suggestions.
+- **Weather** — location and AI suggestions.
+- **Layout** — four working presets: Editorial · Hero only · Split · Dense.
+- **About** — current version + real GitHub release notes for any available update + a 4-release Changelog list.
+- **Dev** *(debug-only)* — runtime feature-flag toggles. Release builds ignore stored overrides.
 
-1. Clone the repository or navigate to the project directory:
-```bash
-cd /Users/manash/Projects/glance
-```
+## Sources
 
-2. Install dependencies:
+- **Transit:** BVG via [`v6.bvg.transport.rest`](https://v6.bvg.transport.rest).
+- **Weather:** [Open-Meteo](https://open-meteo.com).
+- **Updates:** GitHub Releases.
+- **AI suggestions:** Claude Haiku 4.5 (Android only, via ML Kit GenAI).
+
+## Running it
+
 ```bash
 flutter pub get
+flutter run -d macos       # desktop
+flutter run -d ios          # iPad simulator
 ```
 
-3. Run the application:
+Tests + analyzer:
+
 ```bash
-flutter run -d macos
+flutter test
+flutter analyze --no-fatal-infos
+dart format --set-exit-if-changed .
 ```
-
-### For Tablet Testing
-
-To test on different tablet sizes:
-```bash
-flutter run -d <device_id>
-```
-
-Or use the Flutter device simulator with tablet dimensions.
-
-## Project Structure
-
-```
-lib/
-├── main.dart                          # App entry point
-├── screens/
-│   └── dashboard_screen.dart          # Main dashboard layout
-└── widgets/
-    ├── clock_widget.dart              # Digital clock module
-    ├── weather_widget.dart            # Weather display module
-    └── train_departures_widget.dart   # Train schedule table
-```
-
-## Customization
-
-### Changing Colors
-
-Edit the theme in `lib/main.dart`:
-```dart
-colorScheme: ColorScheme.dark(
-  background: const Color(0xFF1A1D23),
-  surface: const Color(0xFF252931),
-  ...
-)
-```
-
-### Updating Train Data
-
-Modify the train rows in `lib/widgets/train_departures_widget.dart` to connect to a real API or update static data.
-
-### Weather Data
-
-Currently displays static weather data. Integrate with a weather API by modifying `lib/widgets/weather_widget.dart`.
-
-## Technologies Used
-
-- Flutter 3.x
-- Material Design 3
-- Dart
-- intl package for date/time formatting
-
-## License
-
-This project is created as a UI demonstration.
 
 ## Screenshots
 
-![Dashboard Screenshot](assets/images/screenshot.png)
+<p align="center">
+  <img src="assets/images/splash.png" width="640" alt="Splash" />
+</p>
 
-The application features:
-- Top left: Large digital clock module (08:45, Monday, November 24)
-- Top right: Weather widget (Berlin, 14°C, Partly Cloudy with gradient glow)
-- Bottom: Full-width train departures table with 4 trains showing times, destinations, line badges, platforms, and status
+![Dashboard](assets/images/screenshot.png)
 
-All widgets use glassmorphism effects with backdrop blur for a modern, premium appearance.
+> *Dashboard screenshot above is from the previous design; offline-screen and layout-preset renders are pending.*
 
+## License
+
+MIT.
